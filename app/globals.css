@@ -1,0 +1,284 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap');
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --gold: #f5c842;
+  --dark: #0a0a0f;
+  --card: #12121a;
+  --border: rgba(245, 200, 66, 0.15);
+}
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  min-width: 0; /* prevents long content (tables/cards) from forcing horizontal overflow */
+}
+
+html,
+body {
+  width: 100%;
+  max-width: 100%;
+}
+
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--dark);
+  color: #e8e8f0;
+  overflow-x: hidden; /* keeps layout from ever forcing horizontal scroll */
+}
+
+html, body {
+  /* Helps prevent odd iOS/Android overflow caused by sub-pixel rounding */
+  overscroll-behavior-x: none;
+}
+
+h1, h2, h3, h4, h5 {
+  font-family: 'Syne', sans-serif;
+}
+
+/* Mobile-first overflow prevention (prevents horizontal scroll & clipping) */
+img, video {
+  max-width: 100%;
+  height: auto;
+  display: block; /* avoids 1px/inline-image baseline overflow */
+}
+a, button, input, textarea, select {
+  max-width: 100%;
+}
+p, h1, h2, h3, h4, h5, li, span, label {
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+pre, code {
+  overflow-x: auto;
+}
+
+/* Generic guard rails: never allow full-width containers to exceed viewport */
+table {
+  width: 100%;
+  max-width: 100%;
+  border-collapse: collapse;
+}
+
+input, textarea, select, button {
+  max-width: 100%;
+}
+
+/* Gold button */
+.gold-btn {
+  background: linear-gradient(135deg, #f5c842, #e0a800);
+  color: #0a0a0f;
+  font-family: 'Syne', sans-serif;
+  font-weight: 700;
+  border: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 0 30px rgba(245, 200, 66, 0.3);
+}
+.gold-btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 0 50px rgba(245, 200, 66, 0.5);
+}
+.gold-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* Card */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  transition: border-color 0.3s, transform 0.3s;
+}
+.card:hover {
+  border-color: rgba(245, 200, 66, 0.4);
+}
+
+/* Input */
+.inp {
+  background: #1a1a2a;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: white;
+  outline: none;
+  transition: border-color 0.2s;
+  width: 100%;
+  padding: 12px 16px;
+  border-radius: 12px;
+  font-size: 0.875rem;
+  font-family: 'DM Sans', sans-serif;
+}
+.inp:focus {
+  border-color: rgba(245, 200, 66, 0.5);
+}
+.inp::placeholder {
+  color: #4b5563;
+}
+
+/* Badge */
+.badge {
+  background: linear-gradient(135deg, #f5c842, #e0a800);
+  color: #0a0a0f;
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-family: 'Syne', sans-serif;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+/* Scroll reveal */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s ease;
+}
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Blob */
+.blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(100px);
+  opacity: 0.12;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Alert */
+.alert-success {
+  background: rgba(16, 185, 129, 0.08);
+  border: 1px solid rgba(16, 185, 129, 0.2);
+  color: #10b981;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+.alert-error {
+  background: rgba(239, 68, 68, 0.08);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 0.8rem;
+}
+
+/* Pulse glow animation */
+@keyframes pulse-glow {
+  0%, 100% { box-shadow: 0 0 30px rgba(245, 200, 66, 0.3); }
+  50% { box-shadow: 0 0 60px rgba(245, 200, 66, 0.6); }
+}
+.pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Float animation */
+@keyframes float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+.float {
+  animation: float 4s ease-in-out infinite;
+}
+
+/* Spin animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 0.8s linear infinite;
+}
+
+/* Countdown box */
+.countdown-box {
+  background: rgba(245, 200, 66, 0.08);
+  border: 1px solid rgba(245, 200, 66, 0.2);
+  border-radius: 12px;
+  text-align: center;
+  padding: 12px 20px;
+}
+
+/* Stars */
+.stars {
+  color: var(--gold);
+  letter-spacing: 2px;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-thumb { background: rgba(245, 200, 66, 0.3); border-radius: 3px; }
+
+/* ---------- Mobile-first overflow fixes (Admin dashboard) ---------- */
+/* The admin dashboard uses: fixed sidebar (240px) + main with margin-left: 240px.
+   On small screens this can push content off-canvas -> causes horizontal scroll. */
+.admin-shell {
+  min-width: 0;
+}
+
+@media (max-width: 768px) {
+  /* Admin product modal: stack left panel + editor on small phones */
+  .admin-modal-body {
+    flex-direction: column !important;
+  }
+
+  .admin-modal-left {
+    width: 100% !important;
+    min-width: 0 !important;
+    border-right: none !important;
+    border-bottom: 1px solid rgba(245,200,66,0.1) !important;
+  }
+
+  .admin-sidebar {
+    position: sticky !important;
+    top: 0;
+    width: 100% !important;
+    min-height: auto !important;
+    border-right: none !important;
+  }
+
+  /* Cart page: stack left items + order summary on phones */
+  .cart-layout {
+    grid-template-columns: 1fr !important;
+    gap: 16px !important;
+  }
+
+  .cart-summary {
+    position: relative !important;
+    top: auto !important;
+  }
+
+  .admin-main {
+    /* Remove the desktop margin-left push */
+    margin-left: 0 !important;
+    /* Ensure content never creates overflow */
+    width: 100% !important;
+    min-width: 0 !important;
+    padding: 16px !important;
+  }
+
+  /* Admin tables should never create horizontal scroll on phones */
+  table {
+    table-layout: fixed;
+    word-break: break-word;
+  }
+  th, td {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: normal;
+  }
+
+  /* Modal: make it fit vertically on phones */
+  [style*="position: fixed"][style*="inset: 0"] {
+    padding-bottom: 0;
+  }
+}
