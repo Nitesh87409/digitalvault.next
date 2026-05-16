@@ -10,6 +10,7 @@ const OrderSchema = new mongoose.Schema({
   discount_amount:     { type: Number, default: 0 },
   coupon_code:         { type: String, default: null },
   product_id:          { type: mongoose.Schema.Types.ObjectId, ref: 'Product' },
+  product_name:        { type: String},
   payment_status:      { type: Number, enum: [0, 1, 2], default: 0 },
   razorpay_order_id:   { type: String },
   razorpay_payment_id: { type: String },

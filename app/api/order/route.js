@@ -237,6 +237,7 @@ export async function POST(request) {
         discount_amount: couponResult.discount,
         coupon_code: couponResult.coupon?.code || null,
         product_id: product._id,
+        product_name: product.name,
         razorpay_order_id: rzpOrder.id,
         payment_status: 0,
       });
@@ -374,12 +375,27 @@ export async function POST(request) {
         });
       }
 
-      await Promise.allSettled(unpaidOrders.map(order => sendOrderConfirmation({
-        name: order.name,
-        email: order.email,
-        download_token: tokenById.get(order._id.toString()),
-        amount: order.amount,
-      })));
+
+      await Promise.allSettled(
+        unpaidOrders.map(order => {
+          console.log('ORDER DATA:', JSON.stringify(order, null, 2));
+
+          return sendOrderConfirmation({
+            name: order.name,
+            email: order.email,
+            download_token: tokenById.get(order._id.toString()),
+            amount: order.amount,
+            product_name: order.product_name,
+          });
+        })
+      );
+      // await Promise.allSettled(unpaidOrders.map(order => sendOrderConfirmation({
+      //   name: order.name,
+      //   email: order.email,
+      //   download_token: tokenById.get(order._id.toString()),
+      //   amount: order.amount,
+      //   product_name: order.product_name,
+      // })));
 
       const firstToken = tokenById.get(unpaidOrders[0]._id.toString());
       return NextResponse.json({
