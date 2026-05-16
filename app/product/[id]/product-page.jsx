@@ -8,10 +8,23 @@ export default function ProductPage({ id }) {
   const [mainImg, setMainImg] = useState(null);
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
+  const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
     loadProduct();
+
+    const loadCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
+      setCartCount(cart.reduce((s, i) => s + i.qty, 0));
+    };
+    loadCartCount();
+    window.addEventListener('cart-updated', loadCartCount);
+    window.addEventListener('storage', loadCartCount);
+    return () => {
+      window.removeEventListener('cart-updated', loadCartCount);
+      window.removeEventListener('storage', loadCartCount);
+    };
   }, []);
 
   async function loadProduct() {
@@ -93,8 +106,13 @@ export default function ProductPage({ id }) {
             <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
               <Link href="/" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Store</Link>
               <Link href="/account" style={{ fontSize: '0.875rem', color: '#9ca3af', textDecoration: 'none' }}>My Account</Link>
-              <Link href="/cart" style={{ color: '#9ca3af' }}>
+              <Link href="/cart" style={{ position: 'relative', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, flexShrink: 0 }}>
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
+                {cartCount > 0 && (
+                  <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f5c842', color: '#0a0a0f', fontSize: '10px', fontWeight: 700, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {cartCount > 9 ? '9+' : cartCount}
+                  </span>
+                )}
               </Link>
             </div>
           </div>

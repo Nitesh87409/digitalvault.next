@@ -15,6 +15,7 @@ export default function AccountPage() {
   const [profileMsg, setProfileMsg] = useState(null);
   const [passMsg, setPassMsg] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [cartCount, setCartCount] = useState(0);
   const router = useRouter();
 
   useEffect(() => {
@@ -23,6 +24,18 @@ export default function AccountPage() {
     const parsed = JSON.parse(c);
     setCustomer(parsed);
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
+
+    const loadCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
+      setCartCount(cart.reduce((s, i) => s + i.qty, 0));
+    };
+    loadCartCount();
+    window.addEventListener('cart-updated', loadCartCount);
+    window.addEventListener('storage', loadCartCount);
+    return () => {
+      window.removeEventListener('cart-updated', loadCartCount);
+      window.removeEventListener('storage', loadCartCount);
+    };
   }, []);
 
   useEffect(() => {
