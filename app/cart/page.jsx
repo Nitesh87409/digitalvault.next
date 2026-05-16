@@ -43,8 +43,7 @@ export default function CartPage() {
 
   useEffect(() => {
     const c = localStorage.getItem('dv_customer');
-    const t = localStorage.getItem('dv_token');
-    if (!t || !c) { router.push('/login?redirect=/cart'); return; }
+    if (!c) { router.push('/login?redirect=/cart'); return; }
     setCustomer(JSON.parse(c));
     setCart(JSON.parse(localStorage.getItem('dv_cart') || '[]'));
   }, []);
@@ -101,8 +100,7 @@ export default function CartPage() {
 
     try {
       let data;
-      const token = localStorage.getItem('dv_token') || '';
-      const authHeaders = { 'Content-Type': 'application/json', 'authorization': token };
+      const authHeaders = { 'Content-Type': 'application/json' };
       const payload = {
         name: customer.name,
         email: customer.email,

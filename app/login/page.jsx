@@ -11,10 +11,6 @@ export default function LoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (localStorage.getItem('dv_token')) router.push('/');
-  }, []);
-
   async function login() {
     setError('');
     if (!email || !password) { setError('Please enter email and password.'); return; }
@@ -27,14 +23,20 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.flag) {
-        localStorage.setItem('dv_token', data.token);
-        localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+        console.log('LOGIN SUCCESS');
+
+        localStorage.setItem(
+          'dv_customer',
+          JSON.stringify(data.customer)
+        );
+
         const params = new URLSearchParams(window.location.search);
+
         router.push(params.get('redirect') || '/');
       } else {
         setError(data.message || 'Login failed.');
       }
-    } catch(e) {
+    } catch (e) {
       setError('Connection error. Is server running?');
     }
     setLoading(false);

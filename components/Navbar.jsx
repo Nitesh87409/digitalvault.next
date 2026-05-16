@@ -47,8 +47,8 @@ export default function Navbar({ onSearchClick }) {
     }
   };
 
-  function logout() {
-    localStorage.removeItem('dv_token');
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ role: 'customer' }) });
     localStorage.removeItem('dv_customer');
     window.location.href = '/login';
   }

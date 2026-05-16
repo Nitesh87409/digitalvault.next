@@ -10,10 +10,6 @@ export default function AdminLoginPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (localStorage.getItem('admin_token')) router.push('/admin/dashboard');
-  }, []);
-
   async function login() {
     setError('');
     if (!email || !password) { setError('Please enter email and password.'); return; }
@@ -26,13 +22,18 @@ export default function AdminLoginPage() {
       });
       const data = await res.json();
       if (data.flag) {
-        localStorage.setItem('admin_token', data.token);
-        localStorage.setItem('admin_data', JSON.stringify(data.admin));
+        console.log('ADMIN LOGIN SUCCESS');
+
+        localStorage.setItem(
+          'admin_data',
+          JSON.stringify(data.admin)
+        );
+
         router.push('/admin/dashboard');
       } else {
         setError(data.message || 'Invalid credentials.');
       }
-    } catch(e) {
+    } catch (e) {
       setError('Connection error.');
     }
     setLoading(false);

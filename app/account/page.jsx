@@ -19,8 +19,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     const c = localStorage.getItem('dv_customer');
-    const t = localStorage.getItem('dv_token');
-    if (!c || !t) { router.push('/login?redirect=/account'); return; }
+    if (!c) { router.push('/login?redirect=/account'); return; }
     const parsed = JSON.parse(c);
     setCustomer(parsed);
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
@@ -35,7 +34,7 @@ export default function AccountPage() {
     try {
       const res = await fetch('/api/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'authorization': localStorage.getItem('dv_token') || '' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'my-orders', email: customer.email })
       });
       const data = await res.json();
@@ -47,7 +46,7 @@ export default function AccountPage() {
     try {
       const res = await fetch('/api/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'authorization': localStorage.getItem('dv_token') || '' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'my-orders', email: customer.email })
       });
       const data = await res.json();
@@ -62,7 +61,7 @@ export default function AccountPage() {
     try {
       const res = await fetch('/api/customer', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'authorization': localStorage.getItem('dv_token') },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'update', name: form.name, phone: form.phone })
       });
       const data = await res.json();
@@ -87,7 +86,7 @@ export default function AccountPage() {
     try {
       const res = await fetch('/api/customer', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json', 'authorization': localStorage.getItem('dv_token') },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'change-password', current_password: passForm.current, new_password: passForm.newp })
       });
       const data = await res.json();
@@ -102,8 +101,8 @@ export default function AccountPage() {
     setTimeout(() => setPassMsg(null), 3000);
   }
 
-  function logout() {
-    localStorage.removeItem('dv_token');
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST', body: JSON.stringify({ role: 'customer' }) });
     localStorage.removeItem('dv_customer');
     router.push('/login');
   }

@@ -17,11 +17,9 @@ export default function AdminCustomers() {
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-  const headers = { 'authorization': token };
+  const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
-    if (!token) { router.push('/admin/login'); return; }
     loadCustomers();
   }, []);
 

@@ -16,13 +16,11 @@ export default function CustomerDetail({ params }) {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-  const headers = { 'Content-Type': 'application/json', 'authorization': token };
+  const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
-    if (!token) { router.push('/admin/login'); return; }
-    loadCustomer();
-  }, []);
+    loadData();
+  }, [id]);
 
   async function loadCustomer() {
     const res = await fetch(`/api/customers?id=${id}`, { headers });

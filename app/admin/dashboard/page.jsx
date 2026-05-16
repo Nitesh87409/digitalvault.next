@@ -21,11 +21,9 @@ export default function AdminDashboard() {
   const descRef = useRef(null);
   const router = useRouter();
 
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-  const headers = { 'Content-Type': 'application/json', 'authorization': token };
+  const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
-    if (!token) { router.push('/admin/login'); return; }
     const a = JSON.parse(localStorage.getItem('admin_data') || '{}');
     setAdmin(a);
     loadAll();
@@ -116,7 +114,7 @@ export default function AdminDashboard() {
       const fd = new FormData();
       fd.append('file', file);
       try {
-        const upRes = await fetch('/api/upload', { method: 'POST', headers: { 'authorization': token }, body: fd });
+        const upRes = await fetch('/api/upload', { method: 'POST', body: fd });
         const upData = await upRes.json();
         if (upData.flag) uploadedImages.push(upData.url);
       } catch(e) {}
@@ -138,8 +136,8 @@ export default function AdminDashboard() {
     loadProducts(); loadAll();
   }
 
-  function logout() {
-    localStorage.removeItem('admin_token');
+  async function logout() {
+    await fetch('/api/logout', { method: 'POST', headers, body: JSON.stringify({ role: 'admin' }) });
     localStorage.removeItem('admin_data');
     router.push('/admin/login');
   }

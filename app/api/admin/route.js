@@ -32,12 +32,24 @@ export async function POST(request) {
     if (!match) return NextResponse.json({ flag: 0, message: 'Invalid credentials' });
 
     const token = generateToken({ id: admin._id, email: admin.email, name: admin.name, role: 'admin' }, '7d');
-    return NextResponse.json({
+    
+    const response = NextResponse.json({
       flag: 1,
       message: 'Login successful',
-      token,
       admin: { name: admin.name, email: admin.email }
     });
+
+    response.cookies.set({
+      name: 'admin_token',
+      value: token,
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'strict',
+      maxAge: 7 * 24 * 60 * 60,
+      path: '/'
+    });
+
+    return response;
   } catch (e) {
     console.error(e.message);
     return NextResponse.json({ flag: 0, message: 'Server error' });

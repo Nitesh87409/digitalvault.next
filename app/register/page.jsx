@@ -12,10 +12,6 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    if (localStorage.getItem('dv_token')) router.push('/');
-  }, []);
-
   function checkStrength(val) {
     let score = 0;
     if (val.length >= 6) score++;
@@ -45,7 +41,6 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (data.flag) {
-        localStorage.setItem('dv_token', data.token);
         localStorage.setItem('dv_customer', JSON.stringify(data.customer));
         setSuccess('Account created! Redirecting...');
         setTimeout(() => {

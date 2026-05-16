@@ -35,12 +35,21 @@ export async function POST(request) {
       await customer.save();
 
       const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: 'customer' });
-      return NextResponse.json({
+      const response = NextResponse.json({
         flag: 1,
         message: 'Account created!',
-        token,
         customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone }
       });
+      response.cookies.set({
+        name: 'dv_token',
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60,
+        path: '/'
+      });
+      return response;
     }
 
     // LOGIN
@@ -63,12 +72,21 @@ export async function POST(request) {
       await customer.save();
 
       const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: 'customer' });
-      return NextResponse.json({
+      const response = NextResponse.json({
         flag: 1,
         message: 'Login successful',
-        token,
         customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone }
       });
+      response.cookies.set({
+        name: 'dv_token',
+        value: token,
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'strict',
+        maxAge: 30 * 24 * 60 * 60,
+        path: '/'
+      });
+      return response;
     }
 
     return NextResponse.json({ flag: 0, message: 'Invalid action' });

@@ -16,11 +16,9 @@ export default function AdminCoupons() {
     specific_emails: '', status: true
   });
   const router = useRouter();
-  const token = typeof window !== 'undefined' ? localStorage.getItem('admin_token') : null;
-  const headers = { 'Content-Type': 'application/json', 'authorization': token };
+  const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
-    if (!token) { router.push('/admin/login'); return; }
     loadCoupons();
   }, []);
 

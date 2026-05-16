@@ -33,8 +33,8 @@ export default function ProductPage({ id }) {
   }
 
   function addToCart() {
-    const token = localStorage.getItem('dv_token');
-    if (!token) { router.push(`/login?redirect=/product/${id}`); return; }
+    const c = localStorage.getItem('dv_customer');
+    if (!c) { router.push(`/login?redirect=/product/${id}`); return; }
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
     if (cart.find(i => i.id === product._id)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
     cart.push({ id: product._id, name: product.name, price: product.sale_price, orig_price: product.original_price, image: product.images?.[0] || null, qty: 1 });
@@ -45,8 +45,8 @@ export default function ProductPage({ id }) {
   }
 
   function buyNow() {
-    const token = localStorage.getItem('dv_token');
-    if (!token) { router.push(`/login?redirect=/product/${id}`); return; }
+    const c = localStorage.getItem('dv_customer');
+    if (!c) { router.push(`/login?redirect=/product/${id}`); return; }
 
     // Cart mein add karo
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');

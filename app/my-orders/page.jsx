@@ -12,9 +12,8 @@ export default function MyOrdersPage() {
   const router = useRouter();
 
   useEffect(() => {
-    const token = localStorage.getItem('dv_token');
     const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
-    if (!token || !customer?.email) {
+    if (!customer?.email) {
       router.push('/login?redirect=/my-orders');
       return;
     }
@@ -30,7 +29,7 @@ export default function MyOrdersPage() {
     try {
       const res = await fetch('/api/order', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'authorization': localStorage.getItem('dv_token') || '' },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ action: 'my-orders', email })
       });
       const data = await res.json();
