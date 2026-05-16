@@ -67,22 +67,38 @@ export default function CategoriesPage() {
 
   async function loadCategories() {
     try {
-      const res = await fetch('/api/product');
-      const data = await res.json();
-      if (data.flag) {
-        setAllProducts(data.products || []);
+      const [prodRes, catRes] = await Promise.all([
+        fetch('/api/product'),
+        fetch('/api/categories')
+      ]);
+      const [prodData, catData] = await Promise.all([
+        prodRes.json(),
+        catRes.json()
+      ]);
+      
+      if (prodData.flag) {
+        setAllProducts(prodData.products || []);
         const categoryMap = {};
-        data.products.forEach(p => {
+        (prodData.products || []).forEach(p => {
           const cat = p.category || 'Uncategorized';
           if (!categoryMap[cat]) categoryMap[cat] = 0;
           categoryMap[cat]++;
         });
 
-        const catArray = Object.keys(categoryMap).map(cat => ({
+        // Initialize with dynamic categories from DB
+        let dbCategories = [];
+        if (catData.flag && catData.categories) {
+          dbCategories = catData.categories.map(c => c.name);
+        }
+
+        // Merge DB categories with those found in products
+        const allCategoryNames = new Set([...dbCategories, ...Object.keys(categoryMap)]);
+
+        const catArray = Array.from(allCategoryNames).map(cat => ({
           name: cat,
-          count: categoryMap[cat],
-          icon: ICONS[cat] || ICONS['Uncategorized'],
-          largeIcon: LARGE_ICONS[cat] || LARGE_ICONS['Uncategorized'],
+          count: categoryMap[cat] || 0,
+          icon: ICONS[cat] || ICONS['Uncategorized'] || <Box size={24} color="#f5c842" />,
+          largeIcon: LARGE_ICONS[cat] || LARGE_ICONS['Uncategorized'] || <Box size={32} color="#f5c842" />,
           desc: CATEGORY_META[cat]?.desc || 'Premium digital products for your business',
           popular: CATEGORY_META[cat]?.popular || false
         }));

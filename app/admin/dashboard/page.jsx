@@ -11,9 +11,10 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [customers, setCustomers] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [productModal, setProductModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', category: 'Uncategorized', original_price: '', sale_price: '', file_url: '' });
+  const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '' });
   const [images, setImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -27,6 +28,7 @@ export default function AdminDashboard() {
     const a = JSON.parse(localStorage.getItem('admin_data') || '{}');
     setAdmin(a);
     loadAll();
+    loadCategories();
   }, []);
 
   useEffect(() => {
@@ -34,6 +36,14 @@ export default function AdminDashboard() {
     if (tab === 'orders') loadOrders();
     if (tab === 'customers') loadCustomers();
   }, [tab]);
+
+  async function loadCategories() {
+    try {
+      const res = await fetch('/api/categories', { headers });
+      const data = await res.json();
+      if (data.flag) setCategories(data.categories || []);
+    } catch(e) {}
+  }
 
   async function loadAll() {
     try {
@@ -171,6 +181,9 @@ export default function AdminDashboard() {
             </button>
           ))}
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '8px 0' }}></div>
+          <Link href="/admin/categories" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem' }}>
+            <span>📂</span> Categories
+          </Link>
           <Link href="/admin/coupons" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem' }}>
             <span>🎟️</span> Coupons
           </Link>
@@ -417,14 +430,10 @@ export default function AdminDashboard() {
               <div>
                 <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>📂 Category *</label>
                 <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={{ ...inp, cursor: 'pointer' }}>
-                  <option value="Uncategorized">Uncategorized</option>
-                  <option value="AI Tools">AI Tools</option>
-                  <option value="Courses">Courses</option>
-                  <option value="Templates">Templates</option>
-                  <option value="E-books">E-books</option>
-                  <option value="Presets">Presets</option>
-                  <option value="Software">Software</option>
-                  <option value="Graphics">Graphics</option>
+                  <option value="">Select a Category</option>
+                  {categories.map(c => (
+                    <option key={c._id} value={c.name}>{c.name}</option>
+                  ))}
                 </select>
               </div>
               <div>
