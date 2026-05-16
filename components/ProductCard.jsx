@@ -1,5 +1,6 @@
 'use client';
 import { useRouter } from 'next/navigation';
+import { optimizeCloudinary } from '@/lib/cloudinary-image';
 
 const cardStyles = [
   { bg: 'linear-gradient(135deg,#1a1a2e,#16213e)', emoji: '📦' },
@@ -29,7 +30,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
       {/* Image */}
       {product.images?.length > 0 ? (
         <img
-          src={product.images[0]}
+          src={optimizeCloudinary(product.images[0])}
           alt={product.name}
           style={{ width: '100%', height: 'clamp(140px, 32vw, 176px)', objectFit: 'cover', borderRadius: '12px', marginBottom: 'clamp(12px, 4vw, 20px)' }}
           onError={(e) => {

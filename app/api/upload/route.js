@@ -1,7 +1,6 @@
 import { NextResponse } from 'next/server';
-import { writeFile, mkdir } from 'fs/promises';
-import path from 'path';
 import { verifyAdmin } from '@/lib/auth';
+import cloudinary from '@/lib/cloudinary';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -28,20 +27,24 @@ export async function POST(request) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create uploads directory
-    const uploadDir = path.join(process.cwd(), 'public', 'uploads', 'products');
-    await mkdir(uploadDir, { recursive: true });
-
-    // Unique filename
-    const ext = path.extname(file.name).toLowerCase() || '.jpg';
-    const uniqueName = `${Date.now()}-${Math.round(Math.random() * 1e6)}${ext}`;
-    const filePath = path.join(uploadDir, uniqueName);
-
-    await writeFile(filePath, buffer);
+    // Upload to Cloudinary
+    const uploadResult = await new Promise((resolve, reject) => {
+      const uploadStream = cloudinary.uploader.upload_stream(
+        { folder: 'digitalvault/products' },
+        (error, result) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(result);
+          }
+        }
+      );
+      uploadStream.end(buffer);
+    });
 
     return NextResponse.json({
       flag: 1,
-      url: `/uploads/products/${uniqueName}`,
+      url: uploadResult.secure_url,
       message: 'File uploaded successfully'
     });
   } catch (e) {
