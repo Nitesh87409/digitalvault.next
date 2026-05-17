@@ -4,14 +4,70 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 export default function LoginPage() {
+  const router = useRouter();
+  const [settings, setSettings] = useState({
+    password_login_enabled: true,
+    email_otp_enabled: false,
+    mobile_otp_enabled: false,
+    otp_length: 6
+  });
+  const [activeTab, setActiveTab] = useState('');
+  
+  // Shared state
+  const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [timer, setTimer] = useState(0);
+
+  // Password state
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const router = useRouter();
 
-  async function login() {
+  // OTP state
+  const [otpStep, setOtpStep] = useState(1); // 1 = identifier, 2 = code
+  const [identifier, setIdentifier] = useState(''); // email or mobile
+  const [otpCode, setOtpCode] = useState('');
+
+  useEffect(() => {
+    fetch('/api/settings')
+      .then(res => res.json())
+      .then(data => {
+        if (data.flag && data.settings) {
+          setSettings({
+            password_login_enabled: data.settings.password_login_enabled ?? true,
+            email_otp_enabled: data.settings.email_otp_enabled ?? false,
+            mobile_otp_enabled: data.settings.mobile_otp_enabled ?? false,
+            otp_length: data.settings.otp_length ?? 6
+          });
+          
+          if (data.settings.password_login_enabled !== false) {
+            setActiveTab('password');
+          } else if (data.settings.email_otp_enabled) {
+            setActiveTab('email');
+          } else if (data.settings.mobile_otp_enabled) {
+            setActiveTab('mobile');
+          }
+        }
+      })
+      .catch(console.error);
+  }, []);
+
+  useEffect(() => {
+    let interval;
+    if (timer > 0) {
+      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
+    }
+    return () => clearInterval(interval);
+  }, [timer]);
+
+  const handleSuccess = (data) => {
+    console.log('LOGIN SUCCESS');
+    localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+    const params = new URLSearchParams(window.location.search);
+    router.push(params.get('redirect') || '/');
+  };
+
+  async function loginPassword() {
     setError('');
     if (!email || !password) { setError('Please enter email and password.'); return; }
     setLoading(true);
@@ -23,24 +79,80 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (data.flag) {
-        console.log('LOGIN SUCCESS');
-
-        localStorage.setItem(
-          'dv_customer',
-          JSON.stringify(data.customer)
-        );
-
-        const params = new URLSearchParams(window.location.search);
-
-        router.push(params.get('redirect') || '/');
+        handleSuccess(data);
       } else {
         setError(data.message || 'Login failed.');
       }
     } catch (e) {
-      setError('Connection error. Is server running?');
+      setError('Connection error.');
     }
     setLoading(false);
   }
+
+  async function sendOtp() {
+    setError('');
+    if (!identifier) { setError('Identifier is required.'); return; }
+    setLoading(true);
+    try {
+      const endpoint = activeTab === 'email' ? '/api/auth/send-email-otp' : '/api/auth/send-mobile-otp';
+      const body = activeTab === 'email' ? { email: identifier } : { phone: identifier };
+      
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.flag) {
+        setOtpStep(2);
+        setTimer(data.cooldown || 60);
+      } else {
+        setError(data.message || 'Failed to send OTP.');
+      }
+    } catch (e) {
+      setError('Connection error.');
+    }
+    setLoading(false);
+  }
+
+  async function verifyOtp() {
+    setError('');
+    if (!otpCode) { setError('Please enter OTP code.'); return; }
+    setLoading(true);
+    try {
+      const endpoint = activeTab === 'email' ? '/api/auth/verify-email-otp' : '/api/auth/verify-mobile-otp';
+      const body = activeTab === 'email' ? { email: identifier, otp: otpCode } : { phone: identifier, otp: otpCode };
+
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(body)
+      });
+      const data = await res.json();
+      if (data.flag) {
+        handleSuccess(data);
+      } else {
+        setError(data.message || 'Invalid OTP.');
+      }
+    } catch (e) {
+      setError('Connection error.');
+    }
+    setLoading(false);
+  }
+
+  const changeTab = (tab) => {
+    setActiveTab(tab);
+    setOtpStep(1);
+    setIdentifier('');
+    setOtpCode('');
+    setError('');
+  };
+
+  const getPlaceholder = () => {
+    if (activeTab === 'email') return 'your@email.com';
+    if (activeTab === 'mobile') return 'e.g. +919876543210';
+    return '';
+  };
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -65,49 +177,143 @@ export default function LoginPage() {
             <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Login to access your purchases</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
-              <input
-                type="email"
-                value={email}
-                onChange={e => setEmail(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && login()}
-                placeholder="your@email.com"
-                style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
-              />
-            </div>
-            <div>
-              <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Password</label>
-              <div style={{ position: 'relative' }}>
-                <input
-                  type={showPass ? 'text' : 'password'}
-                  value={password}
-                  onChange={e => setPassword(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && login()}
-                  placeholder="••••••••"
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 48px 12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
-                />
-                <button onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '1rem' }}>
-                  {showPass ? '🙈' : '👁'}
-                </button>
-              </div>
-            </div>
-
-            {error && (
-              <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
-                {error}
-              </div>
+          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: '#1a1a2a', padding: '4px', borderRadius: '12px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+            {settings.password_login_enabled && (
+              <button
+                onClick={() => changeTab('password')}
+                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'password' ? '#2d2d3a' : 'transparent', color: activeTab === 'password' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+              >
+                Password
+              </button>
             )}
-
-            <button
-              onClick={login}
-              disabled={loading}
-              style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
-            >
-              {loading ? 'Logging in...' : 'Login →'}
-            </button>
+            {settings.email_otp_enabled && (
+              <button
+                onClick={() => changeTab('email')}
+                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'email' ? '#2d2d3a' : 'transparent', color: activeTab === 'email' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+              >
+                Email OTP
+              </button>
+            )}
+            {settings.mobile_otp_enabled && (
+              <button
+                onClick={() => changeTab('mobile')}
+                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'mobile' ? '#2d2d3a' : 'transparent', color: activeTab === 'mobile' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+              >
+                Mobile OTP
+              </button>
+            )}
           </div>
+
+          {!activeTab ? (
+            <div style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>Loading login methods...</div>
+          ) : activeTab === 'password' ? (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              <div>
+                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={e => setEmail(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && loginPassword()}
+                  placeholder="your@email.com"
+                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                />
+              </div>
+              <div>
+                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Password</label>
+                <div style={{ position: 'relative' }}>
+                  <input
+                    type={showPass ? 'text' : 'password'}
+                    value={password}
+                    onChange={e => setPassword(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && loginPassword()}
+                    placeholder="••••••••"
+                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 48px 12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                  />
+                  <button onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '1rem' }}>
+                    {showPass ? '🙈' : '👁'}
+                  </button>
+                </div>
+              </div>
+
+              {error && (
+                <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  {error}
+                </div>
+              )}
+
+              <button
+                onClick={loginPassword}
+                disabled={loading}
+                style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
+              >
+                {loading ? 'Logging in...' : 'Login →'}
+              </button>
+            </div>
+          ) : (
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+              {otpStep === 1 ? (
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                    {activeTab === 'email' ? 'Email Address' : 'Mobile Number'}
+                  </label>
+                  <input
+                    type={activeTab === 'email' ? 'email' : 'tel'}
+                    value={identifier}
+                    onChange={e => setIdentifier(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && sendOtp()}
+                    placeholder={getPlaceholder()}
+                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                  />
+                  {error && (
+                    <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', marginTop: '16px' }}>
+                      {error}
+                    </div>
+                  )}
+                  <button
+                    onClick={sendOtp}
+                    disabled={loading}
+                    style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '16px' }}
+                  >
+                    {loading ? 'Sending...' : 'Send OTP →'}
+                  </button>
+                </div>
+              ) : (
+                <div>
+                  <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                    Enter {settings.otp_length}-Digit OTP
+                  </label>
+                  <input
+                    type="text"
+                    maxLength={settings.otp_length}
+                    value={otpCode}
+                    onChange={e => setOtpCode(e.target.value)}
+                    onKeyDown={e => e.key === 'Enter' && verifyOtp()}
+                    placeholder={"0".repeat(settings.otp_length)}
+                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '1.25rem', letterSpacing: '4px', textAlign: 'center', fontFamily: 'DM Sans, sans-serif' }}
+                  />
+                  {error && (
+                    <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', marginTop: '16px' }}>
+                      {error}
+                    </div>
+                  )}
+                  <button
+                    onClick={verifyOtp}
+                    disabled={loading || otpCode.length < settings.otp_length}
+                    style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: (loading || otpCode.length < settings.otp_length) ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: (loading || otpCode.length < settings.otp_length) ? 0.7 : 1, marginTop: '16px' }}
+                  >
+                    {loading ? 'Verifying...' : 'Verify & Login →'}
+                  </button>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
+                    <button onClick={() => setOtpStep(1)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '0.875rem' }}>← Back</button>
+                    <button onClick={sendOtp} disabled={timer > 0 || loading} style={{ background: 'none', border: 'none', color: timer > 0 ? '#4b5563' : '#f5c842', cursor: timer > 0 ? 'not-allowed' : 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>
+                      {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '20px 0' }}></div>
           <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
