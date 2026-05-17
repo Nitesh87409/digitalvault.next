@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 
 export default function AdminSettingsPage() {
   const [settings, setSettings] = useState({
@@ -65,127 +66,137 @@ export default function AdminSettingsPage() {
     setSettings(prev => ({ ...prev, [field]: value }));
   };
 
-  if (loading) return <div style={{ padding: '24px', color: '#fff' }}>Loading settings...</div>;
-
   return (
-    <div style={{ padding: '24px', maxWidth: '800px' }}>
-      <h1 style={{ fontSize: '1.5rem', fontWeight: 700, marginBottom: '24px', color: '#fff' }}>Authentication Settings</h1>
-
-      <div style={{ background: '#1a1a2a', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)', marginBottom: '24px' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '16px', color: '#fff' }}>Login Methods</h2>
-        
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div>
-            <div style={{ fontWeight: 600, color: '#fff' }}>Password Login</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Allow users to login with email and password.</div>
-          </div>
-          <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '24px' }}>
-            <input type="checkbox" checked={settings.password_login_enabled} onChange={(e) => handleChange('password_login_enabled', e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-            <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: settings.password_login_enabled ? '#10b981' : '#4b5563', transition: '.4s', borderRadius: '24px' }}>
-              <span style={{ position: 'absolute', content: '""', height: '18px', width: '18px', left: '3px', bottom: '3px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%', transform: settings.password_login_enabled ? 'translateX(24px)' : 'translateX(0)' }}></span>
-            </span>
-          </label>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen text-[#e8e8f0] flex flex-col">
+      {/* Nav */}
+      <nav className="bg-[#0e0e18] border-b border-[#f5c842]/10 p-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link href="/admin/dashboard" className="font-syne text-lg sm:text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+          <Link href="/admin/dashboard" className="text-sm text-gray-500 no-underline hover:text-white transition-colors">← Dashboard</Link>
         </div>
+      </nav>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '16px', paddingBottom: '16px', borderBottom: '1px solid rgba(255,255,255,0.08)' }}>
-          <div>
-            <div style={{ fontWeight: 600, color: '#fff' }}>Email OTP Login</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Allow users to login with a one-time password sent to their email.</div>
-          </div>
-          <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '24px' }}>
-            <input type="checkbox" checked={settings.email_otp_enabled} onChange={(e) => handleChange('email_otp_enabled', e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-            <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: settings.email_otp_enabled ? '#10b981' : '#4b5563', transition: '.4s', borderRadius: '24px' }}>
-              <span style={{ position: 'absolute', content: '""', height: '18px', width: '18px', left: '3px', bottom: '3px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%', transform: settings.email_otp_enabled ? 'translateX(24px)' : 'translateX(0)' }}></span>
-            </span>
-          </label>
-        </div>
+      <div className="w-full max-w-4xl mx-auto my-6 sm:my-10 px-4 sm:px-6 flex-1">
+        {loading ? (
+          <div className="p-8 text-center text-gray-400">Loading settings...</div>
+        ) : (
+          <>
+            <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-8 tracking-tight">⚙️ Authentication Settings</h1>
 
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div>
-            <div style={{ fontWeight: 600, color: '#fff' }}>Mobile OTP Login</div>
-            <div style={{ fontSize: '0.875rem', color: '#9ca3af' }}>Allow users to login with a one-time password sent via SMS.</div>
-          </div>
-          <label style={{ position: 'relative', display: 'inline-block', width: '48px', height: '24px' }}>
-            <input type="checkbox" checked={settings.mobile_otp_enabled} onChange={(e) => handleChange('mobile_otp_enabled', e.target.checked)} style={{ opacity: 0, width: 0, height: 0 }} />
-            <span style={{ position: 'absolute', cursor: 'pointer', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: settings.mobile_otp_enabled ? '#10b981' : '#4b5563', transition: '.4s', borderRadius: '24px' }}>
-              <span style={{ position: 'absolute', content: '""', height: '18px', width: '18px', left: '3px', bottom: '3px', backgroundColor: 'white', transition: '.4s', borderRadius: '50%', transform: settings.mobile_otp_enabled ? 'translateX(24px)' : 'translateX(0)' }}></span>
-            </span>
-          </label>
-        </div>
-      </div>
+            <div className="bg-[#1a1a2a] rounded-2xl p-5 sm:p-8 border border-white/10 mb-6 sm:mb-8 shadow-lg">
+              <h2 className="text-lg font-syne font-bold text-white mb-6">Login Methods</h2>
+              
+              <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/5">
+                <div className="pr-4">
+                  <div className="font-semibold text-white mb-1">Password Login</div>
+                  <div className="text-sm text-gray-500">Allow users to login with email and password.</div>
+                </div>
+                <label className="relative inline-block w-12 h-6 shrink-0">
+                  <input type="checkbox" checked={settings.password_login_enabled} onChange={(e) => handleChange('password_login_enabled', e.target.checked)} className="opacity-0 w-0 h-0" />
+                  <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.password_login_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                    <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.password_login_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                  </span>
+                </label>
+              </div>
 
-      <div style={{ background: '#1a1a2a', borderRadius: '12px', padding: '24px', border: '1px solid rgba(255,255,255,0.08)' }}>
-        <h2 style={{ fontSize: '1.1rem', marginBottom: '16px', color: '#fff' }}>OTP Configuration</h2>
-        
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
-          <div>
-            <label style={{ fontSize: '0.875rem', color: '#9ca3af', display: 'block', marginBottom: '8px' }}>OTP Expiry Time (Minutes)</label>
-            <select
-              value={settings.otp_expiry_minutes}
-              onChange={(e) => handleChange('otp_expiry_minutes', parseInt(e.target.value))}
-              style={{ background: '#2d2d3a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 14px', borderRadius: '8px', width: '100%', outline: 'none' }}
-            >
-              <option value={1}>1 Minute</option>
-              <option value={3}>3 Minutes</option>
-              <option value={5}>5 Minutes</option>
-              <option value={10}>10 Minutes</option>
-            </select>
-          </div>
+              <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/5">
+                <div className="pr-4">
+                  <div className="font-semibold text-white mb-1">Email OTP Login</div>
+                  <div className="text-sm text-gray-500">Allow users to login with a one-time password sent to their email.</div>
+                </div>
+                <label className="relative inline-block w-12 h-6 shrink-0">
+                  <input type="checkbox" checked={settings.email_otp_enabled} onChange={(e) => handleChange('email_otp_enabled', e.target.checked)} className="opacity-0 w-0 h-0" />
+                  <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.email_otp_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                    <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.email_otp_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                  </span>
+                </label>
+              </div>
 
-          <div>
-            <label style={{ fontSize: '0.875rem', color: '#9ca3af', display: 'block', marginBottom: '8px' }}>OTP Length</label>
-            <select
-              value={settings.otp_length}
-              onChange={(e) => handleChange('otp_length', parseInt(e.target.value))}
-              style={{ background: '#2d2d3a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 14px', borderRadius: '8px', width: '100%', outline: 'none' }}
-            >
-              <option value={4}>4 Digits</option>
-              <option value={6}>6 Digits</option>
-              <option value={8}>8 Digits</option>
-            </select>
-          </div>
+              <div className="flex items-center justify-between">
+                <div className="pr-4">
+                  <div className="font-semibold text-white mb-1">Mobile OTP Login</div>
+                  <div className="text-sm text-gray-500">Allow users to login with a one-time password sent via SMS.</div>
+                </div>
+                <label className="relative inline-block w-12 h-6 shrink-0">
+                  <input type="checkbox" checked={settings.mobile_otp_enabled} onChange={(e) => handleChange('mobile_otp_enabled', e.target.checked)} className="opacity-0 w-0 h-0" />
+                  <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.mobile_otp_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                    <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.mobile_otp_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                  </span>
+                </label>
+              </div>
+            </div>
 
-          <div>
-            <label style={{ fontSize: '0.875rem', color: '#9ca3af', display: 'block', marginBottom: '8px' }}>Max OTP Attempts</label>
-            <select
-              value={settings.otp_max_attempts}
-              onChange={(e) => handleChange('otp_max_attempts', parseInt(e.target.value))}
-              style={{ background: '#2d2d3a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 14px', borderRadius: '8px', width: '100%', outline: 'none' }}
-            >
-              <option value={3}>3 Attempts</option>
-              <option value={5}>5 Attempts</option>
-              <option value={10}>10 Attempts</option>
-            </select>
-          </div>
+            <div className="bg-[#1a1a2a] rounded-2xl p-5 sm:p-8 border border-white/10 shadow-lg mb-8">
+              <h2 className="text-lg font-syne font-bold text-white mb-6">OTP Configuration</h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">OTP Expiry Time (Minutes)</label>
+                  <select
+                    value={settings.otp_expiry_minutes}
+                    onChange={(e) => handleChange('otp_expiry_minutes', parseInt(e.target.value))}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors cursor-pointer appearance-none"
+                  >
+                    <option value={1}>1 Minute</option>
+                    <option value={3}>3 Minutes</option>
+                    <option value={5}>5 Minutes</option>
+                    <option value={10}>10 Minutes</option>
+                  </select>
+                </div>
 
-          <div>
-            <label style={{ fontSize: '0.875rem', color: '#9ca3af', display: 'block', marginBottom: '8px' }}>OTP Resend Cooldown</label>
-            <select
-              value={settings.otp_resend_cooldown_seconds}
-              onChange={(e) => handleChange('otp_resend_cooldown_seconds', parseInt(e.target.value))}
-              style={{ background: '#2d2d3a', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', padding: '10px 14px', borderRadius: '8px', width: '100%', outline: 'none' }}
-            >
-              <option value={30}>30 Seconds</option>
-              <option value={60}>60 Seconds</option>
-              <option value={120}>120 Seconds</option>
-            </select>
-          </div>
-        </div>
-      </div>
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">OTP Length</label>
+                  <select
+                    value={settings.otp_length}
+                    onChange={(e) => handleChange('otp_length', parseInt(e.target.value))}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors cursor-pointer appearance-none"
+                  >
+                    <option value={4}>4 Digits</option>
+                    <option value={6}>6 Digits</option>
+                    <option value={8}>8 Digits</option>
+                  </select>
+                </div>
 
-      <div style={{ marginTop: '24px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-        <button
-          onClick={saveSettings}
-          disabled={saving}
-          style={{
-            background: '#f5c842', color: '#000', fontWeight: 600, border: 'none',
-            padding: '12px 24px', borderRadius: '8px', cursor: saving ? 'not-allowed' : 'pointer',
-            opacity: saving ? 0.7 : 1, fontSize: '1rem'
-          }}
-        >
-          {saving ? 'Saving...' : 'Save Settings'}
-        </button>
-        {message && <span style={{ color: message.includes('success') ? '#10b981' : '#ef4444', fontWeight: 500 }}>{message}</span>}
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">Max OTP Attempts</label>
+                  <select
+                    value={settings.otp_max_attempts}
+                    onChange={(e) => handleChange('otp_max_attempts', parseInt(e.target.value))}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors cursor-pointer appearance-none"
+                  >
+                    <option value={3}>3 Attempts</option>
+                    <option value={5}>5 Attempts</option>
+                    <option value={10}>10 Attempts</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">OTP Resend Cooldown</label>
+                  <select
+                    value={settings.otp_resend_cooldown_seconds}
+                    onChange={(e) => handleChange('otp_resend_cooldown_seconds', parseInt(e.target.value))}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors cursor-pointer appearance-none"
+                  >
+                    <option value={30}>30 Seconds</option>
+                    <option value={60}>60 Seconds</option>
+                    <option value={120}>120 Seconds</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex flex-col sm:flex-row items-center gap-4">
+              <button
+                onClick={saveSettings}
+                disabled={saving}
+                className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3.5 rounded-xl text-base shadow-lg shadow-[#f5c842]/20 cursor-pointer w-full sm:w-auto transition-transform ${saving ? 'opacity-70' : 'hover:scale-[1.02]'}`}
+              >
+                {saving ? 'Saving...' : 'Save Settings'}
+              </button>
+              {message && <span className={`font-medium ${message.includes('success') ? 'text-[#10b981]' : 'text-red-500'}`}>{message}</span>}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

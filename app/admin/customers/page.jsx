@@ -4,11 +4,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 
 const TAG_COLORS = {
-  vip: { bg: 'rgba(245,200,66,0.15)', color: '#f5c842', label: '💎 VIP' },
-  high_spender: { bg: 'rgba(139,92,246,0.15)', color: '#8b5cf6', label: '💰 High Spender' },
-  normal: { bg: 'rgba(255,255,255,0.05)', color: '#9ca3af', label: '👤 Normal' },
-  new: { bg: 'rgba(16,185,129,0.15)', color: '#10b981', label: '🆕 New' },
-  risky: { bg: 'rgba(239,68,68,0.15)', color: '#ef4444', label: '⚠️ Risky' },
+  vip: { bg: 'bg-[#f5c842]/15', color: 'text-[#f5c842]', label: '💎 VIP' },
+  high_spender: { bg: 'bg-[#8b5cf6]/15', color: 'text-[#8b5cf6]', label: '💰 High Spender' },
+  normal: { bg: 'bg-white/5', color: 'text-gray-400', label: '👤 Normal' },
+  new: { bg: 'bg-[#10b981]/15', color: 'text-[#10b981]', label: '🆕 New' },
+  risky: { bg: 'bg-red-500/15', color: 'text-red-500', label: '⚠️ Risky' },
 };
 
 export default function AdminCustomers() {
@@ -50,18 +50,20 @@ export default function AdminCustomers() {
   const totalRevenue = customers.reduce((s, c) => s + (c.total_spent || 0), 0);
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0' }}>
-      <nav style={{ background: '#0e0e18', borderBottom: '1px solid rgba(245,200,66,0.1)', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <Link href="/admin/dashboard" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
-        <Link href="/admin/dashboard" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Dashboard</Link>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen text-[#e8e8f0] flex flex-col">
+      <nav className="bg-[#0e0e18] border-b border-[#f5c842]/10 p-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link href="/admin/dashboard" className="font-syne text-lg sm:text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+          <Link href="/admin/dashboard" className="text-sm text-gray-500 no-underline hover:text-white transition-colors">← Dashboard</Link>
+        </div>
       </nav>
 
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '32px 24px' }}>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.8rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>👥 Customer Management</h1>
-        <p style={{ color: '#6b7280', marginBottom: '32px' }}>{customers.length} total customers</p>
+      <div className="w-full max-w-7xl mx-auto my-6 sm:my-10 px-4 sm:px-6 flex-1 flex flex-col">
+        <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-2 tracking-tight">👥 Customer Management</h1>
+        <p className="text-gray-500 text-sm mb-6 sm:mb-8">{customers.length} total customers</p>
 
         {/* Stats */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '16px', marginBottom: '32px' }}>
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-4 mb-6 sm:mb-8">
           {[
             { label: 'Total', val: customers.length, color: '#fff' },
             { label: 'VIP', val: customers.filter(c => c.tag === 'vip').length, color: '#f5c842' },
@@ -69,22 +71,26 @@ export default function AdminCustomers() {
             { label: 'Blocked', val: customers.filter(c => c.is_blocked).length, color: '#ef4444' },
             { label: 'Revenue', val: '₹' + totalRevenue.toLocaleString(), color: '#8b5cf6' },
           ].map(s => (
-            <div key={s.label} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '14px', padding: '18px' }}>
-              <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '4px' }}>{s.label}</p>
-              <p style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.4rem', fontWeight: 700, color: s.color }}>{s.val}</p>
+            <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-4 sm:p-5 hover:border-[#f5c842]/30 transition-colors">
+              <p className="text-gray-500 text-xs mb-1 font-medium">{s.label}</p>
+              <p className="font-syne text-xl sm:text-2xl font-bold" style={{ color: s.color }}>{s.val}</p>
             </div>
           ))}
         </div>
 
         {/* Search + Filter */}
-        <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+        <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 mb-6 sm:mb-8">
           <input
             value={search}
             onChange={e => setSearch(e.target.value)}
             placeholder="Search by name or email..."
-            style={{ flex: 1, background: '#12121a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+            className="flex-1 bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors w-full"
           />
-          <select value={filter} onChange={e => setFilter(e.target.value)} style={{ background: '#12121a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}>
+          <select 
+            value={filter} 
+            onChange={e => setFilter(e.target.value)} 
+            className="bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans cursor-pointer focus:border-[#f5c842]/50 transition-colors appearance-none sm:w-48 w-full"
+          >
             <option value="all">All Customers</option>
             <option value="vip">VIP</option>
             <option value="new">New</option>
@@ -95,61 +101,71 @@ export default function AdminCustomers() {
         </div>
 
         {/* Table */}
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '16px', overflow: 'hidden' }}>
+        <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col flex-1">
           {loading ? (
-            <div style={{ padding: '60px', textAlign: 'center', color: '#6b7280' }}>Loading customers...</div>
+            <div className="p-16 text-center text-gray-500">Loading customers...</div>
           ) : (
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Customer', 'Email', 'Orders', 'Total Spent', 'Joined', 'Tag', 'Status', 'Actions'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '14px 16px', color: '#6b7280', fontWeight: 500 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {filtered.length === 0 ? (
-                  <tr><td colSpan={8} style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>No customers found.</td></tr>
-                ) : filtered.map(c => {
-                  const tag = TAG_COLORS[c.tag] || TAG_COLORS.normal;
-                  return (
-                    <tr key={c._id} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <div style={{ width: '36px', height: '36px', borderRadius: '50%', background: 'linear-gradient(135deg,#f5c842,#e0a800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#0a0a0f', fontSize: '0.875rem', flexShrink: 0 }}>
-                            {c.name?.charAt(0).toUpperCase()}
+            <div className="overflow-x-auto w-full custom-scrollbar">
+              <table className="w-full min-w-[900px] border-collapse text-sm text-left">
+                <thead>
+                  <tr className="border-b border-white/5 bg-white/[0.02] text-gray-400">
+                    {['Customer', 'Email', 'Orders', 'Total Spent', 'Joined', 'Tag', 'Status', 'Actions'].map(h => (
+                      <th key={h} className="p-4 font-medium">{h}</th>
+                    ))}
+                  </tr>
+                </thead>
+                <tbody>
+                  {filtered.length === 0 ? (
+                    <tr><td colSpan={8} className="p-10 text-center text-gray-500">No customers found.</td></tr>
+                  ) : filtered.map(c => {
+                    const tag = TAG_COLORS[c.tag] || TAG_COLORS.normal;
+                    return (
+                      <tr key={c._id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td className="p-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-9 h-9 rounded-full bg-gradient-to-br from-[#f5c842] to-[#e0a800] flex items-center justify-center font-syne font-bold text-[#0a0a0f] text-sm shrink-0 shadow-sm shadow-[#f5c842]/20">
+                              {c.name?.charAt(0).toUpperCase()}
+                            </div>
+                            <span className="text-white font-medium truncate max-w-[150px]">{c.name}</span>
                           </div>
-                          <span style={{ color: '#fff', fontWeight: 500 }}>{c.name}</span>
-                        </div>
-                      </td>
-                      <td style={{ padding: '14px 16px', color: '#9ca3af' }}>{c.email}</td>
-                      <td style={{ padding: '14px 16px', color: '#fff', fontWeight: 600 }}>{c.total_orders || 0}</td>
-                      <td style={{ padding: '14px 16px', color: '#f5c842', fontWeight: 700 }}>₹{(c.total_spent || 0).toLocaleString()}</td>
-                      <td style={{ padding: '14px 16px', color: '#6b7280', fontSize: '0.8rem' }}>{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <span style={{ background: tag.bg, color: tag.color, padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>{tag.label}</span>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <span style={{ background: c.is_blocked ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: c.is_blocked ? '#ef4444' : '#10b981', padding: '3px 10px', borderRadius: '999px', fontSize: '0.75rem', fontWeight: 600 }}>
-                          {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
-                        </span>
-                      </td>
-                      <td style={{ padding: '14px 16px' }}>
-                        <div style={{ display: 'flex', gap: '6px' }}>
-                          <Link href={`/admin/customers/${c._id}`} style={{ background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)', color: '#f5c842', cursor: 'pointer', padding: '6px 10px', borderRadius: '8px', fontSize: '0.75rem', textDecoration: 'none' }}>View</Link>
-                          <button onClick={() => toggleBlock(c)} style={{ background: c.is_blocked ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', border: `1px solid ${c.is_blocked ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, color: c.is_blocked ? '#10b981' : '#ef4444', cursor: 'pointer', padding: '6px 10px', borderRadius: '8px', fontSize: '0.75rem' }}>
-                            {c.is_blocked ? 'Unblock' : 'Block'}
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
+                        </td>
+                        <td className="p-4 text-gray-400 truncate max-w-[180px]" title={c.email}>{c.email}</td>
+                        <td className="p-4 text-white font-bold">{c.total_orders || 0}</td>
+                        <td className="p-4 text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</td>
+                        <td className="p-4 text-gray-500 text-xs">{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
+                        <td className="p-4">
+                          <span className={`${tag.bg} ${tag.color} px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap`}>
+                            {tag.label}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
+                            {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
+                          </span>
+                        </td>
+                        <td className="p-4">
+                          <div className="flex gap-2">
+                            <Link href={`/admin/customers/${c._id}`} className="bg-[#f5c842]/10 border border-[#f5c842]/20 text-[#f5c842] px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#f5c842]/20 transition-colors no-underline">View</Link>
+                            <button onClick={() => toggleBlock(c)} className={`px-3 py-1.5 rounded-lg text-xs font-semibold cursor-pointer transition-colors border ${c.is_blocked ? 'bg-[#10b981]/10 border-[#10b981]/20 text-[#10b981] hover:bg-[#10b981]/20' : 'bg-red-500/10 border-red-500/20 text-red-500 hover:bg-red-500/20'}`}>
+                              {c.is_blocked ? 'Unblock' : 'Block'}
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
           )}
         </div>
       </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+      `}</style>
     </div>
   );
 }

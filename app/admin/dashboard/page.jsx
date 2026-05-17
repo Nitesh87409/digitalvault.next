@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('dashboard');
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [admin, setAdmin] = useState(null);
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, customers: 0, paidOrders: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
@@ -164,67 +165,87 @@ export default function AdminDashboard() {
     { id: 'customers', icon: '👥', label: 'Customers' },
   ];
 
-  const inp = { background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' };
-  const toolbarBtn = { background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', color: '#e8e8f0', padding: '5px 11px', borderRadius: '7px', fontSize: '0.78rem', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' };
-
   return (
-    <div className="admin-shell" style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0', display: 'flex' }}>
+    <div className="flex min-h-screen font-sans bg-[#0a0a0f] text-[#e8e8f0] relative">
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
+      {/* Mobile Sidebar Overlay */}
+      {sidebarOpen && (
+        <div 
+          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
+          onClick={() => setSidebarOpen(false)}
+        />
+      )}
+
       {/* Sidebar */}
-      <div className="admin-sidebar" style={{ width: '240px', background: '#0e0e18', borderRight: '1px solid rgba(245,200,66,0.1)', minHeight: '100vh', padding: '24px 16px', display: 'flex', flexDirection: 'column', position: 'fixed', left: 0, top: 0 }}>
-        <div style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', marginBottom: '32px', padding: '0 8px' }}>DigitalVault</div>
-        <nav style={{ flex: 1, display: 'flex', flexDirection: 'column', gap: '4px' }}>
+      <div className={`fixed md:sticky top-0 left-0 h-screen w-[260px] shrink-0 bg-[#0e0e18] border-r border-[#f5c842]/10 p-6 flex flex-col z-50 transform transition-transform duration-300 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
+        <div className="flex justify-between items-center mb-8 px-2 shrink-0">
+          <div className="font-syne text-xl font-bold text-[#f5c842]">DigitalVault</div>
+          <button className="md:hidden text-gray-400 hover:text-white text-xl border-none bg-transparent cursor-pointer" onClick={() => setSidebarOpen(false)}>✕</button>
+        </div>
+        <nav className="flex-1 flex flex-col gap-1">
           {sidebarItems.map(item => (
-            <button key={item.id} onClick={() => setTab(item.id)} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.875rem', border: 'none', width: '100%', textAlign: 'left', background: tab === item.id ? 'rgba(245,200,66,0.08)' : 'none', color: tab === item.id ? '#f5c842' : '#6b7280', transition: 'all 0.2s' }}>
-              <span>{item.icon}</span> {item.label}
+            <button 
+              key={item.id} 
+              onClick={() => { setTab(item.id); setSidebarOpen(false); }} 
+              className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-sans text-sm border-none w-full text-left transition-all duration-200 ${tab === item.id ? 'bg-[#f5c842]/10 text-[#f5c842]' : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'}`}
+            >
+              <span className="text-lg">{item.icon}</span> {item.label}
             </button>
           ))}
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', margin: '8px 0' }}></div>
-          <Link href="/admin/categories" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem' }}>
-            <span>📂</span> Categories
+          <div className="border-t border-white/5 my-2 mx-2"></div>
+          <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">📂</span> Categories
           </Link>
-          <Link href="/admin/coupons" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem' }}>
-            <span>🎟️</span> Coupons
+          <Link href="/admin/coupons" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">🎟️</span> Coupons
           </Link>
-          <Link href="/admin/customers" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem' }}>
-            <span>👥</span> All Customers
+          <Link href="/admin/customers" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">👥</span> All Customers
+          </Link>
+          <Link href="/admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">⚙️</span> Settings
           </Link>
         </nav>
-        <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: '12px' }}>
-          <Link href="/" target="_blank" style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', color: '#6b7280', textDecoration: 'none', fontSize: '0.875rem', marginBottom: '4px' }}>
-            <span>🌐</span> View Site
+        <div className="border-t border-white/5 pt-3 mt-4 shrink-0">
+          <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline mb-1">
+            <span className="text-lg">🌐</span> View Site
           </Link>
-          <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '10px 16px', borderRadius: '10px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif', fontSize: '0.875rem', border: 'none', background: 'none', color: '#ef4444', width: '100%', textAlign: 'left' }}>
-            🚪 Logout
+          <button onClick={logout} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-sans text-sm border-none bg-transparent text-red-500 hover:bg-red-500/10 transition-all w-full text-left">
+            <span className="text-lg">🚪</span> Logout
           </button>
         </div>
       </div>
 
       {/* Main Content */}
-      <div className="admin-main" style={{ marginLeft: '240px', flex: 1, padding: '32px' }}>
+      <div className="flex-1 flex flex-col w-full min-w-0 p-4 sm:p-6 lg:p-8">
 
         {/* Header */}
-        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '32px' }}>
-          <div>
-            <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff' }}>
-              {tab === 'dashboard' && '📊 Dashboard'}
-              {tab === 'products' && '📦 Products'}
-              {tab === 'orders' && '🛒 Orders'}
-              {tab === 'customers' && '👥 Customers'}
-            </h1>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem', marginTop: '4px' }}>Welcome back, {admin?.name}!</p>
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-3">
+            <button className="md:hidden text-[#f5c842] text-2xl p-1 bg-white/5 rounded-lg border border-white/10 cursor-pointer flex items-center justify-center w-10 h-10 shrink-0" onClick={() => setSidebarOpen(true)}>☰</button>
+            <div>
+              <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight">
+                {tab === 'dashboard' && '📊 Dashboard'}
+                {tab === 'products' && '📦 Products'}
+                {tab === 'orders' && '🛒 Orders'}
+                {tab === 'customers' && '👥 Customers'}
+              </h1>
+              <p className="text-gray-500 text-sm mt-1">Welcome back, {admin?.name || 'Admin'}!</p>
+            </div>
           </div>
           {tab === 'products' && (
-            <button onClick={() => openModal()} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '10px 20px', borderRadius: '10px', fontSize: '0.875rem' }}>+ Add Product</button>
+            <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
+              + Add Product
+            </button>
           )}
         </div>
 
         {/* DASHBOARD TAB */}
         {tab === 'dashboard' && (
-          <div>
+          <div className="flex flex-col gap-6">
             {/* Stats Grid */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '16px', marginBottom: '24px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
                 { label: 'Total Revenue', val: '₹' + (stats.revenue || 0).toLocaleString(), icon: '💰', color: '#f5c842', sub: 'From paid orders' },
                 { label: 'Total Orders', val: stats.orders, icon: '🛒', color: '#8b5cf6', sub: `${stats.paidOrders} paid` },
@@ -233,17 +254,17 @@ export default function AdminDashboard() {
                 { label: 'Customers', val: stats.customers, icon: '👥', color: '#f97316', sub: 'Registered users' },
                 { label: 'Avg Order Value', val: '₹' + (stats.paidOrders > 0 ? Math.round(stats.revenue / stats.paidOrders).toLocaleString() : 0), icon: '💎', color: '#ec4899', sub: 'Per paid order' },
               ].map(s => (
-                <div key={s.label} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '16px', padding: '24px', position: 'relative', overflow: 'hidden' }}>
-                  <div style={{ position: 'absolute', top: '-10px', right: '-10px', fontSize: '3rem', opacity: 0.08 }}>{s.icon}</div>
-                  <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '8px', fontWeight: 500 }}>{s.label}</p>
-                  <p style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: s.color, marginBottom: '4px' }}>{s.val}</p>
-                  <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>{s.sub}</p>
+                <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-6 relative overflow-hidden group hover:border-[#f5c842]/30 transition-colors">
+                  <div className="absolute top-[-10px] right-[-10px] text-5xl opacity-5 group-hover:scale-110 group-hover:opacity-10 transition-all pointer-events-none select-none">{s.icon}</div>
+                  <p className="text-gray-500 text-xs mb-2 font-medium">{s.label}</p>
+                  <p className="font-syne text-3xl font-bold mb-1" style={{ color: s.color }}>{s.val}</p>
+                  <p className="text-gray-600 text-xs">{s.sub}</p>
                 </div>
               ))}
             </div>
 
             {/* Quick Links */}
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '12px', marginBottom: '24px' }}>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
               {[
                 { label: 'Manage Coupons', href: '/admin/coupons', icon: '🎟️', color: '#f5c842' },
                 { label: 'All Customers', href: '/admin/customers', icon: '👥', color: '#8b5cf6' },
@@ -251,71 +272,90 @@ export default function AdminDashboard() {
                 { label: 'Add Product', onClick: () => { setTab('products'); openModal(); }, icon: '➕', color: '#3b82f6' },
               ].map(q => (
                 q.href ? (
-                  <Link key={q.label} href={q.href} target={q.href === '/' ? '_blank' : undefined} style={{ background: '#12121a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '10px', transition: 'border-color 0.2s' }}>
-                    <span style={{ fontSize: '1.2rem' }}>{q.icon}</span>
-                    <span style={{ color: q.color, fontSize: '0.875rem', fontWeight: 600 }}>{q.label}</span>
+                  <Link key={q.label} href={q.href} target={q.href === '/' ? '_blank' : undefined} className="bg-[#12121a] border border-white/5 rounded-xl p-4 no-underline flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5">
+                    <span className="text-xl">{q.icon}</span>
+                    <span className="text-sm font-semibold truncate" style={{ color: q.color }}>{q.label}</span>
                   </Link>
                 ) : (
-                  <button key={q.label} onClick={q.onClick} style={{ background: '#12121a', border: '1px solid rgba(255,255,255,0.05)', borderRadius: '12px', padding: '16px', cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '10px', fontFamily: 'DM Sans, sans-serif' }}>
-                    <span style={{ fontSize: '1.2rem' }}>{q.icon}</span>
-                    <span style={{ color: q.color, fontSize: '0.875rem', fontWeight: 600 }}>{q.label}</span>
+                  <button key={q.label} onClick={q.onClick} className="bg-[#12121a] border border-white/5 rounded-xl p-4 cursor-pointer flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5 w-full text-left font-sans">
+                    <span className="text-xl">{q.icon}</span>
+                    <span className="text-sm font-semibold truncate" style={{ color: q.color }}>{q.label}</span>
                   </button>
                 )
               ))}
             </div>
 
             {/* Recent Orders */}
-            <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
-              <div style={{ padding: '20px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', fontSize: '1rem' }}>🕐 Recent Orders</h3>
-                <button onClick={() => setTab('orders')} style={{ background: 'none', border: 'none', color: '#f5c842', cursor: 'pointer', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}>View all →</button>
+            <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
+              <div className="p-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                <h3 className="font-syne font-bold text-white text-base">🕐 Recent Orders</h3>
+                <button onClick={() => setTab('orders')} className="bg-transparent border-none text-[#f5c842] cursor-pointer text-sm font-sans hover:underline">View all →</button>
               </div>
-              {recentOrders.length === 0 ? (
-                <p style={{ padding: '24px', color: '#6b7280', fontSize: '0.875rem', textAlign: 'center' }}>No orders yet.</p>
-              ) : recentOrders.slice(0, 8).map((o, i) => (
-                <div key={i} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '14px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)', fontSize: '0.875rem' }}>
-                  <div>
-                    <div style={{ color: '#fff', fontWeight: 500 }}>{o.name}</div>
-                    <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>{o.email}</div>
-                  </div>
-                  <div style={{ color: '#9ca3af', fontSize: '0.8rem' }}>{o.product_id?.name || 'Product'}</div>
-                  <div style={{ color: '#f5c842', fontWeight: 700 }}>₹{o.amount?.toLocaleString()}</div>
-                  <span style={{ background: o.payment_status === 1 ? 'rgba(16,185,129,0.15)' : 'rgba(245,200,66,0.15)', color: o.payment_status === 1 ? '#10b981' : '#f5c842', padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
-                    {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
-                  </span>
-                  <div style={{ color: '#4b5563', fontSize: '0.75rem' }}>{new Date(o.createdAt).toLocaleDateString('en-IN')}</div>
-                </div>
-              ))}
+              <div className="overflow-x-auto w-full custom-scrollbar">
+                {recentOrders.length === 0 ? (
+                  <p className="p-6 text-gray-500 text-sm text-center">No orders yet.</p>
+                ) : (
+                  <table className="w-full min-w-[700px] text-left border-collapse text-sm">
+                    <thead>
+                      <tr className="border-b border-white/5 text-gray-400 font-medium">
+                        <th className="p-4 font-medium">Customer</th>
+                        <th className="p-4 font-medium">Product</th>
+                        <th className="p-4 font-medium">Amount</th>
+                        <th className="p-4 font-medium">Status</th>
+                        <th className="p-4 font-medium">Date</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {recentOrders.slice(0, 8).map((o, i) => (
+                        <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                          <td className="p-4">
+                            <div className="text-white font-medium">{o.name}</div>
+                            <div className="text-gray-500 text-xs mt-0.5">{o.email}</div>
+                          </td>
+                          <td className="p-4 text-gray-400">{o.product_id?.name || 'Product'}</td>
+                          <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
+                          <td className="p-4">
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
+                              {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
+                            </span>
+                          </td>
+                          <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+                        </tr>
+                      ))}
+                    </tbody>
+                  </table>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {/* PRODUCTS TAB */}
         {tab === 'products' && (
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+          <div className="flex flex-col gap-4">
             {products.length === 0 ? (
-              <div style={{ textAlign: 'center', padding: '60px', color: '#6b7280' }}>
-                <div style={{ fontSize: '3rem', marginBottom: '16px' }}>📦</div>
+              <div className="text-center p-10 md:p-16 text-gray-500 border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
+                <div className="text-5xl mb-4">📦</div>
                 <p>No products yet.</p>
-                <button onClick={() => openModal()} style={{ marginTop: '16px', background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '10px 20px', borderRadius: '10px' }}>Add First Product</button>
+                <button onClick={() => openModal()} className="mt-4 bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">Add First Product</button>
               </div>
             ) : products.map(p => (
-              <div key={p._id} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '12px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', background: '#1a1a2a', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                  {p.images?.[0] ? <img src={p.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
+              <div key={p._id} className="bg-[#12121a] border border-[#f5c842]/10 rounded-xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:border-[#f5c842]/30 transition-colors">
+                <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#1a1a2a] shrink-0 flex items-center justify-center text-2xl border border-white/5">
+                  {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : '📦'}
                 </div>
-                <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 600, color: '#fff', marginBottom: '4px', fontFamily: 'Syne, sans-serif' }}>{p.name}</div>
-                  <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
-                    <span style={{ color: '#f5c842', fontWeight: 700 }}>₹{p.sale_price?.toLocaleString()}</span>
-                    <span style={{ color: '#6b7280', textDecoration: 'line-through', fontSize: '0.875rem' }}>₹{p.original_price?.toLocaleString()}</span>
-                    <span style={{ color: '#10b981', fontSize: '0.8rem' }}>{Math.round((p.original_price - p.sale_price) / p.original_price * 100)}% off</span>
-                    <span style={{ background: 'rgba(245,200,66,0.1)', color: '#f5c842', fontSize: '0.7rem', padding: '2px 8px', borderRadius: '4px', border: '1px solid rgba(245,200,66,0.2)' }}>{p.category || 'Uncategorized'}</span>
+                <div className="flex-1 min-w-0 w-full">
+                  <div className="font-bold text-white mb-1.5 font-syne truncate text-base">{p.name}</div>
+                  <div className="flex flex-wrap gap-2 items-center mt-1">
+                    <span className="text-[#f5c842] font-bold text-sm">₹{p.sale_price?.toLocaleString()}</span>
+                    <span className="text-gray-500 line-through text-xs">₹{p.original_price?.toLocaleString()}</span>
+                    <span className="text-[#10b981] text-[10px] font-bold tracking-wider uppercase bg-[#10b981]/10 px-2 py-0.5 rounded">{Math.round((p.original_price - p.sale_price) / p.original_price * 100)}% off</span>
+                    <span className="bg-[#f5c842]/10 text-[#f5c842] text-[10px] px-2 py-0.5 rounded border border-[#f5c842]/20 truncate max-w-[120px]">{p.category || 'Uncategorized'}</span>
                   </div>
                 </div>
-                <div style={{ display: 'flex', gap: '8px' }}>
-                  <button onClick={() => openModal(p)} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.8rem', color: '#f5c842', background: 'rgba(245,200,66,0.08)', border: '1px solid rgba(245,200,66,0.2)', cursor: 'pointer' }}>Edit</button>
-                  <button onClick={() => deleteProduct(p._id)} style={{ padding: '8px 16px', borderRadius: '8px', fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', cursor: 'pointer' }}>Delete</button>
+                <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                  <button onClick={() => openModal(p)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-[#f5c842] bg-[#f5c842]/10 border border-[#f5c842]/20 cursor-pointer hover:bg-[#f5c842]/20 transition-colors">Edit</button>
+                  <button onClick={() => deleteProduct(p._id)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-red-500 bg-red-500/10 border border-red-500/20 cursor-pointer hover:bg-red-500/20 transition-colors">Delete</button>
                 </div>
               </div>
             ))}
@@ -324,80 +364,31 @@ export default function AdminDashboard() {
 
         {/* ORDERS TAB */}
         {tab === 'orders' && (
-          <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
-              <thead>
-                <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                  {['Customer', 'Email', 'Product', 'Amount', 'Status', 'Date'].map(h => (
-                    <th key={h} style={{ textAlign: 'left', padding: '14px 20px', color: '#6b7280', fontWeight: 500 }}>{h}</th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {orders.length === 0 ? (
-                  <tr><td colSpan={6} style={{ padding: '40px', textAlign: 'center', color: '#6b7280' }}>No orders yet.</td></tr>
-                ) : orders.map((o, i) => (
-                  <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                    <td style={{ padding: '14px 20px', color: '#fff', fontWeight: 500 }}>{o.name}</td>
-                    <td style={{ padding: '14px 20px', color: '#6b7280', fontSize: '0.8rem' }}>{o.email}</td>
-                    <td style={{ padding: '14px 20px', color: '#9ca3af' }}>{o.product_id?.name || '-'}</td>
-                    <td style={{ padding: '14px 20px', color: '#f5c842', fontWeight: 700 }}>₹{o.amount?.toLocaleString()}</td>
-                    <td style={{ padding: '14px 20px' }}>
-                      <span style={{ background: o.payment_status === 1 ? 'rgba(16,185,129,0.15)' : 'rgba(245,200,66,0.15)', color: o.payment_status === 1 ? '#10b981' : '#f5c842', padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
-                        {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
-                      </span>
-                    </td>
-                    <td style={{ padding: '14px 20px', color: '#6b7280', fontSize: '0.8rem' }}>{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-
-        {/* CUSTOMERS TAB */}
-        {tab === 'customers' && (
-          <div>
-            <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '16px', marginBottom: '24px' }}>
-              {[
-                { label: 'Total', val: customers.length },
-                { label: 'VIP', val: customers.filter(c => c.tag === 'vip' || c.total_spent >= 5000).length },
-                { label: 'Blocked', val: customers.filter(c => c.is_blocked).length },
-                { label: 'New', val: customers.filter(c => c.total_orders === 0).length },
-              ].map(s => (
-                <div key={s.label} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '14px', padding: '20px' }}>
-                  <p style={{ color: '#6b7280', fontSize: '0.75rem', marginBottom: '4px' }}>{s.label}</p>
-                  <p style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff' }}>{s.val}</p>
-                </div>
-              ))}
-            </div>
-            <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.08)', borderRadius: '16px', overflow: 'hidden' }}>
-              <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff' }}>Recent Customers</h3>
-                <Link href="/admin/customers" style={{ color: '#f5c842', fontSize: '0.875rem', textDecoration: 'none' }}>View all →</Link>
-              </div>
-              <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+          <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
+            <div className="overflow-x-auto w-full custom-scrollbar">
+              <table className="w-full min-w-[700px] border-collapse text-sm text-left">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
-                    {['Name', 'Email', 'Orders', 'Spent', 'Status'].map(h => (
-                      <th key={h} style={{ textAlign: 'left', padding: '12px 24px', color: '#6b7280', fontWeight: 500 }}>{h}</th>
+                  <tr className="border-b border-white/5 bg-white/[0.02]">
+                    {['Customer', 'Email', 'Product', 'Amount', 'Status', 'Date'].map(h => (
+                      <th key={h} className="p-4 text-gray-400 font-medium">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.slice(0, 8).map((c, i) => (
-                    <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
-                      <td style={{ padding: '12px 24px' }}>
-                        <Link href={`/admin/customers/${c._id}`} style={{ color: '#fff', textDecoration: 'none', fontWeight: 500 }}>{c.name}</Link>
-                      </td>
-                      <td style={{ padding: '12px 24px', color: '#6b7280' }}>{c.email}</td>
-                      <td style={{ padding: '12px 24px', color: '#fff' }}>{c.total_orders || 0}</td>
-                      <td style={{ padding: '12px 24px', color: '#f5c842', fontWeight: 700 }}>₹{(c.total_spent || 0).toLocaleString()}</td>
-                      <td style={{ padding: '12px 24px' }}>
-                        <span style={{ background: c.is_blocked ? 'rgba(239,68,68,0.15)' : 'rgba(16,185,129,0.15)', color: c.is_blocked ? '#ef4444' : '#10b981', padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
-                          {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
+                  {orders.length === 0 ? (
+                    <tr><td colSpan={6} className="p-10 text-center text-gray-500">No orders yet.</td></tr>
+                  ) : orders.map((o, i) => (
+                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <td className="p-4 text-white font-medium">{o.name}</td>
+                      <td className="p-4 text-gray-500 text-xs">{o.email}</td>
+                      <td className="p-4 text-gray-400">{o.product_id?.name || '-'}</td>
+                      <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
+                      <td className="p-4">
+                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
+                          {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
                         </span>
                       </td>
+                      <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -405,108 +396,173 @@ export default function AdminDashboard() {
             </div>
           </div>
         )}
+
+        {/* CUSTOMERS TAB */}
+        {tab === 'customers' && (
+          <div className="flex flex-col gap-6">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              {[
+                { label: 'Total', val: customers.length },
+                { label: 'VIP', val: customers.filter(c => c.tag === 'vip' || c.total_spent >= 5000).length },
+                { label: 'Blocked', val: customers.filter(c => c.is_blocked).length },
+                { label: 'New', val: customers.filter(c => c.total_orders === 0).length },
+              ].map(s => (
+                <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-5 hover:border-[#f5c842]/30 transition-colors">
+                  <p className="text-gray-500 text-xs mb-1 font-medium">{s.label}</p>
+                  <p className="font-syne text-2xl font-bold text-white">{s.val}</p>
+                </div>
+              ))}
+            </div>
+            
+            <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
+              <div className="p-5 sm:p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+                <h3 className="font-syne font-bold text-white text-base">Recent Customers</h3>
+                <Link href="/admin/customers" className="text-[#f5c842] text-sm no-underline hover:underline">View all →</Link>
+              </div>
+              <div className="overflow-x-auto w-full custom-scrollbar">
+                <table className="w-full min-w-[700px] border-collapse text-sm text-left">
+                  <thead>
+                    <tr className="border-b border-white/5 text-gray-400 font-medium">
+                      {['Name', 'Email', 'Orders', 'Spent', 'Status'].map(h => (
+                        <th key={h} className="p-4 font-medium">{h}</th>
+                      ))}
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {customers.slice(0, 8).map((c, i) => (
+                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                        <td className="p-4">
+                          <Link href={`/admin/customers/${c._id}`} className="text-white no-underline font-medium hover:text-[#f5c842] transition-colors">{c.name}</Link>
+                        </td>
+                        <td className="p-4 text-gray-500 text-xs">{c.email}</td>
+                        <td className="p-4 text-white">{c.total_orders || 0}</td>
+                        <td className="p-4 text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</td>
+                        <td className="p-4">
+                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
+                            {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Product Modal */}
       {productModal && (
-        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.9)', zIndex: 50, display: 'flex', flexDirection: 'column' }}>
-          <div style={{ background: '#0e0e18', borderBottom: '1px solid rgba(245,200,66,0.15)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', flexShrink: 0 }}>
-            <h3 style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', fontSize: '1.1rem' }}>{editProduct ? 'Edit Product' : 'Add Product'}</h3>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-              {modalError && <span style={{ color: '#ef4444', fontSize: '0.8rem' }}>{modalError}</span>}
-              <button onClick={saveProduct} disabled={saving} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '8px 20px', borderRadius: '8px', fontSize: '0.875rem', opacity: saving ? 0.7 : 1 }}>
-                {saving ? 'Saving...' : '💾 Save'}
-              </button>
-              <button onClick={() => setProductModal(false)} style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', color: '#9ca3af', width: '32px', height: '32px', borderRadius: '8px', cursor: 'pointer', fontSize: '16px' }}>✕</button>
-            </div>
-          </div>
-          <div className="admin-modal-body" style={{ display: 'flex', flex: 1, overflow: 'hidden' }}>
-            {/* Left */}
-            <div className="admin-modal-left" style={{ width: '25%', minWidth: '260px', background: '#0e0e18', borderRight: '1px solid rgba(245,200,66,0.1)', padding: '24px', overflowY: 'auto', display: 'flex', flexDirection: 'column', gap: '20px' }}>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>📦 Product Name *</label>
-                <input value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} style={inp} placeholder="Product name" />
+        <div className="fixed inset-0 bg-black/90 z-[100] flex flex-col backdrop-blur-sm p-0 md:p-6 lg:p-10">
+          <div className="flex flex-col bg-[#0e0e18] w-full h-full md:rounded-2xl border-none md:border border-[#f5c842]/20 overflow-hidden shadow-2xl">
+            <div className="bg-[#12121a] border-b border-white/10 p-4 md:p-6 flex items-center justify-between shrink-0">
+              <h3 className="font-syne font-bold text-white text-lg">{editProduct ? 'Edit Product' : 'Add Product'}</h3>
+              <div className="flex items-center gap-3">
+                {modalError && <span className="text-red-500 text-xs bg-red-500/10 px-2 py-1 rounded hidden sm:block">{modalError}</span>}
+                <button onClick={saveProduct} disabled={saving} className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2 rounded-xl text-sm ${saving ? 'opacity-70' : 'hover:scale-[1.02]'} transition-transform shadow-lg shadow-[#f5c842]/20`}>
+                  {saving ? 'Saving...' : '💾 Save'}
+                </button>
+                <button onClick={() => setProductModal(false)} className="bg-white/5 border border-white/10 text-gray-400 w-10 h-10 rounded-xl cursor-pointer hover:bg-white/10 hover:text-white flex items-center justify-center transition-all">✕</button>
               </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>📂 Category *</label>
-                <select value={form.category} onChange={e => setForm({ ...form, category: e.target.value })} style={{ ...inp, cursor: 'pointer' }}>
-                  <option value="">Select a Category</option>
-                  {categories.map(c => (
-                    <option key={c._id} value={c.name}>{c.name}</option>
+            </div>
+            {modalError && <div className="sm:hidden text-red-500 text-xs bg-red-500/10 px-4 py-2 border-b border-white/5">{modalError}</div>}
+            
+            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+              {/* Left Settings Pane */}
+              <div className="w-full lg:w-80 xl:w-96 bg-[#0e0e18] border-r border-white/5 p-5 md:p-6 overflow-y-auto flex flex-col gap-6 shrink-0 custom-scrollbar">
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">📦 Product Name *</label>
+                  <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Product name" />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">📂 Category *</label>
+                  <select className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans cursor-pointer focus:border-[#f5c842]/50 transition-colors appearance-none" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
+                    <option value="">Select a Category</option>
+                    {categories.map(c => (
+                      <option key={c._id} value={c.name}>{c.name}</option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">🖼️ Images (Max 10)</label>
+                  <div onClick={() => document.getElementById('img-upload').click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
+                    className="border-2 border-dashed border-[#f5c842]/20 rounded-xl p-5 text-center cursor-pointer hover:border-[#f5c842]/50 hover:bg-[#f5c842]/5 transition-all">
+                    <div className="text-2xl mb-1.5">📁</div>
+                    <p className="text-[#f5c842] text-xs font-semibold">Click or Drag & Drop</p>
+                    <p className="text-gray-500 text-[10px] mt-1 uppercase tracking-widest">JPG, PNG, WEBP</p>
+                  </div>
+                  <input id="img-upload" type="file" multiple accept="image/*" className="hidden" onChange={e => handleFiles(e.target.files)} />
+                  {(images.length > 0 || newFiles.length > 0) && (
+                    <div className="grid grid-cols-3 gap-2 mt-3">
+                      {images.map((src, i) => (
+                        <div key={i} className="relative rounded-lg overflow-hidden h-20 border border-white/10 group">
+                          <img src={src} className="w-full h-full object-cover" alt="" />
+                          <button onClick={() => setImages(images.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-red-500/90 border-none text-white w-5 h-5 rounded-full cursor-pointer text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">✕</button>
+                        </div>
+                      ))}
+                      {newFiles.map((file, i) => (
+                        <div key={i} className="relative rounded-lg overflow-hidden h-20 border border-[#f5c842]/40 border-dashed group">
+                          <img src={URL.createObjectURL(file)} className="w-full h-full object-cover opacity-80" alt="" />
+                          <div className="absolute top-1 left-1 bg-[#f5c842] text-black text-[8px] font-bold px-1.5 py-0.5 rounded shadow">NEW</div>
+                          <button onClick={() => setNewFiles(newFiles.filter((_, j) => j !== i))} className="absolute top-1 right-1 bg-red-500/90 border-none text-white w-5 h-5 rounded-full cursor-pointer text-[10px] opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center backdrop-blur-sm">✕</button>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">💰 Pricing</label>
+                  <div className="flex flex-col gap-3">
+                    <div>
+                      <label className="text-[11px] text-gray-500 block mb-1">Original Price (₹) *</label>
+                      <input type="number" className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.original_price} onChange={e => setForm({ ...form, original_price: e.target.value })} placeholder="8497" />
+                    </div>
+                    <div>
+                      <label className="text-[11px] text-gray-500 block mb-1">Sale Price (₹) *</label>
+                      <input type="number" className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.sale_price} onChange={e => setForm({ ...form, sale_price: e.target.value })} placeholder="1999" />
+                    </div>
+                  </div>
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">⬇️ Download File URL *</label>
+                  <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} placeholder="https://drive.google.com/..." />
+                </div>
+              </div>
+              
+              {/* Right Rich Editor */}
+              <div className="flex-1 flex flex-col overflow-hidden bg-[#0a0a0f] relative min-h-[400px]">
+                <div className="bg-[#12121a] border-b border-white/10 p-2 md:p-3 flex flex-wrap gap-1.5 items-center shrink-0 sticky top-0 z-10">
+                  {[['bold','B',{fontWeight:800}],['italic','I',{fontStyle:'italic'}],['underline','U',{textDecoration:'underline'}],['strikeThrough','S',{textDecoration:'line-through'}]].map(([cmd,label,style]) => (
+                    <button key={cmd} onClick={() => fmt(cmd)} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors" style={style}>{label}</button>
                   ))}
-                </select>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>🖼️ Images (Max 10)</label>
-                <div onClick={() => document.getElementById('img-upload').click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
-                  style={{ border: '2px dashed rgba(245,200,66,0.2)', borderRadius: '12px', padding: '20px', textAlign: 'center', cursor: 'pointer' }}>
-                  <div style={{ fontSize: '1.5rem', marginBottom: '6px' }}>📁</div>
-                  <p style={{ color: '#f5c842', fontSize: '0.8rem', fontWeight: 600 }}>Click or Drag & Drop</p>
-                  <p style={{ color: '#6b7280', fontSize: '0.7rem', marginTop: '4px' }}>JPG, PNG, WEBP</p>
+                  <div className="w-[1px] h-6 bg-white/10 mx-1 hidden sm:block"></div>
+                  <button onClick={() => fmt('insertUnorderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors">• List</button>
+                  <button onClick={() => fmt('insertOrderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors">1. List</button>
+                  <select onChange={e => { fmt('fontSize', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                    <option value="" className="bg-[#12121a]">Size</option>
+                    {[['1','Small'],['3','Normal'],['5','Large'],['7','Huge']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
+                  </select>
+                  <select onChange={e => { fmt('foreColor', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                    <option value="" className="bg-[#12121a]">Color</option>
+                    {[['#f5c842','Gold'],['#ffffff','White'],['#10b981','Green'],['#ef4444','Red'],['#3b82f6','Blue']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
+                  </select>
+                  <select onChange={e => { fmt('formatBlock', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                    <option value="" className="bg-[#12121a]">Heading</option>
+                    {[['h1','H1'],['h2','H2'],['h3','H3'],['p','Normal']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
+                  </select>
+                  <button onClick={() => fmt('removeFormat')} className="bg-white/5 border border-white/10 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-red-500/20 transition-colors ml-auto">✕ Clear</button>
                 </div>
-                <input id="img-upload" type="file" multiple accept="image/*" style={{ display: 'none' }} onChange={e => handleFiles(e.target.files)} />
-                {(images.length > 0 || newFiles.length > 0) && (
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginTop: '10px' }}>
-                    {images.map((src, i) => (
-                      <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', height: '70px' }}>
-                        <img src={src} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-                        <button onClick={() => setImages(images.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(239,68,68,0.9)', border: 'none', color: '#fff', width: '18px', height: '18px', borderRadius: '50%', cursor: 'pointer', fontSize: '10px' }}>✕</button>
-                      </div>
-                    ))}
-                    {newFiles.map((file, i) => (
-                      <div key={i} style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', height: '70px', border: '1px dashed rgba(245,200,66,0.4)' }}>
-                        <img src={URL.createObjectURL(file)} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" />
-                        <div style={{ position: 'absolute', top: '2px', left: '2px', background: '#f5c842', color: '#000', fontSize: '8px', fontWeight: 700, padding: '1px 4px', borderRadius: '4px' }}>NEW</div>
-                        <button onClick={() => setNewFiles(newFiles.filter((_, j) => j !== i))} style={{ position: 'absolute', top: '2px', right: '2px', background: 'rgba(239,68,68,0.9)', border: 'none', color: '#fff', width: '18px', height: '18px', borderRadius: '50%', cursor: 'pointer', fontSize: '10px' }}>✕</button>
-                      </div>
-                    ))}
-                  </div>
-                )}
+                <div ref={descRef} className="flex-1 p-5 md:p-8 text-[15px] leading-[1.8] text-gray-200 outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap focus:ring-2 focus:ring-[#f5c842]/20 inset-0" contentEditable suppressContentEditableWarning />
               </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>💰 Pricing</label>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  <div>
-                    <label style={{ fontSize: '0.7rem', color: '#6b7280', display: 'block', marginBottom: '4px' }}>Original Price (₹) *</label>
-                    <input type="number" value={form.original_price} onChange={e => setForm({ ...form, original_price: e.target.value })} style={inp} placeholder="8497" />
-                  </div>
-                  <div>
-                    <label style={{ fontSize: '0.7rem', color: '#6b7280', display: 'block', marginBottom: '4px' }}>Sale Price (₹) *</label>
-                    <input type="number" value={form.sale_price} onChange={e => setForm({ ...form, sale_price: e.target.value })} style={inp} placeholder="1999" />
-                  </div>
-                </div>
-              </div>
-              <div>
-                <label style={{ fontSize: '0.75rem', fontWeight: 600, color: '#f5c842', display: 'block', marginBottom: '8px' }}>⬇️ Download File URL *</label>
-                <input value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} style={inp} placeholder="https://drive.google.com/..." />
-              </div>
-            </div>
-            {/* Right — Rich Editor */}
-            <div style={{ flex: 1, display: 'flex', flexDirection: 'column', overflow: 'hidden' }}>
-              <div style={{ background: '#12121a', borderBottom: '1px solid rgba(255,255,255,0.06)', padding: '10px 16px', display: 'flex', flexWrap: 'wrap', gap: '6px', alignItems: 'center', flexShrink: 0 }}>
-                {[['bold','B',{fontWeight:800}],['italic','I',{fontStyle:'italic'}],['underline','U',{textDecoration:'underline'}],['strikeThrough','S',{textDecoration:'line-through'}]].map(([cmd,label,style]) => (
-                  <button key={cmd} onClick={() => fmt(cmd)} style={{ ...toolbarBtn, ...style }}>{label}</button>
-                ))}
-                <div style={{ width:'1px', height:'24px', background:'rgba(255,255,255,0.1)', margin:'0 4px' }}></div>
-                <button onClick={() => fmt('insertUnorderedList')} style={toolbarBtn}>• List</button>
-                <button onClick={() => fmt('insertOrderedList')} style={toolbarBtn}>1. List</button>
-                <select onChange={e => { fmt('fontSize', e.target.value); e.target.value=''; }} style={{ ...toolbarBtn, padding:'5px 8px' }}>
-                  <option value="">Size</option>
-                  {[['1','Small'],['3','Normal'],['5','Large'],['7','Huge']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-                <select onChange={e => { fmt('foreColor', e.target.value); e.target.value=''; }} style={{ ...toolbarBtn, padding:'5px 8px' }}>
-                  <option value="">Color</option>
-                  {[['#f5c842','Gold'],['#ffffff','White'],['#10b981','Green'],['#ef4444','Red'],['#3b82f6','Blue']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-                <select onChange={e => { fmt('formatBlock', e.target.value); e.target.value=''; }} style={{ ...toolbarBtn, padding:'5px 8px' }}>
-                  <option value="">Heading</option>
-                  {[['h1','H1'],['h2','H2'],['h3','H3'],['p','Normal']].map(([v,l]) => <option key={v} value={v}>{l}</option>)}
-                </select>
-                <button onClick={() => fmt('removeFormat')} style={{ ...toolbarBtn, color:'#ef4444' }}>✕ Clear</button>
-              </div>
-              <div ref={descRef} contentEditable suppressContentEditableWarning style={{ flex:1, padding:'28px 36px', fontSize:'15px', lineHeight:'1.8', color:'#e8e8f0', outline:'none', overflowY:'auto', background:'#0a0a0f' }} />
             </div>
           </div>
+          <style>{`
+            .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
+            .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+            .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+            .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+          `}</style>
         </div>
       )}
     </div>

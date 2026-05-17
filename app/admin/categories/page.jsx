@@ -53,68 +53,82 @@ export default function AdminCategories() {
     }
   }
 
-  const inp = { background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '10px 14px', borderRadius: '10px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' };
-  const btn = { background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '10px 20px', borderRadius: '10px', fontSize: '0.875rem', whiteSpace: 'nowrap' };
-
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0' }}>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen text-[#e8e8f0] flex flex-col">
       {/* Nav */}
-      <nav style={{ background: '#0e0e18', borderBottom: '1px solid rgba(245,200,66,0.1)', padding: '16px 24px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '24px' }}>
-          <Link href="/admin/dashboard" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
-          <Link href="/admin/dashboard" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Dashboard</Link>
+      <nav className="bg-[#0e0e18] border-b border-[#f5c842]/10 p-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
+        <div className="flex items-center gap-4 sm:gap-6">
+          <Link href="/admin/dashboard" className="font-syne text-lg sm:text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+          <Link href="/admin/dashboard" className="text-sm text-gray-500 no-underline hover:text-white transition-colors">← Dashboard</Link>
         </div>
       </nav>
 
-      <div style={{ maxWidth: '800px', margin: '40px auto', padding: '0 24px' }}>
-        <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.75rem', color: '#fff', marginBottom: '24px' }}>Manage Categories</h1>
+      <div className="w-full max-w-4xl mx-auto my-6 sm:my-10 px-4 sm:px-6 flex-1">
+        <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-6">Manage Categories</h1>
 
         {/* Add Category Form */}
-        <div style={{ background: '#0e0e18', padding: '24px', borderRadius: '16px', border: '1px solid rgba(245,200,66,0.1)', marginBottom: '32px' }}>
-          <h2 style={{ fontSize: '1.1rem', color: '#f5c842', marginBottom: '16px', fontFamily: 'Syne, sans-serif' }}>Add New Category</h2>
-          {error && <div style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', padding: '12px', borderRadius: '8px', marginBottom: '16px', fontSize: '0.875rem' }}>{error}</div>}
-          <form onSubmit={addCategory} style={{ display: 'flex', gap: '16px', alignItems: 'flex-start' }}>
-            <div style={{ flex: 1 }}>
+        <div className="bg-[#0e0e18] p-5 sm:p-6 rounded-2xl border border-[#f5c842]/10 mb-8">
+          <h2 className="text-lg text-[#f5c842] mb-4 font-syne font-bold">Add New Category</h2>
+          {error && <div className="bg-red-500/10 text-red-500 p-3 rounded-lg mb-4 text-sm">{error}</div>}
+          <form onSubmit={addCategory} className="flex flex-col sm:flex-row gap-4 items-start sm:items-center">
+            <div className="w-full sm:flex-1">
               <input 
                 type="text" 
                 value={name} 
                 onChange={(e) => setName(e.target.value)} 
                 placeholder="Enter category name (e.g., AI Tools)" 
-                style={inp} 
+                className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors"
                 disabled={saving}
               />
             </div>
-            <button type="submit" style={{ ...btn, opacity: saving ? 0.7 : 1 }} disabled={saving}>
+            <button 
+              type="submit" 
+              className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-6 py-3 rounded-xl text-sm whitespace-nowrap shadow-lg shadow-[#f5c842]/20 w-full sm:w-auto ${saving ? 'opacity-70' : 'hover:scale-[1.02]'} transition-transform`} 
+              disabled={saving}
+            >
               {saving ? 'Adding...' : '+ Add Category'}
             </button>
           </form>
         </div>
 
         {/* Category List */}
-        <div style={{ background: '#0e0e18', borderRadius: '16px', border: '1px solid rgba(255,255,255,0.05)', overflow: 'hidden' }}>
-          <div style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.05)', background: '#12121a', display: 'flex', color: '#a0a0b0', fontSize: '0.75rem', textTransform: 'uppercase', letterSpacing: '1px' }}>
-            <div style={{ flex: 2 }}>Category Name</div>
-            <div style={{ flex: 2 }}>Slug</div>
-            <div style={{ flex: 1 }}>Created</div>
-            <div style={{ width: '80px', textAlign: 'right' }}>Actions</div>
+        <div className="bg-[#0e0e18] rounded-2xl border border-white/5 overflow-hidden flex flex-col">
+          <div className="overflow-x-auto w-full custom-scrollbar">
+            <table className="w-full min-w-[500px] text-left border-collapse text-sm">
+              <thead>
+                <tr className="bg-[#12121a] border-b border-white/5 text-gray-400 uppercase tracking-wider text-xs">
+                  <th className="p-4 font-medium">Category Name</th>
+                  <th className="p-4 font-medium">Slug</th>
+                  <th className="p-4 font-medium">Created</th>
+                  <th className="p-4 font-medium text-right">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {categories.length === 0 ? (
+                  <tr><td colSpan={4} className="p-8 text-center text-gray-500 text-sm">No categories found. Add one above.</td></tr>
+                ) : (
+                  categories.map(c => (
+                    <tr key={c._id} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
+                      <td className="p-4 text-white font-medium">{c.name}</td>
+                      <td className="p-4 text-gray-500 font-mono text-xs">{c.slug}</td>
+                      <td className="p-4 text-gray-500 text-xs">{new Date(c.createdAt).toLocaleDateString()}</td>
+                      <td className="p-4 text-right">
+                        <button onClick={() => deleteCategory(c._id)} className="bg-red-500/10 text-red-500 border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-red-500/20 transition-colors">Delete</button>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
           </div>
-          
-          {categories.length === 0 ? (
-            <div style={{ padding: '32px', textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>No categories found. Add one above.</div>
-          ) : (
-            categories.map(c => (
-              <div key={c._id} style={{ padding: '16px 24px', borderBottom: '1px solid rgba(255,255,255,0.03)', display: 'flex', alignItems: 'center', fontSize: '0.875rem' }}>
-                <div style={{ flex: 2, color: '#fff', fontWeight: 500 }}>{c.name}</div>
-                <div style={{ flex: 2, color: '#a0a0b0', fontFamily: 'monospace' }}>{c.slug}</div>
-                <div style={{ flex: 1, color: '#a0a0b0' }}>{new Date(c.createdAt).toLocaleDateString()}</div>
-                <div style={{ width: '80px', textAlign: 'right' }}>
-                  <button onClick={() => deleteCategory(c._id)} style={{ background: 'rgba(239,68,68,0.1)', color: '#ef4444', border: 'none', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer', fontSize: '0.75rem', fontWeight: 600 }}>Delete</button>
-                </div>
-              </div>
-            ))
-          )}
         </div>
       </div>
+      <style>{`
+        .custom-scrollbar::-webkit-scrollbar { height: 8px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
+      `}</style>
     </div>
   );
 }
