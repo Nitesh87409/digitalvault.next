@@ -203,6 +203,9 @@ export default function AdminDashboard() {
           <Link href="/admin/customers" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
             <span className="text-lg">👥</span> All Customers
           </Link>
+          <Link href="/admin/reviews" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">⭐</span> Reviews
+          </Link>
           <Link href="/admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
             <span className="text-lg">⚙️</span> Settings
           </Link>

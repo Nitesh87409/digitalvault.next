@@ -9,6 +9,8 @@ const ProductSchema = new mongoose.Schema({
   sale_price:     { type: Number, required: true },
   file_url:       { type: String, required: true },
   status:         { type: Boolean, default: true },
+  average_rating: { type: Number, default: 0 },
+  total_reviews:  { type: Number, default: 0 },
 }, { timestamps: true });
 
 ProductSchema.index({ status: 1, createdAt: -1 });

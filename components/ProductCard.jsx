@@ -23,8 +23,8 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
   const orig = product.original_price || 0;
   const rawDesc = product.description ? product.description.replace(/<[^>]*>/g, '') : '';
   const desc = rawDesc || 'Premium digital product — instant download after purchase.';
-  // Generate a consistent pseudo-rating for the UI
-  const rating = (4.5 + (index % 5) * 0.1).toFixed(1);
+  // Use real average rating if available, else generate consistent pseudo-rating for UI
+  const rating = product.average_rating > 0 ? product.average_rating : (4.5 + (index % 5) * 0.1).toFixed(1);
 
   return (
     <div
