@@ -128,27 +128,27 @@ export default function ProductPage({ id }) {
             <span style={{ color: '#fff' }}>{product.name}</span>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '64px' }}>
+          <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
             {/* LEFT — Images */}
-            <div>
+            <div className="w-full lg:w-1/2 min-w-0">
               {/* Main Image */}
-              <div style={{ marginBottom: '16px' }}>
+              <div className="mb-4">
                 {mainImg ? (
-                  <img src={mainImg} alt={product.name} style={{ width: '100%', aspectRatio: '1', objectFit: 'cover', borderRadius: '16px', border: '1px solid rgba(245,200,66,0.15)' }} />
+                  <img src={mainImg} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" />
                 ) : (
-                  <div style={{ width: '100%', aspectRatio: '1', background: '#12121a', borderRadius: '16px', border: '1px solid rgba(245,200,66,0.15)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '6rem' }}>📦</div>
+                  <div className="w-full aspect-square bg-[#12121a] rounded-2xl border border-[#f5c842]/15 flex items-center justify-center text-8xl">📦</div>
                 )}
               </div>
               {/* Thumbnails */}
               {product.images?.length > 1 && (
-                <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
                   {product.images.map((img, i) => (
                     <img
                       key={i}
                       src={img}
                       alt={`${product.name} ${i + 1}`}
                       onClick={() => setMainImg(img)}
-                      style={{ width: '70px', height: '70px', objectFit: 'cover', borderRadius: '10px', cursor: 'pointer', border: `2px solid ${mainImg === img ? '#f5c842' : 'transparent'}`, transition: 'border-color 0.2s' }}
+                      className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] object-cover rounded-xl cursor-pointer shrink-0 transition-colors border-2 ${mainImg === img ? 'border-[#f5c842]' : 'border-transparent'}`}
                     />
                   ))}
                 </div>
@@ -156,50 +156,52 @@ export default function ProductPage({ id }) {
             </div>
 
             {/* RIGHT — Info */}
-            <div style={{ display: 'flex', flexDirection: 'column' }}>
-              <div style={{ display: 'inline-block', background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontSize: '0.7rem', fontWeight: 700, padding: '3px 10px', borderRadius: '999px', fontFamily: 'Syne, sans-serif', letterSpacing: '1px', textTransform: 'uppercase', marginBottom: '16px', width: 'fit-content' }}>
+            <div className="w-full lg:w-1/2 flex flex-col min-w-0">
+              <div className="inline-block bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full font-['Syne',sans-serif] tracking-wide uppercase mb-3 sm:mb-4 w-fit">
                 Digital Product
               </div>
 
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: '#fff', marginBottom: '16px', lineHeight: 1.2 }}>{product.name}</h1>
+              <h1 className="font-['Syne',sans-serif] text-2xl sm:text-3xl lg:text-[2rem] font-bold text-white mb-3 sm:mb-4 leading-tight break-words">
+                {product.name}
+              </h1>
 
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '20px' }}>
-                <span style={{ color: '#f5c842' }}>★★★★★</span>
-                <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>(4.9) · Instant Download</span>
+              <div className="flex items-center gap-2 mb-4 sm:mb-5">
+                <span className="text-[#f5c842] text-sm sm:text-base">★★★★★</span>
+                <span className="text-xs sm:text-sm text-gray-500">(4.9) · Instant Download</span>
               </div>
 
               {/* Price */}
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px', marginBottom: '8px' }}>
-                <span style={{ fontSize: '2.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne, sans-serif' }}>₹{sale.toLocaleString()}</span>
-                {orig > 0 && <span style={{ fontSize: '1.25rem', color: '#6b7280', textDecoration: 'line-through' }}>₹{orig.toLocaleString()}</span>}
-                {discount > 0 && <span style={{ fontSize: '0.875rem', fontWeight: 700, color: '#10b981', background: 'rgba(16,185,129,0.1)', padding: '4px 10px', borderRadius: '8px' }}>{discount}% OFF</span>}
+              <div className="flex flex-row flex-wrap items-center gap-3 sm:gap-4 mb-2">
+                <span className="text-3xl sm:text-4xl lg:text-[2.5rem] font-bold text-[#f5c842] font-['Syne',sans-serif]">₹{sale.toLocaleString()}</span>
+                {orig > 0 && <span className="text-lg sm:text-xl text-gray-500 line-through">₹{orig.toLocaleString()}</span>}
+                {discount > 0 && <span className="text-xs sm:text-sm font-bold text-[#10b981] bg-[#10b981]/10 px-2 sm:px-3 py-1 rounded-lg shrink-0">{discount}% OFF</span>}
               </div>
-              <p style={{ color: '#10b981', fontSize: '0.875rem', marginBottom: '24px' }}>✓ Inclusive of all taxes</p>
+              <p className="text-[#10b981] text-xs sm:text-sm mb-6">✓ Inclusive of all taxes</p>
 
               {/* Highlights */}
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '28px' }}>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 sm:mb-7">
                 {[['⚡', 'Instant Download'], ['♾️', 'Lifetime Access'], ['💰', '7-Day Refund'], ['🔒', 'Secure Payment']].map(([icon, text]) => (
-                  <div key={text} style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem', color: '#d1d5db' }}>
-                    <span style={{ color: '#f5c842' }}>{icon}</span> {text}
+                  <div key={text} className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                    <span className="text-[#f5c842]">{icon}</span> {text}
                   </div>
                 ))}
               </div>
 
               {/* Buttons */}
-              <div style={{ display: 'flex', gap: '12px', marginBottom: '32px' }}>
-                <button onClick={addToCart} style={{ flex: 1, padding: '16px', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', background: 'rgba(245,200,66,0.1)', border: '2px solid rgba(245,200,66,0.4)', color: '#f5c842', transition: 'all 0.2s' }}>
+              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                <button onClick={addToCart} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-[#f5c842]/10 border-2 border-[#f5c842]/40 text-[#f5c842] hover:bg-[#f5c842]/20 transition-all">
                   🛒 Add to Cart
                 </button>
-                <button onClick={buyNow} style={{ flex: 1, padding: '16px', borderRadius: '12px', fontSize: '1rem', fontWeight: 700, cursor: 'pointer', fontFamily: 'Syne, sans-serif', background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', border: 'none', transition: 'all 0.2s' }}>
+                <button onClick={buyNow} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all">
                   ⚡ Buy Now
                 </button>
               </div>
 
-              <div style={{ borderTop: '1px solid rgba(245,200,66,0.1)', paddingTop: '24px', display: 'flex', flexDirection: 'column', gap: '12px', fontSize: '0.875rem' }}>
+              <div className="border-t border-[#f5c842]/10 pt-6 flex flex-col gap-3 text-xs sm:text-sm">
                 {[['Format', 'Digital Download'], ['Delivery', 'Instant (Email + Download Page)'], ['Access', 'Lifetime'], ['Support', 'Email Support']].map(([k, v]) => (
-                  <div key={k} style={{ display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ color: '#6b7280' }}>{k}</span>
-                    <span style={{ color: '#fff' }}>{v}</span>
+                  <div key={k} className="flex justify-between items-start gap-4">
+                    <span className="text-gray-500 shrink-0">{k}</span>
+                    <span className="text-white text-right break-words">{v}</span>
                   </div>
                 ))}
               </div>
