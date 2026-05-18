@@ -324,7 +324,7 @@ export async function POST(request) {
         return json(0, 'Order not found');
       }
 
-      const orders = await Order.find({ _id: { $in: ids }, email: customer.email }).lean();
+      const orders = await Order.find({ _id: { $in: ids }, customer_id: customer._id }).lean();
       if (orders.length !== ids.length) return json(0, 'Order not found');
       if (orders.some(order => order.razorpay_order_id !== razorpay_order_id)) {
         return json(0, 'Payment order mismatch');
@@ -410,7 +410,7 @@ export async function POST(request) {
       const { customer, error } = await getActiveCustomer(request);
       if (error) return error;
 
-      const orders = await Order.find({ email: customer.email, payment_status: 1 })
+      const orders = await Order.find({ customer_id: customer._id, payment_status: 1 })
         .populate('product_id', 'name file_url images')
         .sort({ createdAt: -1 })
         .lean();

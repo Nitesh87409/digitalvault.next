@@ -3,6 +3,8 @@ import connectDB from '@/lib/mongodb';
 import Setting from '@/models/Setting';
 import { verifyAdmin } from '@/lib/auth';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request) {
   try {
     await connectDB();
@@ -33,6 +35,9 @@ export async function POST(request) {
       'password_login_enabled',
       'email_otp_enabled',
       'mobile_otp_enabled',
+      'google_login_enabled',
+      'truecaller_login_enabled',
+      'apple_login_enabled',
       'otp_expiry_minutes',
       'otp_max_attempts',
       'otp_length',

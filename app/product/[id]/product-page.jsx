@@ -65,8 +65,8 @@ export default function ProductPage({ id }) {
   async function submitReview(e) {
     e.preventDefault();
     setReviewError('');
-    const token = localStorage.getItem('dv_token');
-    if (!token) {
+    const customer = localStorage.getItem('dv_customer');
+    if (!customer) {
       setReviewError('Please login to submit a review.');
       return;
     }
@@ -104,7 +104,7 @@ export default function ProductPage({ id }) {
 
   async function deleteReview(reviewId) {
     if (!confirm('Are you sure you want to delete your review?')) return;
-    const token = localStorage.getItem('dv_token');
+    const customer = localStorage.getItem('dv_customer');
     try {
       const res = await fetch(`/api/reviews/${reviewId}`, {
         method: 'DELETE',
