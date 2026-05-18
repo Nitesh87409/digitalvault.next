@@ -19,7 +19,7 @@ export default function CustomerDetail({ params }) {
   const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
-    loadData();
+    loadCustomer();
   }, [id]);
 
   async function loadCustomer() {

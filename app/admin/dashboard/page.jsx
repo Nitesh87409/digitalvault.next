@@ -403,31 +403,60 @@ export default function AdminDashboard() {
         {/* CUSTOMERS TAB */}
         {tab === 'customers' && (
           <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
               {[
                 { label: 'Total', val: customers.length },
                 { label: 'VIP', val: customers.filter(c => c.tag === 'vip' || c.total_spent >= 5000).length },
                 { label: 'Blocked', val: customers.filter(c => c.is_blocked).length },
                 { label: 'New', val: customers.filter(c => c.total_orders === 0).length },
               ].map(s => (
-                <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-5 hover:border-[#f5c842]/30 transition-colors">
-                  <p className="text-gray-500 text-xs mb-1 font-medium">{s.label}</p>
-                  <p className="font-syne text-2xl font-bold text-white">{s.val}</p>
+                <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-4 sm:p-5 hover:border-[#f5c842]/30 transition-colors min-w-0">
+                  <p className="text-gray-500 text-xs mb-1 font-medium truncate">{s.label}</p>
+                  <p className="font-syne text-xl sm:text-2xl font-bold text-white truncate">{s.val}</p>
                 </div>
               ))}
             </div>
             
             <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
-              <div className="p-5 sm:p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
+              <div className="p-4 sm:p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
                 <h3 className="font-syne font-bold text-white text-base">Recent Customers</h3>
                 <Link href="/admin/customers" className="text-[#f5c842] text-sm no-underline hover:underline">View all →</Link>
               </div>
-              <div className="overflow-x-auto w-full custom-scrollbar">
-                <table className="w-full min-w-[700px] border-collapse text-sm text-left">
+
+              {/* Mobile Cards Layout */}
+              <div className="md:hidden flex flex-col divide-y divide-white/5">
+                {customers.slice(0, 8).map((c, i) => (
+                  <div key={i} className="p-4 flex flex-col gap-3 hover:bg-white/[0.02] transition-colors">
+                    <div className="flex justify-between items-start gap-2">
+                      <div className="flex-1 min-w-0">
+                        <Link href={`/admin/customers/${c._id}`} className="text-white font-medium hover:text-[#f5c842] transition-colors truncate block">{c.name}</Link>
+                        <p className="text-gray-500 text-xs truncate">{c.email}</p>
+                      </div>
+                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap shrink-0 ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
+                        {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
+                      </span>
+                    </div>
+                    <div className="flex justify-between items-center bg-[#0a0a0f] rounded-lg p-3 border border-white/5">
+                      <div className="flex flex-col">
+                        <span className="text-gray-500 text-[10px] uppercase tracking-wider">Orders</span>
+                        <span className="text-white font-bold">{c.total_orders || 0}</span>
+                      </div>
+                      <div className="flex flex-col text-right">
+                        <span className="text-gray-500 text-[10px] uppercase tracking-wider">Spent</span>
+                        <span className="text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</span>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Desktop Table Layout */}
+              <div className="hidden md:block overflow-x-auto w-full custom-scrollbar">
+                <table className="w-full min-w-[800px] border-collapse text-sm text-left">
                   <thead>
                     <tr className="border-b border-white/5 text-gray-400 font-medium">
                       {['Name', 'Email', 'Orders', 'Spent', 'Status'].map(h => (
-                        <th key={h} className="p-4 font-medium">{h}</th>
+                        <th key={h} className="p-4 font-medium whitespace-nowrap">{h}</th>
                       ))}
                     </tr>
                   </thead>
@@ -435,12 +464,12 @@ export default function AdminDashboard() {
                     {customers.slice(0, 8).map((c, i) => (
                       <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
                         <td className="p-4">
-                          <Link href={`/admin/customers/${c._id}`} className="text-white no-underline font-medium hover:text-[#f5c842] transition-colors">{c.name}</Link>
+                          <Link href={`/admin/customers/${c._id}`} className="text-white no-underline font-medium hover:text-[#f5c842] transition-colors whitespace-nowrap">{c.name}</Link>
                         </td>
-                        <td className="p-4 text-gray-500 text-xs">{c.email}</td>
-                        <td className="p-4 text-white">{c.total_orders || 0}</td>
-                        <td className="p-4 text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</td>
-                        <td className="p-4">
+                        <td className="p-4 text-gray-500 text-xs whitespace-nowrap">{c.email}</td>
+                        <td className="p-4 text-white whitespace-nowrap">{c.total_orders || 0}</td>
+                        <td className="p-4 text-[#f5c842] font-bold whitespace-nowrap">₹{(c.total_spent || 0).toLocaleString()}</td>
+                        <td className="p-4 whitespace-nowrap">
                           <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
                             {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
                           </span>
@@ -471,9 +500,9 @@ export default function AdminDashboard() {
             </div>
             {modalError && <div className="sm:hidden text-red-500 text-xs bg-red-500/10 px-4 py-2 border-b border-white/5">{modalError}</div>}
             
-            <div className="flex flex-col lg:flex-row flex-1 overflow-hidden">
+            <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden custom-scrollbar">
               {/* Left Settings Pane */}
-              <div className="w-full lg:w-80 xl:w-96 bg-[#0e0e18] border-r border-white/5 p-5 md:p-6 overflow-y-auto flex flex-col gap-6 shrink-0 custom-scrollbar">
+              <div className="w-full lg:w-80 xl:w-96 bg-[#0e0e18] border-b lg:border-b-0 lg:border-r border-white/5 p-5 md:p-6 lg:overflow-y-auto flex flex-col gap-6 shrink-0 custom-scrollbar">
                 <div>
                   <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">📦 Product Name *</label>
                   <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.name} onChange={e => setForm({ ...form, name: e.target.value })} placeholder="Product name" />
@@ -534,29 +563,29 @@ export default function AdminDashboard() {
               </div>
               
               {/* Right Rich Editor */}
-              <div className="flex-1 flex flex-col overflow-hidden bg-[#0a0a0f] relative min-h-[400px]">
-                <div className="bg-[#12121a] border-b border-white/10 p-2 md:p-3 flex flex-wrap gap-1.5 items-center shrink-0 sticky top-0 z-10">
+              <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden bg-[#0a0a0f] relative min-h-[400px] lg:min-h-0 shrink-0 lg:shrink">
+                <div className="bg-[#12121a] border-b border-white/10 p-2 md:p-3 flex flex-wrap gap-1.5 items-center shrink-0 sticky top-0 z-10 w-full max-w-full min-w-0 overflow-x-auto custom-scrollbar">
                   {[['bold','B',{fontWeight:800}],['italic','I',{fontStyle:'italic'}],['underline','U',{textDecoration:'underline'}],['strikeThrough','S',{textDecoration:'line-through'}]].map(([cmd,label,style]) => (
-                    <button key={cmd} onClick={() => fmt(cmd)} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors" style={style}>{label}</button>
+                    <button key={cmd} onClick={() => fmt(cmd)} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0" style={style}>{label}</button>
                   ))}
-                  <div className="w-[1px] h-6 bg-white/10 mx-1 hidden sm:block"></div>
-                  <button onClick={() => fmt('insertUnorderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors">• List</button>
-                  <button onClick={() => fmt('insertOrderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors">1. List</button>
-                  <select onChange={e => { fmt('fontSize', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                  <div className="w-[1px] h-6 bg-white/10 mx-1 hidden sm:block shrink-0"></div>
+                  <button onClick={() => fmt('insertUnorderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">• List</button>
+                  <button onClick={() => fmt('insertOrderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">1. List</button>
+                  <select onChange={e => { fmt('fontSize', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
                     <option value="" className="bg-[#12121a]">Size</option>
                     {[['1','Small'],['3','Normal'],['5','Large'],['7','Huge']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
                   </select>
-                  <select onChange={e => { fmt('foreColor', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                  <select onChange={e => { fmt('foreColor', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
                     <option value="" className="bg-[#12121a]">Color</option>
                     {[['#f5c842','Gold'],['#ffffff','White'],['#10b981','Green'],['#ef4444','Red'],['#3b82f6','Blue']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
                   </select>
-                  <select onChange={e => { fmt('formatBlock', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none">
+                  <select onChange={e => { fmt('formatBlock', e.target.value); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
                     <option value="" className="bg-[#12121a]">Heading</option>
                     {[['h1','H1'],['h2','H2'],['h3','H3'],['p','Normal']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
                   </select>
-                  <button onClick={() => fmt('removeFormat')} className="bg-white/5 border border-white/10 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-red-500/20 transition-colors ml-auto">✕ Clear</button>
+                  <button onClick={() => fmt('removeFormat')} className="bg-white/5 border border-white/10 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-red-500/20 transition-colors ml-auto shrink-0">✕ Clear</button>
                 </div>
-                <div ref={descRef} className="flex-1 p-5 md:p-8 text-[15px] leading-[1.8] text-gray-200 outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap focus:ring-2 focus:ring-[#f5c842]/20 inset-0" contentEditable suppressContentEditableWarning />
+                <div ref={descRef} className="flex-1 w-full min-h-[300px] lg:min-h-0 p-5 md:p-8 text-[15px] leading-[1.8] text-gray-200 outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words focus:ring-2 focus:ring-[#f5c842]/20 inset-0" contentEditable suppressContentEditableWarning />
               </div>
             </div>
           </div>
