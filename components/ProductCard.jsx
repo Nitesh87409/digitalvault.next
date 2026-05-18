@@ -28,7 +28,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
 
   return (
     <div
-      className="flex flex-row items-center p-3 sm:p-4 gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(245,200,66,0.15)] bg-white/5 border border-white/10 rounded-2xl w-full min-w-0"
+      className="theme-card flex w-full min-w-0 cursor-pointer flex-row items-center gap-4 rounded-2xl p-3 hover:-translate-y-1 hover:border-[#f5c842]/30 hover:shadow-[0_8px_30px_rgba(245,200,66,0.15)] sm:p-4"
       onClick={() => window.open(`/product/${product._id}`, '_blank')}
     >
       {/* LEFT SIDE: Image */}
@@ -54,30 +54,30 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
         {/* Top Content */}
         <div className="mb-2">
           <div className="text-[10px] sm:text-xs font-bold text-[#f5c842] uppercase tracking-wider mb-1">{badge}</div>
-          <h3 className="text-sm sm:text-base font-bold text-white mb-0.5 truncate">{product.name}</h3>
-          <p className="text-[11px] sm:text-xs text-gray-400 truncate">{desc}</p>
+          <h3 className="mb-0.5 truncate text-sm font-bold text-[var(--heading)] sm:text-base">{product.name}</h3>
+          <p className="truncate text-[11px] text-[var(--muted)] sm:text-xs">{desc}</p>
         </div>
 
         {/* Bottom Row */}
         <div className="flex flex-col items-start gap-2 mt-auto">
           {/* Prices */}
           <div className="flex flex-row items-baseline gap-2 shrink-0">
-            <span className="text-sm sm:text-base font-bold text-white">₹{sale.toLocaleString()}</span>
-            {orig > 0 && <span className="text-[10px] sm:text-xs text-gray-500 line-through">₹{orig.toLocaleString()}</span>}
+            <span className="text-sm font-bold text-[var(--heading)] sm:text-base">₹{sale.toLocaleString()}</span>
+            {orig > 0 && <span className="text-[10px] text-[var(--muted-2)] line-through sm:text-xs">₹{orig.toLocaleString()}</span>}
           </div>
 
           {/* Right Action Area */}
           <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
             {/* Circular rating/count badge */}
-            <div className="flex items-center justify-center gap-1 bg-white/10 px-2 py-1 rounded-full border border-white/5">
+            <div className="flex items-center justify-center gap-1 rounded-full border border-[var(--line-soft)] bg-[var(--surface-muted)] px-2 py-1">
               <span className="text-[#f5c842] text-[10px]">★</span>
-              <span className="text-white text-[10px] font-medium leading-none">{rating}</span>
+              <span className="text-[10px] font-medium leading-none text-[var(--heading)]">{rating}</span>
             </div>
             
             {/* Cart Icon Button */}
             <button
               onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-              className="flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all active:scale-95 shrink-0"
+              className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8"
               title="Add to Cart"
             >
               <ShoppingCart size={14} className="sm:w-[16px] sm:h-[16px]" />

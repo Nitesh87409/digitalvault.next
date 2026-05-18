@@ -5,9 +5,44 @@
 
 :root {
   --gold: #f5c842;
+  --gold-strong: #e0a800;
   --dark: #0a0a0f;
   --card: #12121a;
   --border: rgba(245, 200, 66, 0.15);
+  --bg: #0a0a0f;
+  --bg-soft: #101018;
+  --surface: #12121a;
+  --surface-2: #1a1a2a;
+  --surface-muted: rgba(255, 255, 255, 0.05);
+  --text: #e8e8f0;
+  --heading: #ffffff;
+  --muted: #9ca3af;
+  --muted-2: #6b7280;
+  --line: rgba(255, 255, 255, 0.1);
+  --line-soft: rgba(255, 255, 255, 0.06);
+  --nav-bg: rgba(10, 10, 15, 0.85);
+  --shadow-soft: 0 12px 40px rgba(0, 0, 0, 0.32);
+  color-scheme: dark;
+}
+
+[data-theme='light'] {
+  --dark: #f8fafc;
+  --card: #ffffff;
+  --border: rgba(224, 168, 0, 0.26);
+  --bg: #f8fafc;
+  --bg-soft: #f1f5f9;
+  --surface: #ffffff;
+  --surface-2: #eef2f7;
+  --surface-muted: rgba(15, 23, 42, 0.04);
+  --text: #111827;
+  --heading: #0f172a;
+  --muted: #475569;
+  --muted-2: #64748b;
+  --line: rgba(15, 23, 42, 0.12);
+  --line-soft: rgba(15, 23, 42, 0.08);
+  --nav-bg: rgba(255, 255, 255, 0.86);
+  --shadow-soft: 0 14px 42px rgba(15, 23, 42, 0.12);
+  color-scheme: light;
 }
 
 * {
@@ -25,9 +60,10 @@ body {
 
 body {
   font-family: 'DM Sans', sans-serif;
-  background: var(--dark);
-  color: #e8e8f0;
+  background: var(--bg);
+  color: var(--text);
   overflow-x: hidden; /* keeps layout from ever forcing horizontal scroll */
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 html, body {
@@ -69,7 +105,7 @@ input, textarea, select, button {
 
 /* Gold button */
 .gold-btn {
-  background: linear-gradient(135deg, #f5c842, #e0a800);
+  background: linear-gradient(135deg, var(--gold), var(--gold-strong));
   color: #0a0a0f;
   font-family: 'Syne', sans-serif;
   font-weight: 700;
@@ -101,9 +137,9 @@ input, textarea, select, button {
 
 /* Input */
 .inp {
-  background: #1a1a2a;
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  color: white;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  color: var(--heading);
   outline: none;
   transition: border-color 0.2s;
   width: 100%;
@@ -116,12 +152,12 @@ input, textarea, select, button {
   border-color: rgba(245, 200, 66, 0.5);
 }
 .inp::placeholder {
-  color: #4b5563;
+  color: var(--muted-2);
 }
 
 /* Badge */
 .badge {
-  background: linear-gradient(135deg, #f5c842, #e0a800);
+  background: linear-gradient(135deg, var(--gold), var(--gold-strong));
   color: #0a0a0f;
   font-size: 0.7rem;
   font-weight: 700;
@@ -215,8 +251,98 @@ input, textarea, select, button {
 
 /* Scrollbar */
 ::-webkit-scrollbar { width: 6px; }
-::-webkit-scrollbar-track { background: #0a0a0f; }
+::-webkit-scrollbar-track { background: var(--bg); }
 ::-webkit-scrollbar-thumb { background: rgba(245, 200, 66, 0.3); border-radius: 3px; }
+
+@layer components {
+  .theme-page {
+    @apply min-h-screen bg-[var(--bg)] text-[var(--text)] transition-colors duration-300;
+  }
+
+  .theme-surface {
+    @apply bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] shadow-[var(--shadow-soft)];
+  }
+
+  .theme-card {
+    @apply bg-[var(--surface)] text-[var(--text)] border border-[var(--line)] transition-all duration-300;
+  }
+
+  .theme-card-soft {
+    @apply bg-[var(--surface-muted)] text-[var(--text)] border border-[var(--line)];
+  }
+
+  .theme-heading {
+    @apply text-[var(--heading)];
+  }
+
+  .theme-muted {
+    @apply text-[var(--muted)];
+  }
+
+  .theme-muted-2 {
+    @apply text-[var(--muted-2)];
+  }
+
+  .theme-input {
+    @apply w-full bg-[var(--surface)] text-[var(--heading)] border border-[var(--line)] outline-none transition-colors duration-200 placeholder:text-[var(--muted-2)] focus:border-[#f5c842]/50;
+  }
+
+  .theme-icon-btn {
+    @apply inline-flex items-center justify-center border border-[var(--line)] bg-[var(--surface-muted)] text-[var(--text)] transition-all duration-200 hover:border-[#f5c842]/40 hover:text-[#f5c842] active:scale-95;
+  }
+
+  .theme-link {
+    @apply text-[var(--muted)] transition-colors duration-200 hover:text-[#f5c842];
+  }
+}
+
+[data-theme='light'] .text-white,
+[data-theme='light'] .text-gray-200,
+[data-theme='light'] .text-gray-300 {
+  color: var(--heading) !important;
+}
+
+[data-theme='light'] .text-gray-400 {
+  color: var(--muted) !important;
+}
+
+[data-theme='light'] .text-gray-500,
+[data-theme='light'] .text-gray-600 {
+  color: var(--muted-2) !important;
+}
+
+[data-theme='light'] .bg-white\/5,
+[data-theme='light'] .bg-white\/10 {
+  background-color: var(--surface-muted) !important;
+}
+
+[data-theme='light'] .border-white\/5,
+[data-theme='light'] .border-white\/10,
+[data-theme='light'] .border-white\/20 {
+  border-color: var(--line) !important;
+}
+
+[data-theme='light'] .bg-\[\#0a0a0f\] {
+  background-color: var(--bg) !important;
+}
+
+[data-theme='light'] .bg-\[\#12121a\] {
+  background-color: var(--surface) !important;
+}
+
+[data-theme='light'] .bg-\[\#1a1a2a\] {
+  background-color: var(--surface-2) !important;
+}
+
+[data-theme='light'] .text-\[\#0a0a0f\] {
+  color: #0a0a0f !important;
+}
+
+[data-theme='light'] input,
+[data-theme='light'] textarea,
+[data-theme='light'] select {
+  color-scheme: light;
+}
 
 /* ---------- Mobile-first overflow fixes (Admin dashboard) ---------- */
 /* The admin dashboard uses: fixed sidebar (240px) + main with margin-left: 240px.

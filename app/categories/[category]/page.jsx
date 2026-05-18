@@ -77,19 +77,19 @@ export default function CategoryProductsPage() {
       <Navbar />
       <Toast toast={toast} />
       
-      <main className="min-h-screen pt-20 pb-[100px] bg-[#0a0a0f]">
+      <main className="theme-page pt-20 pb-[100px]">
         <div className="max-w-[1152px] mx-auto py-10 px-6">
           
           <div className="mb-10">
-            <Link href="/categories" className="text-gray-400 no-underline inline-flex items-center gap-2 text-sm mb-6 hover:text-white transition-colors">
+            <Link href="/categories" className="theme-link no-underline inline-flex items-center gap-2 text-sm mb-6">
               <ArrowLeft size={16} /> Back to Categories
             </Link>
             
-            <h1 className="text-4xl font-bold text-white mb-4 font-['Syne',sans-serif]">
+            <h1 className="text-4xl font-bold text-[var(--heading)] mb-4 font-['Syne',sans-serif]">
               {categoryName}
             </h1>
             
-            <p className="text-gray-400 text-lg mb-8">
+            <p className="text-[var(--muted)] text-lg mb-8">
               Explore products in {categoryName}
             </p>
 
@@ -100,29 +100,29 @@ export default function CategoryProductsPage() {
                 placeholder={`Search in ${categoryName}...`}
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full py-4 pr-6 pl-12 rounded-full bg-white/5 border border-[#f5c842]/20 text-white text-base outline-none font-['DM_Sans',sans-serif] transition-all duration-200 focus:bg-white/10 focus:border-[#f5c842]/50 placeholder:text-gray-500"
+                className="theme-input rounded-full py-4 pr-6 pl-12 text-base font-['DM_Sans',sans-serif]"
               />
             </div>
           </div>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {loading ? (
-              <p className="text-gray-500 col-span-full text-center p-10">Loading products...</p>
+              <p className="text-[var(--muted-2)] col-span-full text-center p-10">Loading products...</p>
             ) : products.length === 0 ? (
-              <div className="col-span-full text-center py-16 px-5 bg-white/5 rounded-2xl border border-dashed border-white/10">
+              <div className="col-span-full text-center py-16 px-5 bg-[var(--surface-muted)] rounded-2xl border border-dashed border-[var(--line)]">
                 <div className="text-5xl mb-4 flex justify-center">
                   <Box size={48} className="text-gray-600" />
                 </div>
-                <h3 className="text-white text-xl mb-2 font-['Syne',sans-serif] font-bold">No products found</h3>
-                <p className="text-gray-400">There are no products in this category yet.</p>
+                <h3 className="text-[var(--heading)] text-xl mb-2 font-['Syne',sans-serif] font-bold">No products found</h3>
+                <p className="text-[var(--muted)]">There are no products in this category yet.</p>
               </div>
             ) : filteredProducts.length === 0 ? (
-              <div className="col-span-full text-center py-16 px-5 bg-white/5 rounded-2xl border border-dashed border-white/10">
+              <div className="col-span-full text-center py-16 px-5 bg-[var(--surface-muted)] rounded-2xl border border-dashed border-[var(--line)]">
                 <div className="text-5xl mb-4 flex justify-center">
                   <Search size={48} className="text-gray-600" />
                 </div>
-                <h3 className="text-white text-xl mb-2 font-['Syne',sans-serif] font-bold">No results found</h3>
-                <p className="text-gray-400">Try adjusting your search query to find what you're looking for.</p>
+                <h3 className="text-[var(--heading)] text-xl mb-2 font-['Syne',sans-serif] font-bold">No results found</h3>
+                <p className="text-[var(--muted)]">Try adjusting your search query to find what you're looking for.</p>
                 <button 
                   onClick={() => setSearchQuery('')}
                   className="mt-5 bg-transparent border border-[#f5c842] text-[#f5c842] py-2 px-5 rounded-full cursor-pointer font-['DM_Sans',sans-serif] hover:bg-[#f5c842]/10 transition-colors"

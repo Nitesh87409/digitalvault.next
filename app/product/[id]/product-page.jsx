@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
@@ -170,12 +171,11 @@ export default function ProductPage({ id }) {
   }
 
   if (loading) return (
-    <div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ textAlign: 'center' }}>
-        <div style={{ width: '48px', height: '48px', border: '4px solid #f5c842', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 16px', animation: 'spin 0.8s linear infinite' }}></div>
-        <p style={{ color: '#6b7280', fontFamily: 'DM Sans, sans-serif' }}>Loading product...</p>
+    <div className="theme-page flex items-center justify-center">
+      <div className="text-center">
+        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#f5c842] border-t-transparent"></div>
+        <p className="font-dm text-[var(--muted-2)]">Loading product...</p>
       </div>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 
@@ -185,20 +185,19 @@ export default function ProductPage({ id }) {
 
   return (
     <>
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-
-      <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0' }}>
+      <div className="theme-page font-dm">
         {/* Nav */}
-        <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 100 }}>
-          <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Link href="/" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Store</Link>
-              <Link href="/account" style={{ fontSize: '0.875rem', color: '#9ca3af', textDecoration: 'none' }}>My Account</Link>
-              <Link href="/cart" style={{ position: 'relative', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, flexShrink: 0 }}>
+        <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-4 backdrop-blur-xl">
+          <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
+            <Link href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+            <div className="flex items-center gap-3 sm:gap-4">
+              <Link href="/" className="theme-link whitespace-nowrap text-sm no-underline">← Store</Link>
+              <Link href="/account" className="theme-link hidden whitespace-nowrap text-sm no-underline sm:inline">My Account</Link>
+              <ThemeToggle />
+              <Link href="/cart" className="theme-icon-btn relative h-11 w-11 rounded-xl">
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 {cartCount > 0 && (
-                  <span style={{ position: 'absolute', top: '-6px', right: '-6px', background: '#f5c842', color: '#0a0a0f', fontSize: '10px', fontWeight: 700, width: '16px', height: '16px', borderRadius: '50%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f5c842] text-[10px] font-bold text-[#0a0a0f]">
                     {cartCount > 9 ? '9+' : cartCount}
                   </span>
                 )}
@@ -207,14 +206,14 @@ export default function ProductPage({ id }) {
           </div>
         </nav>
 
-        <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '40px 24px' }}>
+        <div className="mx-auto max-w-[1152px] px-6 py-10">
           {/* Breadcrumb */}
-          <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.875rem', color: '#6b7280', marginBottom: '32px' }}>
-            <Link href="/" style={{ color: '#6b7280', textDecoration: 'none' }}>Home</Link>
+          <div className="mb-8 flex items-center gap-2 text-sm text-[var(--muted-2)]">
+            <Link href="/" className="theme-link no-underline">Home</Link>
             <span>›</span>
-            <Link href="/#products" style={{ color: '#6b7280', textDecoration: 'none' }}>Products</Link>
+            <Link href="/#products" className="theme-link no-underline">Products</Link>
             <span>›</span>
-            <span style={{ color: '#fff' }}>{product.name}</span>
+            <span className="text-[var(--heading)]">{product.name}</span>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
@@ -225,7 +224,7 @@ export default function ProductPage({ id }) {
                 {mainImg ? (
                   <img src={mainImg} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" />
                 ) : (
-                  <div className="w-full aspect-square bg-[#12121a] rounded-2xl border border-[#f5c842]/15 flex items-center justify-center text-8xl">📦</div>
+                  <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#f5c842]/15 bg-[var(--surface)] text-8xl">📦</div>
                 )}
               </div>
               {/* Thumbnails */}
@@ -250,19 +249,19 @@ export default function ProductPage({ id }) {
                 Digital Product
               </div>
 
-              <h1 className="font-['Syne',sans-serif] text-2xl sm:text-3xl lg:text-[2rem] font-bold text-white mb-3 sm:mb-4 leading-tight break-words">
+              <h1 className="mb-3 break-words font-['Syne',sans-serif] text-2xl font-bold leading-tight text-[var(--heading)] sm:mb-4 sm:text-3xl lg:text-[2rem]">
                 {product.name}
               </h1>
 
               <div className="flex items-center gap-2 mb-4 sm:mb-5">
                 <span className="text-[#f5c842] text-sm sm:text-base">{renderStars(Math.round(product.average_rating || 5))}</span>
-                <span className="text-xs sm:text-sm text-gray-500">({product.average_rating > 0 ? product.average_rating : 'No reviews'} {product.total_reviews > 0 ? `· ${product.total_reviews} Review${product.total_reviews !== 1 ? 's' : ''}` : ''}) · Instant Download</span>
+                <span className="text-xs text-[var(--muted-2)] sm:text-sm">({product.average_rating > 0 ? product.average_rating : 'No reviews'} {product.total_reviews > 0 ? `· ${product.total_reviews} Review${product.total_reviews !== 1 ? 's' : ''}` : ''}) · Instant Download</span>
               </div>
 
               {/* Price */}
               <div className="flex flex-row flex-wrap items-center gap-3 sm:gap-4 mb-2">
                 <span className="text-3xl sm:text-4xl lg:text-[2.5rem] font-bold text-[#f5c842] font-['Syne',sans-serif]">₹{sale.toLocaleString()}</span>
-                {orig > 0 && <span className="text-lg sm:text-xl text-gray-500 line-through">₹{orig.toLocaleString()}</span>}
+                {orig > 0 && <span className="text-lg text-[var(--muted-2)] line-through sm:text-xl">₹{orig.toLocaleString()}</span>}
                 {discount > 0 && <span className="text-xs sm:text-sm font-bold text-[#10b981] bg-[#10b981]/10 px-2 sm:px-3 py-1 rounded-lg shrink-0">{discount}% OFF</span>}
               </div>
               <p className="text-[#10b981] text-xs sm:text-sm mb-6">✓ Inclusive of all taxes</p>
@@ -270,7 +269,7 @@ export default function ProductPage({ id }) {
               {/* Highlights */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 sm:mb-7">
                 {[['⚡', 'Instant Download'], ['♾️', 'Lifetime Access'], ['💰', '7-Day Refund'], ['🔒', 'Secure Payment']].map(([icon, text]) => (
-                  <div key={text} className="flex items-center gap-2 text-xs sm:text-sm text-gray-300">
+                  <div key={text} className="flex items-center gap-2 text-xs text-[var(--text)] sm:text-sm">
                     <span className="text-[#f5c842]">{icon}</span> {text}
                   </div>
                 ))}
@@ -289,8 +288,8 @@ export default function ProductPage({ id }) {
               <div className="border-t border-[#f5c842]/10 pt-6 flex flex-col gap-3 text-xs sm:text-sm">
                 {[['Format', 'Digital Download'], ['Delivery', 'Instant (Email + Download Page)'], ['Access', 'Lifetime'], ['Support', 'Email Support']].map(([k, v]) => (
                   <div key={k} className="flex justify-between items-start gap-4">
-                    <span className="text-gray-500 shrink-0">{k}</span>
-                    <span className="text-white text-right break-words">{v}</span>
+                    <span className="shrink-0 text-[var(--muted-2)]">{k}</span>
+                    <span className="break-words text-right text-[var(--heading)]">{v}</span>
                   </div>
                 ))}
               </div>
@@ -299,18 +298,18 @@ export default function ProductPage({ id }) {
 
           {/* Description */}
           {product.description && (
-            <div style={{ marginTop: '56px' }}>
-              <div style={{ borderBottom: '1px solid rgba(245,200,66,0.1)', marginBottom: '32px', paddingBottom: '16px' }}>
-                <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', fontSize: '1rem', borderBottom: '2px solid #f5c842', paddingBottom: '16px' }}>Description</span>
+            <div className="mt-14">
+              <div className="mb-8 border-b border-[#f5c842]/10 pb-4">
+                <span className="border-b-2 border-[#f5c842] pb-4 font-syne text-base font-bold text-[var(--heading)]">Description</span>
               </div>
-              <div dangerouslySetInnerHTML={{ __html: product.description }} className="text-gray-300 leading-relaxed max-w-3xl" />
+              <div dangerouslySetInnerHTML={{ __html: product.description }} className="max-w-3xl leading-relaxed text-[var(--text)]" />
             </div>
           )}
 
           {/* Customer Reviews Section */}
-          <div style={{ marginTop: '56px' }}>
-            <div style={{ borderBottom: '1px solid rgba(245,200,66,0.1)', marginBottom: '32px', paddingBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-              <span style={{ fontFamily: 'Syne, sans-serif', fontWeight: 700, color: '#fff', fontSize: '1.25rem' }}>Customer Reviews</span>
+          <div className="mt-14">
+            <div className="mb-8 flex items-center justify-between border-b border-[#f5c842]/10 pb-4">
+              <span className="font-syne text-xl font-bold text-[var(--heading)]">Customer Reviews</span>
               <button 
                 onClick={() => setReviewFormOpen(!reviewFormOpen)}
                 className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-syne px-4 py-2 rounded-lg text-sm shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform border-none cursor-pointer"
@@ -320,8 +319,8 @@ export default function ProductPage({ id }) {
             </div>
 
             {reviewFormOpen && (
-              <form onSubmit={submitReview} className="bg-[#12121a] p-6 rounded-2xl border border-white/5 mb-8 flex flex-col gap-4">
-                <h3 className="text-lg font-bold text-white mb-2">Write a Review</h3>
+              <form onSubmit={submitReview} className="theme-card mb-8 flex flex-col gap-4 rounded-2xl p-6">
+                <h3 className="mb-2 text-lg font-bold text-[var(--heading)]">Write a Review</h3>
                 
                 {reviewError && <div className="bg-red-500/10 text-red-500 p-3 rounded-lg text-sm border border-red-500/20">{reviewError}</div>}
                 
@@ -346,7 +345,7 @@ export default function ProductPage({ id }) {
                   <textarea 
                     value={myReviewText} 
                     onChange={e => setMyReviewText(e.target.value)} 
-                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm focus:border-[#f5c842]/50 transition-colors min-h-[100px] resize-y"
+                    className="theme-input min-h-[100px] resize-y rounded-xl px-4 py-3 text-sm"
                     placeholder="What did you like or dislike?"
                   />
                 </div>
@@ -363,7 +362,7 @@ export default function ProductPage({ id }) {
 
             {/* Review List */}
             {reviews.length === 0 ? (
-              <div className="text-gray-500 text-center py-8 bg-[#12121a] rounded-2xl border border-white/5">
+              <div className="theme-card rounded-2xl py-8 text-center text-[var(--muted-2)]">
                 <div className="text-4xl mb-3 opacity-50">⭐</div>
                 <p>No reviews yet. Be the first to review this product!</p>
               </div>
@@ -375,7 +374,7 @@ export default function ProductPage({ id }) {
                   const isMine = currentUserId && review.customer_id && review.customer_id._id === currentUserId;
 
                   return (
-                    <div key={review._id} className="bg-[#12121a] p-5 rounded-2xl border border-white/5 flex flex-col relative group">
+                    <div key={review._id} className="theme-card group relative flex flex-col rounded-2xl p-5">
                       {review.is_featured && (
                         <div className="absolute top-0 right-0 bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[10px] font-bold px-2 py-1 rounded-bl-xl rounded-tr-2xl shadow-lg">
                           ⭐ Featured
@@ -387,11 +386,11 @@ export default function ProductPage({ id }) {
                             {review.customer_name?.charAt(0).toUpperCase()}
                           </div>
                           <div>
-                            <div className="font-bold text-white text-sm flex items-center gap-1.5">
+                            <div className="flex items-center gap-1.5 text-sm font-bold text-[var(--heading)]">
                               {review.customer_name}
                               {review.verified_purchase && <span className="text-[#10b981] text-[10px] bg-[#10b981]/10 px-1.5 py-0.5 rounded-full" title="Verified Purchase">✓ Verified</span>}
                             </div>
-                            <div className="text-gray-500 text-xs mt-0.5">{new Date(review.createdAt).toLocaleDateString()}</div>
+                            <div className="mt-0.5 text-xs text-[var(--muted-2)]">{new Date(review.createdAt).toLocaleDateString()}</div>
                           </div>
                         </div>
                         {isMine && (
@@ -406,7 +405,7 @@ export default function ProductPage({ id }) {
                       </div>
                       
                       {review.review_text && (
-                        <p className="text-gray-300 text-sm leading-relaxed mt-1 flex-1">
+                        <p className="mt-1 flex-1 text-sm leading-relaxed text-[var(--text)]">
                           {review.review_text}
                         </p>
                       )}

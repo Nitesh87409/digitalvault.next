@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import ThemeToggle from '@/components/ThemeToggle';
 
 export default function Navbar({ onSearchClick }) {
   const [customer, setCustomer] = useState(null);
@@ -54,76 +55,35 @@ export default function Navbar({ onSearchClick }) {
   }
 
   return (
-    <nav
-      style={{
-        position: 'fixed',
-        top: 0,
-        width: '100%',
-        maxWidth: '100vw',
-        zIndex: 100,
-        background: 'rgba(10,10,15,0.85)',
-        backdropFilter: 'blur(20px)',
-        borderBottom: '1px solid rgba(245,200,66,0.15)',
-        overflowX: 'clip',
-      }}
-    >
+    <nav className="fixed top-0 z-[100] w-full max-w-[100vw] overflow-x-clip border-b border-[#f5c842]/15 bg-[var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
       <div
-        className="px-4 py-3 md:px-[18px] md:py-4"
-        style={{
-          maxWidth: '1152px',
-          margin: '0 auto',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'space-between',
-          gap: '12px',
-          width: '100%',
-          minWidth: 0,
-        }}
+        className="mx-auto flex w-full max-w-[1152px] items-center justify-between gap-3 px-4 py-3 md:px-[18px] md:py-4"
       >
         {/* Logo */}
         <Link
           href="/"
-          style={{
-            fontFamily: 'Syne,sans-serif',
-            fontSize: '1.25rem',
-            fontWeight: 700,
-            color: '#f5c842',
-            textDecoration: 'none',
-            whiteSpace: 'nowrap',
-            overflow: 'hidden',
-            textOverflow: 'ellipsis',
-            flexShrink: 1,
-          }}
+          className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline"
         >
           DigitalVault
         </Link>
 
         {/* Desktop Nav */}
-        <div style={{ alignItems: 'center' }} className="hidden md:flex md:gap-4 lg:gap-8 flex-shrink-0">
-          <Link href="/categories" className="text-[#d1d5db] text-[0.875rem] no-underline whitespace-nowrap">Categories</Link>
-          <Link href="/#products" style={{ color: '#d1d5db', fontSize: '0.875rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>Products</Link>
-          <Link href="/#features" style={{ color: '#d1d5db', fontSize: '0.875rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>Features</Link>
-          <Link href="/#pricing" style={{ color: '#d1d5db', fontSize: '0.875rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>Pricing</Link>
-          <Link href="/#faq" style={{ color: '#d1d5db', fontSize: '0.875rem', textDecoration: 'none', whiteSpace: 'nowrap' }}>FAQ</Link>
+        <div className="hidden shrink-0 items-center md:flex md:gap-4 lg:gap-8">
+          <Link href="/categories" className="theme-link whitespace-nowrap text-sm no-underline">Categories</Link>
+          <Link href="/#products" className="theme-link whitespace-nowrap text-sm no-underline">Products</Link>
+          <Link href="/#features" className="theme-link whitespace-nowrap text-sm no-underline">Features</Link>
+          <Link href="/#pricing" className="theme-link whitespace-nowrap text-sm no-underline">Pricing</Link>
+          <Link href="/#faq" className="theme-link whitespace-nowrap text-sm no-underline">FAQ</Link>
         </div>
 
         {/* Mobile Right Side (Search) */}
-        <div className="flex md:hidden items-center flex-shrink-0">
+        <div className="flex shrink-0 items-center gap-2 md:hidden">
+          <ThemeToggle />
           <button
             type="button"
             aria-label="Search"
             onClick={handleSearchClick}
-            className="inline-flex items-center justify-center transition-transform active:scale-95"
-            style={{
-              width: 44,
-              height: 44,
-              borderRadius: 12,
-              border: '1px solid rgba(255,255,255,0.12)',
-              background: 'rgba(255,255,255,0.05)',
-              color: '#e8e8f0',
-              cursor: 'pointer',
-              flexShrink: 0,
-            }}
+            className="theme-icon-btn h-11 w-11 rounded-xl"
           >
             <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <circle cx="11" cy="11" r="8"></circle>
@@ -134,41 +94,23 @@ export default function Navbar({ onSearchClick }) {
 
         {/* Right Side (desktop/tablet only) */}
         <div
-          className="hidden md:flex items-center md:gap-2 lg:gap-3 flex-shrink-0"
-          style={{
-            alignItems: 'center',
-            minWidth: 0,
-          }}
+          className="hidden shrink-0 items-center md:flex md:gap-2 lg:gap-3"
         >
           {/* keep these compact on mobile */}
           <div className="hidden md:flex" style={{ alignItems: 'center', gap: '12px' }}>
           </div>
 
           {/* Cart */}
-          <Link href="/cart" style={{ position: 'relative', color: '#9ca3af', display: 'flex', alignItems: 'center', justifyContent: 'center', width: 44, height: 44, flexShrink: 0 }}>
+          <ThemeToggle />
+
+          <Link href="/cart" className="theme-icon-btn relative h-11 w-11 rounded-xl">
             <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
               <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
               <line x1="3" y1="6" x2="21" y2="6" />
               <path d="M16 10a4 4 0 01-8 0" />
             </svg>
             {cartCount > 0 && (
-              <span
-                style={{
-                  position: 'absolute',
-                  top: '-6px',
-                  right: '-6px',
-                  background: '#f5c842',
-                  color: '#0a0a0f',
-                  fontSize: '10px',
-                  fontWeight: 700,
-                  width: '16px',
-                  height: '16px',
-                  borderRadius: '50%',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
+              <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f5c842] text-[10px] font-bold text-[#0a0a0f]">
                 {cartCount > 9 ? '9+' : cartCount}
               </span>
             )}
@@ -177,26 +119,22 @@ export default function Navbar({ onSearchClick }) {
           {/* Auth */}
           <div className="hidden md:flex">
             {customer ? (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px', minWidth: 0 }}>
-                <span style={{ fontSize: '0.8rem', color: '#f5c842', fontWeight: 600, whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis', maxWidth: 96 }}>
+              <div className="flex min-w-0 items-center gap-2">
+                <span className="max-w-24 truncate whitespace-nowrap text-[0.8rem] font-semibold text-[#f5c842]">
                   Hi, {customer.name?.split(' ')[0]}!
                 </span>
-                <Link href="/account" style={{
-                  fontSize: '0.75rem', color: '#9ca3af', textDecoration: 'none',
-                  background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)',
-                  padding: '4px 10px', borderRadius: '8px', whiteSpace: 'nowrap'
-                }}>
+                <Link href="/account" className="theme-card-soft whitespace-nowrap rounded-lg px-2.5 py-1 text-xs no-underline">
                   My Account
                 </Link>
-                <button onClick={logout} style={{ fontSize: '0.75rem', color: '#6b7280', background: 'none', border: 'none', cursor: 'pointer', whiteSpace: 'nowrap' }}>
+                <button onClick={logout} className="theme-muted-2 cursor-pointer whitespace-nowrap border-none bg-transparent text-xs">
                   Logout
                 </button>
               </div>
             ) : (
-              <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                <Link href="/login" style={{ fontSize: '0.875rem', color: '#9ca3af', textDecoration: 'none', whiteSpace: 'nowrap' }}>Login</Link>
-                <span style={{ color: '#374151' }}>|</span>
-                <Link href="/register" style={{ fontSize: '0.875rem', color: '#f5c842', textDecoration: 'none', fontWeight: 600, whiteSpace: 'nowrap' }}>Register</Link>
+              <div className="flex items-center gap-2">
+                <Link href="/login" className="theme-link whitespace-nowrap text-sm no-underline">Login</Link>
+                <span className="text-[var(--line)]">|</span>
+                <Link href="/register" className="whitespace-nowrap text-sm font-semibold text-[#f5c842] no-underline">Register</Link>
               </div>
             )}
           </div>

@@ -163,33 +163,19 @@ export default function HomePage() {
       </section> */}
 
       {/* PRODUCTS */}
-      <section id="products" style={{ padding: '80px 24px' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#fff', marginBottom: '16px' }}>What You'll Get</h2>
-            <p style={{ color: '#9ca3af', fontSize: '1.1rem', marginBottom: '32px' }}>Premium digital products crafted for modern entrepreneurs</p>
+      <section id="products" className="bg-[var(--bg)] px-6 py-20 transition-colors duration-300">
+        <div className="mx-auto max-w-[1152px]">
+          <div className="mb-14 text-center">
+            <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">What You'll Get</h2>
+            <p className="mb-8 text-lg text-[var(--muted)]">Premium digital products crafted for modern entrepreneurs</p>
             
-            <div style={{ maxWidth: '500px', margin: '0 auto', position: 'relative' }}>
+            <div className="relative mx-auto max-w-[500px]">
               <input 
                 type="text" 
                 placeholder="Search products by name or description..." 
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                style={{
-                  width: '100%',
-                  padding: '16px 24px',
-                  paddingLeft: '48px',
-                  borderRadius: '999px',
-                  background: 'rgba(255,255,255,0.03)',
-                  border: '1px solid rgba(245,200,66,0.2)',
-                  color: '#fff',
-                  fontSize: '1rem',
-                  outline: 'none',
-                  fontFamily: 'DM Sans, sans-serif',
-                  transition: 'all 0.2s'
-                }}
-                onFocus={(e) => e.target.style.background = 'rgba(255,255,255,0.06)'}
-                onBlur={(e) => e.target.style.background = 'rgba(255,255,255,0.03)'}
+                className="theme-input rounded-full py-4 pl-12 pr-6 text-base"
               />
               <svg 
                 width="20" height="20" fill="none" stroke="#f5c842" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
@@ -203,15 +189,15 @@ export default function HomePage() {
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {products.length === 0 ? (
-              <p style={{ color: '#6b7280', gridColumn: '1/-1', textAlign: 'center', padding: '40px' }}>Loading products...</p>
+              <p className="col-span-full p-10 text-center text-[var(--muted-2)]">Loading products...</p>
             ) : filteredProducts.length === 0 ? (
-              <div style={{ gridColumn: '1/-1', textAlign: 'center', padding: '60px 20px', background: 'rgba(255,255,255,0.02)', borderRadius: '16px', border: '1px dashed rgba(255,255,255,0.05)' }}>
+              <div className="col-span-full rounded-2xl border border-dashed border-[var(--line)] bg-[var(--surface-muted)] px-5 py-16 text-center">
                 <div style={{ fontSize: '3rem', marginBottom: '16px' }}>🔍</div>
-                <h3 style={{ color: '#fff', fontSize: '1.2rem', marginBottom: '8px', fontFamily: 'Syne, sans-serif' }}>No products found</h3>
-                <p style={{ color: '#9ca3af' }}>Try adjusting your search query to find what you're looking for.</p>
+                <h3 className="mb-2 font-syne text-xl text-[var(--heading)]">No products found</h3>
+                <p className="text-[var(--muted)]">Try adjusting your search query to find what you're looking for.</p>
                 <button 
                   onClick={() => setSearchQuery('')}
-                  style={{ marginTop: '20px', background: 'none', border: '1px solid #f5c842', color: '#f5c842', padding: '8px 20px', borderRadius: '999px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}
+                  className="mt-5 cursor-pointer rounded-full border border-[#f5c842] bg-transparent px-5 py-2 font-dm text-[#f5c842] transition-colors hover:bg-[#f5c842]/10"
                 >
                   Clear Search
                 </button>
@@ -226,13 +212,13 @@ export default function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" style={{ padding: '80px 24px', background: 'rgba(245,200,66,0.02)' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#fff', marginBottom: '16px' }}>Why Choose Us?</h2>
-            <p style={{ color: '#9ca3af', fontSize: '1.1rem' }}>Built for creators who mean business</p>
+      <section id="features" className="bg-[#f5c842]/[0.03] px-6 py-20">
+        <div className="mx-auto max-w-[1152px]">
+          <div className="mb-14 text-center">
+            <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">Why Choose Us?</h2>
+            <p className="text-lg text-[var(--muted)]">Built for creators who mean business</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
+          <div className="grid gap-6 [grid-template-columns:repeat(auto-fill,minmax(280px,1fr))]">
             {[
               { icon: '⚡', title: 'Instant Download', desc: 'Get access immediately after payment. No waiting, no delays.' },
               { icon: '🔒', title: 'Secure Payment', desc: 'Powered by Razorpay. 100% safe and encrypted transactions.' },
@@ -241,10 +227,10 @@ export default function HomePage() {
               { icon: '📧', title: 'Email Support', desc: 'Dedicated support team ready to help you succeed.' },
               { icon: '🔄', title: 'Regular Updates', desc: 'New products and updates added every month — free.' },
             ].map(f => (
-              <div key={f.title} className="card" style={{ padding: '32px' }}>
-                <div style={{ width: '48px', height: '48px', borderRadius: '12px', background: 'rgba(245,200,66,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem', marginBottom: '20px' }}>{f.icon}</div>
-                <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>{f.title}</h3>
-                <p style={{ color: '#9ca3af', fontSize: '0.875rem' }}>{f.desc}</p>
+              <div key={f.title} className="theme-card rounded-2xl p-8">
+                <div className="mb-5 flex h-12 w-12 items-center justify-center rounded-xl border border-[#f5c842]/15 bg-[#f5c842]/10 text-2xl">{f.icon}</div>
+                <h3 className="mb-2 text-lg font-bold text-[var(--heading)]">{f.title}</h3>
+                <p className="text-sm text-[var(--muted)]">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -252,33 +238,33 @@ export default function HomePage() {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" style={{ padding: '80px 24px' }}>
-        <div style={{ maxWidth: '768px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#fff', marginBottom: '16px' }}>Get Everything. Pay Once.</h2>
-            <p style={{ color: '#9ca3af', marginBottom: '24px' }}>Offer ends in:</p>
-            <div style={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+      <section id="pricing" className="bg-[var(--bg)] px-6 py-20">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-14 text-center">
+            <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">Get Everything. Pay Once.</h2>
+            <p className="mb-6 text-[var(--muted)]">Offer ends in:</p>
+            <div className="flex justify-center gap-4">
               {[{ val: countdown.h, label: 'Hours' }, { val: countdown.m, label: 'Minutes' }, { val: countdown.s, label: 'Seconds' }].map(c => (
                 <div key={c.label} className="countdown-box">
                   <div style={{ fontSize: '2rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>{c.val}</div>
-                  <div style={{ fontSize: '0.75rem', color: '#6b7280', marginTop: '4px' }}>{c.label}</div>
+                  <div className="mt-1 text-xs text-[var(--muted-2)]">{c.label}</div>
                 </div>
               ))}
             </div>
           </div>
 
-          <div className="card" style={{ padding: '48px', textAlign: 'center', borderColor: 'rgba(245,200,66,0.4)', position: 'relative', overflow: 'hidden' }}>
+          <div className="theme-card relative overflow-hidden rounded-2xl border-[#f5c842]/40 p-8 text-center sm:p-12">
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: 'linear-gradient(90deg,#f5c842,#e0a800)' }}></div>
             <div className="badge" style={{ marginBottom: '16px' }}>Most Popular</div>
-            <h3 style={{ fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Complete Bundle</h3>
-            <p style={{ color: '#9ca3af', marginBottom: '32px' }}>All products + future updates included</p>
+            <h3 className="mb-2 text-2xl font-bold text-[var(--heading)]">Complete Bundle</h3>
+            <p className="mb-8 text-[var(--muted)]">All products + future updates included</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '8px' }}>
-              <span style={{ color: '#6b7280', textDecoration: 'line-through', fontSize: '1.5rem' }}>₹{firstProduct ? (firstProduct.original_price || 8497).toLocaleString() : '8,497'}</span>
+              <span className="text-2xl text-[var(--muted-2)] line-through">₹{firstProduct ? (firstProduct.original_price || 8497).toLocaleString() : '8,497'}</span>
               <span style={{ fontSize: '3.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>₹{firstProduct ? (firstProduct.sale_price || 1999).toLocaleString() : '1,999'}</span>
             </div>
             <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '0 auto 40px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {['Instant download access', 'Lifetime access', 'Free future updates', '7-day money-back guarantee', 'Email support'].map(item => (
-                <li key={item} style={{ display: 'flex', alignItems: 'center', gap: '12px', color: '#d1d5db', fontSize: '0.875rem' }}>
+                <li key={item} className="flex items-center gap-3 text-sm text-[var(--text)]">
                   <span style={{ color: '#f5c842' }}>✓</span> {item}
                 </li>
               ))}
@@ -293,10 +279,10 @@ export default function HomePage() {
       </section>
 
       {/* TESTIMONIALS */}
-      <section style={{ padding: '80px 24px', background: 'rgba(245,200,66,0.02)' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#fff' }}>What Customers Say</h2>
+      <section className="bg-[#f5c842]/[0.03] px-6 py-20">
+        <div className="mx-auto max-w-[1152px]">
+          <div className="mb-14 text-center">
+            <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">What Customers Say</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
             {[
@@ -304,14 +290,14 @@ export default function HomePage() {
               { name: 'Priya Sharma', role: 'Startup Founder', review: 'The growth playbook alone is worth 10x the price. My startup grew from 0 to 5k users in 3 months!', initials: 'PS', color: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', textColor: '#fff' },
               { name: 'Arjun Mehta', role: 'Digital Marketer', review: 'Instant download worked perfectly. Quality is exceptional. Will definitely buy again!', initials: 'AM', color: 'linear-gradient(135deg,#10b981,#065f46)', textColor: '#fff' },
             ].map(t => (
-              <div key={t.name} className="card" style={{ padding: '24px' }}>
+              <div key={t.name} className="theme-card rounded-2xl p-6">
                 <div className="stars" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>★★★★★</div>
-                <p style={{ color: '#d1d5db', fontSize: '0.875rem', marginBottom: '20px' }}>{t.review}</p>
+                <p className="mb-5 text-sm text-[var(--text)]">{t.review}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.color, color: t.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem', fontFamily: 'Syne,sans-serif' }}>{t.initials}</div>
                   <div>
-                    <div style={{ color: '#fff', fontSize: '0.875rem', fontWeight: 600 }}>{t.name}</div>
-                    <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>{t.role}</div>
+                    <div className="text-sm font-semibold text-[var(--heading)]">{t.name}</div>
+                    <div className="text-xs text-[var(--muted-2)]">{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -321,10 +307,10 @@ export default function HomePage() {
       </section>
 
       {/* FAQ */}
-      <section id="faq" style={{ padding: '80px 24px' }}>
-        <div style={{ maxWidth: '768px', margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: '56px' }}>
-            <h2 style={{ fontSize: '2.5rem', fontWeight: 700, color: '#fff' }}>Frequently Asked Questions</h2>
+      <section id="faq" className="bg-[var(--bg)] px-6 py-20">
+        <div className="mx-auto max-w-3xl">
+          <div className="mb-14 text-center">
+            <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">Frequently Asked Questions</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
             {[
@@ -341,24 +327,24 @@ export default function HomePage() {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ padding: '48px 24px', borderTop: '1px solid rgba(245,200,66,0.15)' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto' }}>
+      <footer className="border-t border-[#f5c842]/15 bg-[var(--bg)] px-6 py-12">
+        <div className="mx-auto max-w-[1152px]">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: '40px' }}>
             <div>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>DigitalVault</div>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Premium digital products for modern entrepreneurs.</p>
+              <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs.</p>
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: '#fff', marginBottom: '12px' }}>Quick Links</div>
+              <div className="mb-3 font-semibold text-[var(--heading)]">Quick Links</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                 {[['/#products', 'Products'], ['/#pricing', 'Pricing'], ['/#faq', 'FAQ'], ['/account', 'My Account']].map(([href, label]) => (
-                  <Link key={href} href={href} style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>{label}</Link>
+                  <Link key={href} href={href} className="theme-link text-sm no-underline">{label}</Link>
                 ))}
               </div>
             </div>
             <div>
-              <div style={{ fontWeight: 600, color: '#fff', marginBottom: '12px' }}>Contact</div>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', color: '#6b7280', fontSize: '0.875rem' }}>
+              <div className="mb-3 font-semibold text-[var(--heading)]">Contact</div>
+              <div className="flex flex-col gap-2 text-sm text-[var(--muted-2)]">
                 <p>📧 support@digitalvault.in</p>
                 <p>📱 +91 98765 43210</p>
                 <p>🕐 Mon–Sat, 10am–6pm IST</p>
@@ -378,12 +364,12 @@ export default function HomePage() {
 function FaqItem({ q, a }) {
   const [open, setOpen] = useState(false);
   return (
-    <div className="card" style={{ padding: '24px', cursor: 'pointer' }} onClick={() => setOpen(!open)}>
+    <div className="theme-card cursor-pointer rounded-2xl p-6" onClick={() => setOpen(!open)}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span style={{ fontWeight: 600, color: '#fff', fontSize: '0.95rem' }}>{q}</span>
+        <span className="text-[0.95rem] font-semibold text-[var(--heading)]">{q}</span>
         <span style={{ color: '#f5c842', fontSize: '1.2rem', transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'none' }}>↓</span>
       </div>
-      {open && <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginTop: '16px', lineHeight: '1.7' }}>{a}</p>}
+      {open && <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{a}</p>}
     </div>
   );
 }

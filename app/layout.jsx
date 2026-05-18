@@ -8,8 +8,23 @@ export const metadata = {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function () {
+                try {
+                  var saved = localStorage.getItem('dv_theme');
+                  var theme = saved === 'light' || saved === 'dark' ? saved : 'dark';
+                  document.documentElement.dataset.theme = theme;
+                } catch (e) {
+                  document.documentElement.dataset.theme = 'dark';
+                }
+              })();
+            `,
+          }}
+        />
         <link
           href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
           rel="stylesheet"
