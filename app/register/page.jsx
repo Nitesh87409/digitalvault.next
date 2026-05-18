@@ -80,7 +80,7 @@ export default function RegisterPage() {
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Your full name' },
               { label: 'Email Address', key: 'email', type: 'email', placeholder: 'your@email.com' },
-              { label: 'Phone Number', key: 'phone', type: 'tel', placeholder: '10-digit mobile number', maxLength: 10 },
+              { label: 'Phone Number (Optional)', key: 'phone', type: 'tel', placeholder: '10-digit mobile number', maxLength: 10 },
             ].map(f => (
               <div key={f.key}>
                 <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>{f.label}</label>
@@ -146,4 +146,6 @@ export default function RegisterPage() {
       </div>
     </div>
   );
+}
+;
 }

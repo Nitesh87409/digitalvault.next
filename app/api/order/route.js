@@ -210,7 +210,6 @@ export async function POST(request) {
 
       const product = await Product.findOne({ _id: product_id, status: true }).lean();
       if (!product) return json(0, 'Product not found');
-      if (!customer.phone && !body.phone) return json(0, 'Phone number required');
 
       const couponResult = await validateCoupon({
         code: coupon_code,

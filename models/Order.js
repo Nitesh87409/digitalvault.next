@@ -3,7 +3,7 @@ import mongoose from 'mongoose';
 const OrderSchema = new mongoose.Schema({
   name:                { type: String, required: true },
   email:               { type: String, required: true },
-  phone:               { type: String, required: true },
+  phone:               { type: String, required: false,default: ''},
   customer_id:         { type: mongoose.Schema.Types.ObjectId, ref: 'Customer' },
   amount:              { type: Number, required: true },
   original_amount:     { type: Number, default: 0 },

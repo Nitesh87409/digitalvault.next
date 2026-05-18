@@ -51,13 +51,13 @@ export async function POST(request) {
         return NextResponse.json({ flag: 0, message: 'Invalid Google token.' });
       }
     } else if (provider === 'truecaller') {
-      if (!userData || !userData.phone) {
+      if (!userData) {
         return NextResponse.json({ flag: 0, message: 'Invalid Truecaller payload.' });
       }
-      customerData.phone = userData.phone.trim();
+      customerData.phone = userData.phone ? userData.phone.trim() : '';
       customerData.name = userData.name || 'Truecaller User';
       customerData.profile_image = userData.avatarUrl || '';
-      customerData.social_id = userData.id || userData.phone;
+      customerData.social_id = userData.id || customerData.phone;
     } else if (provider === 'apple') {
       try {
         const decoded = jwt.decode(token);

@@ -14,8 +14,8 @@ export async function POST(request) {
     // REGISTER
     if (action === 'register') {
       const { name, email, phone, password } = body;
-      if (!name || !email || !phone || !password)
-        return NextResponse.json({ flag: 0, message: 'All fields required' });
+      if (!name || !email || !password)
+        return NextResponse.json({ flag: 0, message: 'Name, email and password required' });
       if (password.length < 6)
         return NextResponse.json({ flag: 0, message: 'Password must be at least 6 characters' });
 
