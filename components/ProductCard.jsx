@@ -28,7 +28,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
 
   return (
     <div
-      className="flex flex-row items-center p-3 sm:p-4 gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(245,200,66,0.15)] bg-white/5 border border-white/10 rounded-2xl w-full"
+      className="flex flex-row items-center p-3 sm:p-4 gap-4 cursor-pointer transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgba(245,200,66,0.15)] bg-white/5 border border-white/10 rounded-2xl w-full min-w-0"
       onClick={() => window.open(`/product/${product._id}`, '_blank')}
     >
       {/* LEFT SIDE: Image */}
@@ -59,9 +59,9 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
         </div>
 
         {/* Bottom Row */}
-        <div className="flex flex-row items-center justify-between mt-auto">
+        <div className="flex flex-col items-start gap-2 mt-auto">
           {/* Prices */}
-          <div className="flex flex-col sm:flex-row sm:items-baseline gap-0 sm:gap-2 shrink-0">
+          <div className="flex flex-row items-baseline gap-2 shrink-0">
             <span className="text-sm sm:text-base font-bold text-white">₹{sale.toLocaleString()}</span>
             {orig > 0 && <span className="text-[10px] sm:text-xs text-gray-500 line-through">₹{orig.toLocaleString()}</span>}
           </div>
