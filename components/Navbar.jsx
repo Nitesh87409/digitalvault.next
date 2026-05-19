@@ -8,8 +8,11 @@ export default function Navbar({ onSearchClick }) {
   const [cartCount, setCartCount] = useState(0);
 
   useEffect(() => {
-    const c = localStorage.getItem('dv_customer');
-    if (c) setCustomer(JSON.parse(c));
+    const loadCustomer = () => {
+      const c = localStorage.getItem('dv_customer');
+      setCustomer(c ? JSON.parse(c) : null);
+    };
+    loadCustomer();
 
     const loadCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
@@ -18,12 +21,19 @@ export default function Navbar({ onSearchClick }) {
 
     loadCartCount();
 
+    const handleStorage = (e) => {
+      if (e.key === 'dv_cart' || !e.key) loadCartCount();
+      if (e.key === 'dv_customer' || !e.key) loadCustomer();
+    };
+
     window.addEventListener('cart-updated', loadCartCount);
-    window.addEventListener('storage', loadCartCount);
+    window.addEventListener('auth-updated', loadCustomer);
+    window.addEventListener('storage', handleStorage);
 
     return () => {
       window.removeEventListener('cart-updated', loadCartCount);
-      window.removeEventListener('storage', loadCartCount);
+      window.removeEventListener('auth-updated', loadCustomer);
+      window.removeEventListener('storage', handleStorage);
     };
   }, []);
 
