@@ -8,19 +8,25 @@ import { generateToken } from '@/lib/auth';
 
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
+const SUPPORTED_PROVIDERS = ['google', 'apple', 'truecaller', 'telegram', 'whatsapp'];
+
 export async function POST(request) {
   try {
     await connectDB();
     const payload = await request.json();
     const { provider, token, userData } = payload;
     
+    if (!provider || !SUPPORTED_PROVIDERS.includes(provider)) {
+      console.warn(`[Auth] Invalid or missing provider: ${provider}`);
+      return NextResponse.json({ flag: 0, message: 'Invalid or unsupported provider.' }, { status: 400 });
+    }
+
     // Check if the setting is enabled
     const settings = await Setting.findOne() || {};
-    if (provider === 'google' && !settings.google_login_enabled) {
-      return NextResponse.json({ flag: 0, message: 'Google login is disabled.' });
-    }
-    if (provider === 'apple' && !settings.apple_login_enabled) {
-      return NextResponse.json({ flag: 0, message: 'Apple login is disabled.' });
+    const providerSettingKey = `${provider}_login_enabled`;
+    if (settings[providerSettingKey] === false) {
+      console.warn(`[Auth] ${provider} login is disabled in settings.`);
+      return NextResponse.json({ flag: 0, message: `${provider.charAt(0).toUpperCase() + provider.slice(1)} login is disabled.` });
     }
 
     let customerData = {
@@ -44,8 +50,8 @@ export async function POST(request) {
         customerData.profile_image = decoded.picture;
         customerData.social_id = decoded.sub;
       } catch (err) {
-        console.error('Google token verification failed:', err);
-        return NextResponse.json({ flag: 0, message: 'Invalid Google token.' });
+        console.error('[Auth] Google token verification failed:', err);
+        return NextResponse.json({ flag: 0, message: 'Invalid Google token.' }, { status: 401 });
       }
     } else if (provider === 'apple') {
       try {
@@ -57,10 +63,24 @@ export async function POST(request) {
         customerData.name = (userData && userData.name) ? `${userData.name.firstName} ${userData.name.lastName}` : 'Apple User';
         customerData.social_id = decoded.sub;
       } catch (err) {
-        return NextResponse.json({ flag: 0, message: 'Invalid Apple token.' });
+        console.error('[Auth] Apple token verification failed:', err);
+        return NextResponse.json({ flag: 0, message: 'Invalid Apple token.' }, { status: 401 });
       }
     } else {
-      return NextResponse.json({ flag: 0, message: 'Invalid provider.' });
+      if (!userData || !userData.id) {
+         console.warn(`[Auth] Missing userData.id for provider: ${provider}`);
+         return NextResponse.json({ flag: 0, message: `Invalid payload for ${provider}.` }, { status: 400 });
+      }
+      customerData.social_id = userData.id;
+      customerData.email = (userData.email || '').toLowerCase().trim();
+      customerData.name = userData.name || `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`;
+      customerData.phone = userData.phone || '';
+      customerData.profile_image = userData.profile_image || '';
+    }
+
+    if (!customerData.social_id) {
+      console.warn(`[Auth] Missing social_id for provider: ${provider}`);
+      return NextResponse.json({ flag: 0, message: 'Authentication failed, missing user ID.' }, { status: 400 });
     }
 
     // Now find or create the customer
@@ -71,10 +91,13 @@ export async function POST(request) {
       query.push({ email: customerData.email });
     }
     
-    if (provider === 'google' && customerData.social_id) {
-      query.push({ google_id: customerData.social_id });
-    } else if (provider === 'apple' && customerData.social_id) {
-      query.push({ apple_id: customerData.social_id });
+    if (customerData.phone) {
+      query.push({ phone: customerData.phone });
+    }
+    
+    const providerIdField = `${provider}_id`;
+    if (customerData.social_id) {
+      query.push({ [providerIdField]: customerData.social_id });
     }
 
     if (query.length > 0) {
@@ -89,22 +112,21 @@ export async function POST(request) {
         phone: customerData.phone || undefined,
         auth_provider: provider,
         is_verified: true,
-        profile_image: customerData.profile_image || null,
+        profile_image: customerData.profile_image || undefined,
         last_login: new Date()
       });
 
-      if (provider === 'google') customer.google_id = customerData.social_id;
-      if (provider === 'apple') customer.apple_id = customerData.social_id;
+      // Dynamically assign the provider ID only if truthy
+      if (customerData.social_id) {
+        customer[providerIdField] = customerData.social_id;
+      }
 
       await customer.save();
     } else {
       // IF CUSTOMER EXISTS
-      // update missing provider IDs
-      if (provider === 'google' && !customer.google_id) {
-        customer.google_id = customerData.social_id;
-      }
-      if (provider === 'apple' && !customer.apple_id) {
-        customer.apple_id = customerData.social_id;
+      // update missing provider IDs dynamically
+      if (customerData.social_id && !customer[providerIdField]) {
+        customer[providerIdField] = customerData.social_id;
       }
       
       // update profile image if needed
@@ -155,7 +177,7 @@ export async function POST(request) {
     return response;
     
   } catch (error) {
-    console.error('Social auth error:', error);
+    console.error(`[Auth] Social auth error:`, error);
     return NextResponse.json({ flag: 0, message: 'Server error during authentication.' }, { status: 500 });
   }
 }
