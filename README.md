@@ -94,10 +94,11 @@ EMAIL_FROM=DigitalVault <your@gmail.com>
 NEXT_PUBLIC_APP_URL=http://localhost:3000
 NEXT_PUBLIC_APP_NAME=DigitalVault
 NEXT_PUBLIC_RAZORPAY_KEY_ID=rzp_test_xxxxxxxxxx
+TRUST_PROXY_HEADERS=false
 
-# Admin default
+# Admin
 ADMIN_EMAIL=admin@digitalvault.in
-ADMIN_PASSWORD=Admin@123
+ADMIN_PASSWORD=replace_with_a_strong_unique_password
 
 # Cloudinary
 CLOUDINARY_CLOUD_NAME=your_cloud_name
@@ -189,8 +190,8 @@ vercel
 
 ---
 
-## 🔑 Default Admin
+## 🔑 Admin Login
 
 After first `npm run dev`:
 - Email: `admin@digitalvault.in` (from .env)
-- Password: `Admin@123` (from .env)
+- Password: your `ADMIN_PASSWORD` value from `.env.local`

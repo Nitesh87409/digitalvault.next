@@ -41,9 +41,10 @@ export default function CategoryProductsPage() {
   function addToCart(product) {
     const c = localStorage.getItem('dv_customer');
     if (!c) { window.location.href = '/login'; return; }
+    const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
-    if (cart.find(i => i.id === product._id)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
-    cart.push({ id: product._id, name: product.name, price: product.sale_price, orig_price: product.original_price, image: product.images?.[0] || null, qty: 1 });
+    if (cart.find(i => i.id === productId)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
+    cart.push({ id: productId, name: product.name, price: product.sale_price, orig_price: product.original_price, image: product.images?.[0] || null, qty: 1 });
     localStorage.setItem('dv_cart', JSON.stringify(cart));
     showToast('Added to cart! 🎉', '#10b981', '#fff');
     window.dispatchEvent(new CustomEvent('cart-updated'));
@@ -53,10 +54,11 @@ export default function CategoryProductsPage() {
     const c = localStorage.getItem('dv_customer');
     if (!c) { window.location.href = '/login'; return; }
 
+    const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
-    if (!cart.find(i => i.id === product._id)) {
+    if (!cart.find(i => i.id === productId)) {
       cart.push({
-        id: product._id,
+        id: productId,
         name: product.name,
         price: product.sale_price,
         orig_price: product.original_price,
@@ -132,7 +134,7 @@ export default function CategoryProductsPage() {
               </div>
             ) : (
               filteredProducts.map((p, i) => (
-                <ProductCard key={p._id} product={p} index={i} onAddToCart={addToCart} onBuyNow={buyNow} />
+                <ProductCard key={p.id || p._id} product={p} index={i} onAddToCart={addToCart} onBuyNow={buyNow} />
               ))
             )}
           </div>

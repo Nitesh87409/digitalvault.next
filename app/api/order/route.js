@@ -13,6 +13,8 @@ import { verifyAdmin, verifyCustomer } from '@/lib/auth';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+const DOWNLOAD_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+
 function json(flag, message, extra = {}) {
   return NextResponse.json({ flag, message, ...extra });
 }
@@ -125,10 +127,72 @@ function distributeDiscount(products, discount) {
   });
 }
 
+function newDownloadTokenExpiry() {
+  return new Date(Date.now() + DOWNLOAD_TOKEN_TTL_MS);
+}
+
+async function refreshExpiredDownloadTokens(orders) {
+  const now = new Date();
+  const updates = [];
+
+  for (const order of orders) {
+    const expired = !order.token_expires_at || new Date(order.token_expires_at) <= now;
+    if (!order.download_token || expired) {
+      order.download_token = uuidv4();
+      order.token_expires_at = newDownloadTokenExpiry();
+      updates.push({
+        updateOne: {
+          filter: { _id: order._id, customer_id: order.customer_id, payment_status: 1 },
+          update: {
+            $set: {
+              download_token: order.download_token,
+              token_expires_at: order.token_expires_at,
+            },
+          },
+        },
+      });
+    }
+  }
+
+  if (updates.length) {
+    await Order.bulkWrite(updates);
+  }
+
+  return orders;
+}
+
 async function markCouponUsed({ couponCode, email, orderId, discount, revenue }) {
   if (!couponCode) return;
-  await Coupon.updateOne(
-    { code: couponCode },
+  const coupon = await Coupon.findOne({ code: couponCode }).select('_id max_uses per_user_limit').lean();
+  if (!coupon) throw new Error('Coupon not found');
+
+  const exprChecks = [
+    {
+      $lt: [
+        {
+          $size: {
+            $filter: {
+              input: '$used_by',
+              as: 'usage',
+              cond: { $eq: ['$$usage.user_email', email] },
+            },
+          },
+        },
+        coupon.per_user_limit || 1,
+      ],
+    },
+  ];
+
+  if (coupon.max_uses) {
+    exprChecks.push({ $lt: ['$used_count', coupon.max_uses] });
+  }
+
+  const result = await Coupon.updateOne(
+    {
+      _id: coupon._id,
+      status: true,
+      $expr: exprChecks.length === 1 ? exprChecks[0] : { $and: exprChecks },
+    },
     {
       $inc: { used_count: 1, total_revenue: revenue },
       $push: {
@@ -141,6 +205,10 @@ async function markCouponUsed({ couponCode, email, orderId, discount, revenue })
       },
     }
   );
+  if (result.modifiedCount !== 1) {
+    throw new Error('Coupon usage limit reached');
+  }
+
   await Customer.updateOne(
     { email },
     { $push: { coupons_used: { code: couponCode, used_at: new Date() } } }
@@ -162,13 +230,13 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const type = searchParams.get('type');
 
+    const admin = verifyAdmin(request);
+    if (!admin) return json(0, 'Unauthorized');
+
     if (type === 'stats') {
       const totalSales = await Order.countDocuments({ payment_status: 1 });
       return NextResponse.json({ flag: 1, totalSales });
     }
-
-    const admin = verifyAdmin(request);
-    if (!admin) return json(0, 'Unauthorized');
 
     const limit = Math.min(Number(searchParams.get('limit')) || 200, 500);
     const [orders, revenueAgg] = await Promise.all([
@@ -338,7 +406,7 @@ export async function POST(request) {
       }
 
       const tokenById = new Map(unpaidOrders.map(order => [order._id.toString(), uuidv4()]));
-      const tokenExpiresAt = new Date('2099-12-31');
+      const tokenExpiresAt = newDownloadTokenExpiry();
       await Order.bulkWrite(unpaidOrders.map(order => ({
         updateOne: {
           filter: { _id: order._id, payment_status: { $ne: 1 } },
@@ -377,8 +445,6 @@ export async function POST(request) {
 
       await Promise.allSettled(
         unpaidOrders.map(order => {
-          console.log('ORDER DATA:', JSON.stringify(order, null, 2));
-
           return sendOrderConfirmation({
             name: order.name,
             email: order.email,
@@ -410,11 +476,11 @@ export async function POST(request) {
       if (error) return error;
 
       const orders = await Order.find({ customer_id: customer._id, payment_status: 1 })
-        .populate('product_id', 'name file_url images')
+        .populate('product_id', 'name images')
         .sort({ createdAt: -1 })
         .lean();
 
-      return NextResponse.json({ flag: 1, orders: orders || [] });
+      return NextResponse.json({ flag: 1, orders: await refreshExpiredDownloadTokens(orders || []) });
     }
 
     if (action === 'get-download') {
@@ -432,7 +498,7 @@ export async function POST(request) {
 
       return NextResponse.json({
         flag: 1,
-        files: [{ id: product._id, name: product.name, url: product.file_url }],
+        files: [{ id: product._id, name: product.name }],
       });
     }
 

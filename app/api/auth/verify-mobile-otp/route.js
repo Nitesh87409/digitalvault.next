@@ -16,6 +16,9 @@ export async function POST(request) {
 
     let settings = await Setting.findOne();
     if (!settings) settings = await Setting.create({});
+    if (!settings.mobile_otp_enabled) {
+      return NextResponse.json({ flag: 0, message: 'Mobile OTP login is disabled' }, { status: 403 });
+    }
 
     const otpRecord = await Otp.findOne({ identifier: normalizedPhone, type: 'mobile' });
     if (!otpRecord) return NextResponse.json({ flag: 0, message: 'OTP not found or expired' });

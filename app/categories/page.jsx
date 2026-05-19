@@ -136,7 +136,7 @@ export default function CategoriesPage() {
   };
 
   const handleSearchProduct = (product) => {
-    router.push(`/product/${product._id}`);
+    router.push(`/product/${product.id || product._id}`);
     setIsSearchOpen(false);
   };
 
@@ -372,7 +372,7 @@ export default function CategoriesPage() {
                     <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Products</h3>
                     <div className="flex flex-col gap-2">
                       {matchedProducts.map(p => (
-                        <button key={p._id} onClick={() => handleSearchProduct(p)} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left cursor-pointer hover:bg-white/10 transition-colors">
+                        <button key={p.id || p._id} onClick={() => handleSearchProduct(p)} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left cursor-pointer hover:bg-white/10 transition-colors">
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center">
                             {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : <Box size={20} className="text-gray-500 m-2"/>}
                           </div>

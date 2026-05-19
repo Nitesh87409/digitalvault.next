@@ -21,6 +21,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
   const badge = badges[index % badges.length];
   const sale = product.sale_price || 0;
   const orig = product.original_price || 0;
+  const productId = product.id || product._id;
   const rawDesc = product.description ? product.description.replace(/<[^>]*>/g, '') : '';
   const desc = rawDesc || 'Premium digital product — instant download after purchase.';
   // Use real average rating if available, else generate consistent pseudo-rating for UI
@@ -29,7 +30,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
   return (
     <div
       className="theme-card flex w-full min-w-0 cursor-pointer flex-row items-center gap-4 rounded-2xl p-3 hover:-translate-y-1 hover:border-[#f5c842]/30 hover:shadow-[0_8px_30px_rgba(245,200,66,0.15)] sm:p-4"
-      onClick={() => window.open(`/product/${product._id}`, '_blank')}
+      onClick={() => window.open(`/product/${productId}`, '_blank')}
     >
       {/* LEFT SIDE: Image */}
       <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden relative flex items-center justify-center shadow-inner" style={{ background: style.bg }}>

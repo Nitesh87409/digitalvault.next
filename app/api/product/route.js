@@ -3,6 +3,22 @@ import connectDB from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { verifyAdmin } from '@/lib/auth';
 
+const PUBLIC_PRODUCT_FIELDS = 'name description category images original_price sale_price average_rating total_reviews';
+
+function toPublicProduct(product) {
+  return {
+    id: product._id?.toString(),
+    name: product.name,
+    description: product.description || '',
+    category: product.category || 'Uncategorized',
+    images: product.images || [],
+    original_price: product.original_price,
+    sale_price: product.sale_price,
+    average_rating: product.average_rating || 0,
+    total_reviews: product.total_reviews || 0,
+  };
+}
+
 // GET /api/product — all active products
 export async function GET(request) {
   try {
@@ -14,9 +30,11 @@ export async function GET(request) {
 
     if (id) {
       const filter = admin ? { _id: id } : { _id: id, status: true };
-      const product = await Product.findOne(filter).lean();
+      const product = await Product.findOne(filter)
+        .select(admin ? '' : PUBLIC_PRODUCT_FIELDS)
+        .lean();
       if (!product) return NextResponse.json({ flag: 0, message: 'Product not found' });
-      return NextResponse.json({ flag: 1, product });
+      return NextResponse.json({ flag: 1, product: admin ? product : toPublicProduct(product) });
     }
 
     const filter = admin ? {} : { status: true };
@@ -25,9 +43,10 @@ export async function GET(request) {
     }
 
     const products = await Product.find(filter)
+      .select(admin ? '' : PUBLIC_PRODUCT_FIELDS)
       .sort({ createdAt: -1 })
       .lean();
-    return NextResponse.json({ flag: 1, products });
+    return NextResponse.json({ flag: 1, products: admin ? products : products.map(toPublicProduct) });
   } catch (e) {
     return NextResponse.json({ flag: 0, message: 'Server error' });
   }
