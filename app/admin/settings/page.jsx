@@ -8,7 +8,6 @@ export default function AdminSettingsPage() {
     email_otp_enabled: true,
     mobile_otp_enabled: false,
     google_login_enabled: false,
-    truecaller_login_enabled: false,
     apple_login_enabled: false,
     otp_expiry_minutes: 5,
     otp_max_attempts: 5,
@@ -33,7 +32,6 @@ export default function AdminSettingsPage() {
           email_otp_enabled: data.settings.email_otp_enabled ?? true,
           mobile_otp_enabled: data.settings.mobile_otp_enabled ?? false,
           google_login_enabled: data.settings.google_login_enabled ?? false,
-          truecaller_login_enabled: data.settings.truecaller_login_enabled ?? false,
           apple_login_enabled: data.settings.apple_login_enabled ?? false,
           otp_expiry_minutes: data.settings.otp_expiry_minutes ?? 5,
           otp_max_attempts: data.settings.otp_max_attempts ?? 5,
@@ -144,19 +142,6 @@ export default function AdminSettingsPage() {
                   <input type="checkbox" checked={settings.google_login_enabled} onChange={(e) => handleChange('google_login_enabled', e.target.checked)} className="opacity-0 w-0 h-0" />
                   <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.google_login_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
                     <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.google_login_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
-                  </span>
-                </label>
-              </div>
-
-              <div className="flex items-center justify-between mb-6 pb-6 border-b border-white/5">
-                <div className="pr-4">
-                  <div className="font-semibold text-white mb-1">Truecaller Login</div>
-                  <div className="text-sm text-gray-500">Allow users to login with Truecaller.</div>
-                </div>
-                <label className="relative inline-block w-12 h-6 shrink-0">
-                  <input type="checkbox" checked={settings.truecaller_login_enabled} onChange={(e) => handleChange('truecaller_login_enabled', e.target.checked)} className="opacity-0 w-0 h-0" />
-                  <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.truecaller_login_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
-                    <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.truecaller_login_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
                   </span>
                 </label>
               </div>

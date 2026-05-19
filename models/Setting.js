@@ -5,7 +5,6 @@ const SettingSchema = new mongoose.Schema({
   email_otp_enabled: { type: Boolean, default: true },
   mobile_otp_enabled: { type: Boolean, default: false },
   google_login_enabled: { type: Boolean, default: false },
-  truecaller_login_enabled: { type: Boolean, default: false },
   apple_login_enabled: { type: Boolean, default: false },
   otp_expiry_minutes: { type: Number, default: 5 },
   otp_max_attempts: { type: Number, default: 5 },

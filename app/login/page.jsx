@@ -10,7 +10,6 @@ export default function LoginPage() {
     email_otp_enabled: false,
     mobile_otp_enabled: false,
     google_login_enabled: false,
-    truecaller_login_enabled: false,
     apple_login_enabled: false,
     otp_length: 6
   });
@@ -42,7 +41,6 @@ export default function LoginPage() {
             email_otp_enabled: data.settings.email_otp_enabled ?? false,
             mobile_otp_enabled: data.settings.mobile_otp_enabled ?? false,
             google_login_enabled: data.settings.google_login_enabled ?? false,
-            truecaller_login_enabled: data.settings.truecaller_login_enabled ?? false,
             apple_login_enabled: data.settings.apple_login_enabled ?? false,
             otp_length: data.settings.otp_length ?? 6
           });
@@ -163,17 +161,6 @@ export default function LoginPage() {
     }
   };
 
-  const handleTruecallerLogin = () => {
-    // Standard Truecaller intent
-    const requestId = Math.random().toString(36).substring(7);
-    window.location.href = `truecallersdk://truesdk/web_verify?requestNonce=${requestId}&partnerKey=${process.env.NEXT_PUBLIC_TRUECALLER_CLIENT_ID || 'dummy'}&partnerName=DigitalVault&lang=en&title=Login`;
-    // Note: in a real implementation, you'd listen to the app callback. 
-    // Here we'll simulate the backend call for demonstration.
-    setTimeout(() => {
-       setError('Truecaller app not detected or login cancelled. Ensure you are on a supported mobile device.');
-    }, 2000);
-  };
-
   async function loginPassword() {
     setError('');
     if (!email || !password) { setError('Please enter email and password.'); return; }
@@ -261,7 +248,7 @@ export default function LoginPage() {
     return '';
   };
 
-  const hasSocialLogins = settings.google_login_enabled || settings.truecaller_login_enabled || settings.apple_login_enabled;
+  const hasSocialLogins = settings.google_login_enabled || settings.apple_login_enabled;
 
   return (
     <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
@@ -451,14 +438,6 @@ export default function LoginPage() {
                   <div style={{ display: 'flex', justifyContent: 'center', width: '100%', background: '#fff', borderRadius: '12px', padding: '2px', overflow: 'hidden' }}>
                     <div id="googleSignInDiv"></div>
                   </div>
-                )}
-                {settings.truecaller_login_enabled && (
-                  <button onClick={handleTruecallerLogin} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '12px', background: '#0056D2', color: '#fff', border: 'none', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M19.782 17.553c-1.332-1.334-2.664-2.669-4.004-3.996-1.127-1.134-2.825-1.28-4.103-.357a3.003 3.003 0 01-3.69-.32c-1.442-1.435-2.883-2.87-4.316-4.313-.88-.892-1.04-2.483-.243-3.698a3.036 3.036 0 00-.317-3.697L1.87 1.838a1.597 1.597 0 00-2.316.035C-.833 2.302.164 3.737.525 4.31c2.457 4.542 5.86 8.358 10.024 11.233.725.5 1.576 1.488 2.052 1.053 1.341-1.325 2.68-2.651 4.02-3.977a1.644 1.644 0 012.383 2.32c-1.312 1.318-2.624 2.637-3.935 3.957-.492.493-.41 1.405.155 1.838a2.986 2.986 0 003.548.163c1.096-.64 2.47-.456 3.364.444l1.372 1.378c.677.674.652 1.776-.05 2.427a1.583 1.583 0 01-2.222.046l-1.455-1.46z" fill="#fff"/>
-                    </svg>
-                    Truecaller
-                  </button>
                 )}
                 {settings.apple_login_enabled && (
                   <button onClick={handleAppleLogin} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '12px', background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>

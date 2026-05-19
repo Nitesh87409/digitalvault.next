@@ -36,7 +36,6 @@ export async function POST(request) {
       'email_otp_enabled',
       'mobile_otp_enabled',
       'google_login_enabled',
-      'truecaller_login_enabled',
       'apple_login_enabled',
       'otp_expiry_minutes',
       'otp_max_attempts',

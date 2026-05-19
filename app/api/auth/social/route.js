@@ -19,9 +19,6 @@ export async function POST(request) {
     if (provider === 'google' && !settings.google_login_enabled) {
       return NextResponse.json({ flag: 0, message: 'Google login is disabled.' });
     }
-    if (provider === 'truecaller' && !settings.truecaller_login_enabled) {
-      return NextResponse.json({ flag: 0, message: 'Truecaller login is disabled.' });
-    }
     if (provider === 'apple' && !settings.apple_login_enabled) {
       return NextResponse.json({ flag: 0, message: 'Apple login is disabled.' });
     }
@@ -50,14 +47,6 @@ export async function POST(request) {
         console.error('Google token verification failed:', err);
         return NextResponse.json({ flag: 0, message: 'Invalid Google token.' });
       }
-    } else if (provider === 'truecaller') {
-      if (!userData) {
-        return NextResponse.json({ flag: 0, message: 'Invalid Truecaller payload.' });
-      }
-      customerData.phone = userData.phone ? userData.phone.trim() : '';
-      customerData.name = userData.name || 'Truecaller User';
-      customerData.profile_image = userData.avatarUrl || '';
-      customerData.social_id = userData.id || customerData.phone;
     } else if (provider === 'apple') {
       try {
         const decoded = jwt.decode(token);
@@ -84,8 +73,6 @@ export async function POST(request) {
     
     if (provider === 'google' && customerData.social_id) {
       query.push({ google_id: customerData.social_id });
-    } else if (provider === 'truecaller' && customerData.social_id) {
-      query.push({ truecaller_id: customerData.social_id });
     } else if (provider === 'apple' && customerData.social_id) {
       query.push({ apple_id: customerData.social_id });
     }
@@ -107,7 +94,6 @@ export async function POST(request) {
       });
 
       if (provider === 'google') customer.google_id = customerData.social_id;
-      if (provider === 'truecaller') customer.truecaller_id = customerData.social_id;
       if (provider === 'apple') customer.apple_id = customerData.social_id;
 
       await customer.save();
@@ -116,9 +102,6 @@ export async function POST(request) {
       // update missing provider IDs
       if (provider === 'google' && !customer.google_id) {
         customer.google_id = customerData.social_id;
-      }
-      if (provider === 'truecaller' && !customer.truecaller_id) {
-        customer.truecaller_id = customerData.social_id;
       }
       if (provider === 'apple' && !customer.apple_id) {
         customer.apple_id = customerData.social_id;
