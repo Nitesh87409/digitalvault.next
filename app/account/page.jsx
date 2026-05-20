@@ -17,6 +17,11 @@ export default function AccountPage() {
   const [passMsg, setPassMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cartCount, setCartCount] = useState(0);
+  const [reviewFormOpen, setReviewFormOpen] = useState(null);
+  const [reviewRating, setReviewRating] = useState(5);
+  const [reviewText, setReviewText] = useState('');
+  const [reviewSubmitting, setReviewSubmitting] = useState(false);
+  const [reviewMsg, setReviewMsg] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -66,6 +71,73 @@ export default function AccountPage() {
       const data = await res.json();
       setOrders(data.orders || []);
     } catch(e) {}
+  }
+
+  function toggleReviewForm(productId) {
+    setReviewFormOpen(reviewFormOpen === productId ? null : productId);
+    setReviewRating(5);
+    setReviewText('');
+    setReviewMsg(null);
+  }
+
+  async function submitReview(productId) {
+    if (!productId || reviewSubmitting) return;
+    setReviewSubmitting(true);
+    setReviewMsg(null);
+    try {
+      const res = await fetch('/api/reviews', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          product_id: productId,
+          rating: reviewRating,
+          review_text: reviewText,
+        }),
+      });
+      const data = await res.json();
+      if (data.flag) {
+        setReviewMsg({ ok: true, msg: 'Review submitted successfully.' });
+        setReviewText('');
+      } else {
+        setReviewMsg({ ok: false, msg: data.message || 'Error submitting review.' });
+      }
+    } catch(e) {
+      setReviewMsg({ ok: false, msg: 'Server error. Try again.' });
+    }
+    setReviewSubmitting(false);
+  }
+
+  function renderReviewForm(productId, productName) {
+    return (
+      <div style={{ borderTop: '1px solid var(--line-soft)', marginTop: '14px', paddingTop: '14px', width: '100%' }}>
+        <h4 style={{ fontFamily: 'Syne,sans-serif', color: 'var(--heading)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '12px' }}>Review {productName}</h4>
+        {reviewMsg && (
+          <div style={{ padding: '10px 12px', borderRadius: '8px', marginBottom: '12px', fontSize: '0.8rem', background: reviewMsg.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: reviewMsg.ok ? '#10b981' : '#ef4444' }}>
+            {reviewMsg.msg}
+          </div>
+        )}
+        <div style={{ marginBottom: '12px' }}>
+          <label style={{ display: 'block', color: 'var(--muted-2)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>Rating</label>
+          <div style={{ display: 'flex', gap: '6px' }}>
+            {[1, 2, 3, 4, 5].map(star => (
+              <button key={star} type="button" onClick={() => setReviewRating(star)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: star <= reviewRating ? '#f5c842' : '#6b7280', fontSize: '1.4rem', padding: 0 }}>
+                &#9733;
+              </button>
+            ))}
+          </div>
+        </div>
+        <textarea
+          value={reviewText}
+          onChange={e => setReviewText(e.target.value)}
+          maxLength={1000}
+          placeholder="What did you like or dislike?"
+          style={{ width: '100%', minHeight: '82px', resize: 'vertical', background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', borderRadius: '10px', padding: '10px 12px', fontSize: '0.85rem', fontFamily: 'DM Sans, sans-serif', marginBottom: '12px' }}
+        />
+        <button onClick={() => submitReview(productId)} disabled={reviewSubmitting} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontWeight: 700, fontFamily: 'Syne,sans-serif', border: 'none', padding: '9px 16px', borderRadius: '8px', cursor: reviewSubmitting ? 'not-allowed' : 'pointer', opacity: reviewSubmitting ? 0.7 : 1, fontSize: '0.85rem' }}>
+          {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
+        </button>
+      </div>
+    );
   }
 
   async function saveProfile() {
@@ -249,8 +321,8 @@ export default function AccountPage() {
                           const productId = order.product_id?._id || order.product_id;
                           const dlUrl = productId ? `/api/download?token=${order.download_token}&pid=${productId}` : `/download?token=${order.download_token}`;
                           return (
-                            <div key={i} className="flex flex-col sm:flex-row items-start sm:items-center gap-4" style={{ background: 'var(--surface-muted)', border: '1px solid var(--line-soft)', borderRadius: '14px', padding: '18px' }}>
-                              <div className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0">
+                            <div key={i} className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4" style={{ background: 'var(--surface-muted)', border: '1px solid var(--line-soft)', borderRadius: '14px', padding: '18px' }}>
+                              <Link href={`/product/${productId}`} className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0 no-underline" style={{ color: 'inherit' }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
                                   {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
                                 </div>
@@ -258,10 +330,16 @@ export default function AccountPage() {
                                   <h3 style={{ fontWeight: 700, color: 'var(--heading)', fontSize: '0.95rem', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{productName}</h3>
                                   <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>{date} · ₹{order.amount?.toLocaleString()}</p>
                                 </div>
-                              </div>
+                              </Link>
+                              {productId && (
+                                <button onClick={() => toggleReviewForm(productId)} className="w-full sm:w-auto justify-center" style={{ background: 'rgba(245,200,66,0.1)', color: '#f5c842', fontWeight: 700, fontFamily: 'Syne,sans-serif', border: '1px solid rgba(245,200,66,0.2)', padding: '10px 16px', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, cursor: 'pointer' }}>
+                                  {reviewFormOpen === productId ? 'Cancel' : 'Write Review'}
+                                </button>
+                              )}
                               <a href={dlUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto justify-center" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontWeight: 700, fontFamily: 'Syne,sans-serif', textDecoration: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
                                 ⬇️ Download
                               </a>
+                              {productId && reviewFormOpen === productId && renderReviewForm(productId, productName)}
                             </div>
                           );
                         })}
@@ -488,8 +566,8 @@ export default function AccountPage() {
                        const productId = order.product_id?._id || order.product_id;
                        const dlUrl = productId ? `/api/download?token=${order.download_token}&pid=${productId}` : `/download?token=${order.download_token}`;
                        return (
-                         <div key={i} className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-2xl p-4 flex items-center justify-between shadow-lg">
-                            <div className="flex items-center gap-3.5 min-w-0">
+                         <div key={i} className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
+                            <Link href={`/product/${productId}`} className="flex items-center gap-3.5 min-w-0 flex-1 no-underline" style={{ color: 'inherit' }}>
                               <div className="w-[52px] h-[52px] rounded-[14px] overflow-hidden bg-black/50 border border-white/5 flex-shrink-0 flex items-center justify-center text-xl">
                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" alt="" /> : '📦'}
                               </div>
@@ -497,10 +575,16 @@ export default function AccountPage() {
                                 <h4 className="text-[13px] font-bold text-[var(--heading)] truncate">{productName}</h4>
                                 <p className="text-[11px] text-[var(--muted)] mt-0.5">{date} • <span className="text-[#f5c842]">₹{order.amount?.toLocaleString()}</span></p>
                               </div>
-                            </div>
-                            <a href={dlUrl} target="_blank" rel="noopener noreferrer" className="bg-[#f5c842]/15 hover:bg-[#f5c842]/25 text-[#f5c842] p-3 rounded-xl transition-colors flex-shrink-0 ml-2 shadow-[0_0_10px_rgba(245,200,66,0.1)]">
+                            </Link>
+                            {productId && (
+                              <button onClick={() => toggleReviewForm(productId)} className="bg-[#f5c842]/15 hover:bg-[#f5c842]/25 text-[#f5c842] px-3 py-2.5 rounded-xl transition-colors flex-shrink-0 text-[11px] font-['Syne'] font-bold border border-[#f5c842]/20">
+                                {reviewFormOpen === productId ? 'Cancel' : 'Write Review'}
+                              </button>
+                            )}
+                            <a href={dlUrl} target="_blank" rel="noopener noreferrer" className="bg-[#f5c842]/15 hover:bg-[#f5c842]/25 text-[#f5c842] p-3 rounded-xl transition-colors flex-shrink-0 shadow-[0_0_10px_rgba(245,200,66,0.1)]">
                               <Download size={16} />
                             </a>
+                            {productId && reviewFormOpen === productId && renderReviewForm(productId, productName)}
                          </div>
                        )
                      })}

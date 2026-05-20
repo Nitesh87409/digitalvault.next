@@ -13,11 +13,7 @@ export default function ProductPage({ id }) {
   
   // Reviews state
   const [reviews, setReviews] = useState([]);
-  const [reviewFormOpen, setReviewFormOpen] = useState(false);
-  const [myRating, setMyRating] = useState(5);
-  const [myReviewText, setMyReviewText] = useState('');
-  const [submittingReview, setSubmittingReview] = useState(false);
-  const [reviewError, setReviewError] = useState('');
+
 
   const router = useRouter();
 
@@ -63,55 +59,11 @@ export default function ProductPage({ id }) {
     }
   }
 
-  async function submitReview(e) {
-    e.preventDefault();
-    setReviewError('');
-    const customer = localStorage.getItem('dv_customer');
-    if (!customer) {
-      setReviewError('Please login to submit a review.');
-      return;
-    }
-    
-    setSubmittingReview(true);
-    try {
-      const res = await fetch('/api/reviews', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
-        },
-        body: JSON.stringify({
-          product_id: product.id || product._id,
-          rating: myRating,
-          review_text: myReviewText
-        })
-      });
-      const data = await res.json();
-      if (data.flag) {
-        setReviewFormOpen(false);
-        setMyReviewText('');
-        setMyRating(5);
-        showToast('Review submitted successfully!', '#10b981', '#fff');
-        loadReviews();
-        loadProduct(); // Reload to update average rating
-      } else {
-        setReviewError(data.message || 'Error submitting review.');
-      }
-    } catch (e) {
-      setReviewError('Server error.');
-    }
-    setSubmittingReview(false);
-  }
-
   async function deleteReview(reviewId) {
     if (!confirm('Are you sure you want to delete your review?')) return;
-    const customer = localStorage.getItem('dv_customer');
     try {
       const res = await fetch(`/api/reviews/${reviewId}`, {
-        method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
+        method: 'DELETE'
       });
       const data = await res.json();
       if (data.flag) {
@@ -310,57 +262,10 @@ export default function ProductPage({ id }) {
 
           {/* Customer Reviews Section */}
           <div className="mt-14">
-            <div className="mb-8 flex items-center justify-between border-b border-[#f5c842]/10 pb-4">
+            <div className="mb-8 border-b border-[#f5c842]/10 pb-4">
               <span className="font-syne text-xl font-bold text-[var(--heading)]">Customer Reviews</span>
-              <button 
-                onClick={() => setReviewFormOpen(!reviewFormOpen)}
-                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-syne px-4 py-2 rounded-lg text-sm shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform border-none cursor-pointer"
-              >
-                {reviewFormOpen ? 'Cancel Review' : 'Write a Review'}
-              </button>
             </div>
 
-            {reviewFormOpen && (
-              <form onSubmit={submitReview} className="theme-card mb-8 flex flex-col gap-4 rounded-2xl p-6">
-                <h3 className="mb-2 text-lg font-bold text-[var(--heading)]">Write a Review</h3>
-                
-                {reviewError && <div className="bg-red-500/10 text-red-500 p-3 rounded-lg text-sm border border-red-500/20">{reviewError}</div>}
-                
-                <div>
-                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">Rating</label>
-                  <div className="flex gap-2">
-                    {[1,2,3,4,5].map(star => (
-                      <button 
-                        key={star} 
-                        type="button"
-                        onClick={() => setMyRating(star)}
-                        className={`text-2xl bg-transparent border-none cursor-pointer transition-transform hover:scale-110 ${star <= myRating ? 'text-[#f5c842]' : 'text-gray-600'}`}
-                      >
-                        ★
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                <div>
-                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">Review</label>
-                  <textarea 
-                    value={myReviewText} 
-                    onChange={e => setMyReviewText(e.target.value)} 
-                    className="theme-input min-h-[100px] resize-y rounded-xl px-4 py-3 text-sm"
-                    placeholder="What did you like or dislike?"
-                  />
-                </div>
-
-                <button 
-                  type="submit" 
-                  disabled={submittingReview} 
-                  className={`self-start px-6 py-2.5 rounded-xl bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] cursor-pointer text-sm font-syne font-bold border-none ${submittingReview ? 'opacity-70' : 'hover:scale-[1.02]'} transition-transform`}
-                >
-                  {submittingReview ? 'Submitting...' : 'Submit Review'}
-                </button>
-              </form>
-            )}
 
             {/* Review List */}
             {reviews.length === 0 ? (

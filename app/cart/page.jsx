@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ThemeToggle';
 
 let razorpayScriptPromise = null;
 
@@ -176,31 +177,32 @@ export default function CartPage() {
     }
   }
 
-  const inp = { background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' };
+  const inp = { background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' };
 
   return (
     <>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0' }}>
+      <div style={{ fontFamily: 'DM Sans, sans-serif', background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
 
         {/* Nav */}
-        <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
+        <nav style={{ background: 'var(--nav-bg)', borderBottom: '1px solid var(--line-soft)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
           <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Link href="/" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Continue Shopping</Link>
-              <Link href="/account" style={{ fontSize: '0.875rem', color: '#9ca3af', textDecoration: 'none' }}>My Account</Link>
+              <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
+              <Link href="/account" style={{ fontSize: '0.875rem', color: 'var(--muted)', textDecoration: 'none' }}>My Account</Link>
+              <ThemeToggle />
             </div>
           </div>
         </nav>
 
         <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '40px 24px' }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: '#fff', marginBottom: '32px' }}>🛒 Your Cart</h1>
+          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '32px' }}>🛒 Your Cart</h1>
 
           {cart.length === 0 ? (
             <div style={{ textAlign: 'center', padding: '80px 0' }}>
               <div style={{ fontSize: '4rem', marginBottom: '24px' }}>🛒</div>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>Your cart is empty!</h2>
-              <p style={{ color: '#6b7280', marginBottom: '32px' }}>Add some products to get started.</p>
+              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '12px' }}>Your cart is empty!</h2>
+              <p style={{ color: 'var(--muted-2)', marginBottom: '32px' }}>Add some products to get started.</p>
               <Link href="/" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '16px 32px', borderRadius: '999px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>Browse Products →</Link>
             </div>
           ) : (
@@ -210,26 +212,28 @@ export default function CartPage() {
               <div>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
                   {cart.map(item => (
-                    <div key={item.id} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <div style={{ width: '90px', height: '90px', borderRadius: '10px', overflow: 'hidden', background: '#1a1a2a', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
+                    <div key={item.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
+                      <Link href={`/product/${item.id}`} style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
+                      <div style={{ width: '90px', height: '90px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                         {item.image ? <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
                       </div>
-                      <div style={{ flex: 1 }}>
-                        <h3 style={{ fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{item.name}</h3>
-                        <p style={{ color: '#6b7280', fontSize: '0.75rem' }}>Digital Product · Instant Download</p>
+                      <div style={{ flex: 1, minWidth: 0 }}>
+                        <h3 style={{ fontWeight: 700, color: 'var(--heading)', marginBottom: '4px' }}>{item.name}</h3>
+                        <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>Digital Product · Instant Download</p>
                         <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
                           <span style={{ color: '#f5c842', fontWeight: 700 }}>₹{item.price?.toLocaleString()}</span>
-                          {item.orig_price > item.price && <span style={{ color: '#6b7280', textDecoration: 'line-through', fontSize: '0.875rem' }}>₹{item.orig_price?.toLocaleString()}</span>}
+                          {item.orig_price > item.price && <span style={{ color: 'var(--muted-2)', textDecoration: 'line-through', fontSize: '0.875rem' }}>₹{item.orig_price?.toLocaleString()}</span>}
                         </div>
                       </div>
-                      <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', padding: '8px' }} title="Remove">🗑</button>
+                      </Link>
+                      <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-2)', padding: '8px' }} title="Remove">🗑</button>
                     </div>
                   ))}
                 </div>
 
                 {/* Coupon Apply */}
-                <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '14px', padding: '20px' }}>
-                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1rem', fontWeight: 700, color: '#fff', marginBottom: '16px' }}>🎟️ Apply Coupon</h3>
+                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '20px' }}>
+                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '16px' }}>🎟️ Apply Coupon</h3>
 
                   {!couponData ? (
                     <div style={{ display: 'flex', gap: '10px' }}>
@@ -254,7 +258,7 @@ export default function CartPage() {
                         <span style={{ fontSize: '1.2rem' }}>✅</span>
                         <div>
                           <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Syne, sans-serif' }}>{couponData.code}</div>
-                          <div style={{ color: '#6b7280', fontSize: '0.75rem' }}>You save ₹{couponDiscount.toLocaleString()}</div>
+                          <div style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>You save ₹{couponDiscount.toLocaleString()}</div>
                         </div>
                       </div>
                       <button onClick={removeCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem' }}>✕ Remove</button>
@@ -270,15 +274,15 @@ export default function CartPage() {
               </div>
 
               {/* Order Summary */}
-              <div className="cart-summary" style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '16px', padding: '24px', position: 'sticky', top: '100px', alignSelf: 'start' }}>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: '#fff', marginBottom: '24px' }}>Order Summary</h3>
+              <div className="cart-summary" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', position: 'sticky', top: '100px', alignSelf: 'start' }}>
+                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '24px' }}>Order Summary</h3>
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', fontSize: '0.875rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
                     <span>{cart.length} item(s)</span>
-                    <span style={{ color: '#fff' }}>₹{subtotal.toLocaleString()}</span>
+                    <span style={{ color: 'var(--heading)' }}>₹{subtotal.toLocaleString()}</span>
                   </div>
                   {savings > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#9ca3af' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
                       <span>Product Discount</span>
                       <span style={{ color: '#10b981' }}>-₹{savings.toLocaleString()}</span>
                     </div>
@@ -289,7 +293,7 @@ export default function CartPage() {
                       <span>-₹{couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
-                  <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', color: '#fff', fontWeight: 700, fontSize: '1.1rem' }}>
+                  <div style={{ borderTop: '1px solid var(--line-soft)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', color: 'var(--heading)', fontWeight: 700, fontSize: '1.1rem' }}>
                     <span>Total</span>
                     <span style={{ color: '#f5c842' }}>₹{finalAmount.toLocaleString()}</span>
                   </div>
@@ -314,11 +318,11 @@ export default function CartPage() {
                   {loading ? '⏳ Processing...' : `Pay ₹${finalAmount.toLocaleString()} →`}
                 </button>
 
-                <Link href="/" style={{ display: 'block', textAlign: 'center', fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Continue Shopping</Link>
+                <Link href="/" style={{ display: 'block', textAlign: 'center', fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
 
-                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid rgba(255,255,255,0.06)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--line-soft)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
                   {['🔒 Secure Razorpay Payment', '⚡ Instant Download', '💰 7-Day Money Back'].map(t => (
-                    <p key={t} style={{ color: '#6b7280', fontSize: '0.75rem' }}>{t}</p>
+                    <p key={t} style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>{t}</p>
                   ))}
                 </div>
               </div>
