@@ -2,22 +2,17 @@
 import { useState, useEffect, Suspense } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { useSettings } from '@/hooks/useSettings';
 
 function DownloadContent() {
   const [state, setState] = useState('loading'); // loading | success | error
   const [files, setFiles] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
-  const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
+  const { settings } = useSettings();
 
   useEffect(() => {
-    fetch('/api/settings').then(res => res.json()).then(data => {
-      if (data.flag && data.settings?.support_email) {
-        setSupportEmail(data.settings.support_email);
-      }
-    }).catch(() => {});
-    
     if (!token) { setState('error'); setErrorMsg('Invalid download link.'); return; }
     verifyDownload();
   }, [token]);
@@ -49,7 +44,12 @@ function DownloadContent() {
 
       <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px' }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
+          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {settings.app_logo ? (
+              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+            ) : null}
+            {settings.app_name}
+          </Link>
           <Link href="/account" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>My Account →</Link>
         </div>
       </nav>
@@ -108,7 +108,7 @@ function DownloadContent() {
               <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '24px' }}>Please contact support or check My Account for downloads.</p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <Link href="/account" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne, sans-serif', fontSize: '0.875rem' }}>My Account</Link>
-                <a href={`mailto:${supportEmail}`} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Syne, sans-serif', fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.1)' }}>Contact Support</a>
+                <a href={`mailto:${settings.support_email}`} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Syne, sans-serif', fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.1)' }}>Contact Support</a>
               </div>
             </>
           )}

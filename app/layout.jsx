@@ -1,10 +1,13 @@
 import './globals.css';
 import MobileBottomNav from '@/components/MobileBottomNav';
 
-export const metadata = {
-  title: 'DigitalVault – Premium Digital Products',
-  description: 'Everything you need to launch, grow, and scale your online business.',
-};
+export async function generateMetadata() {
+  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault';
+  return {
+    title: `${appName} – Premium Digital Products`,
+    description: 'Everything you need to launch, grow, and scale your online business.',
+  };
+}
 
 export default function RootLayout({ children }) {
   return (

@@ -55,22 +55,26 @@ export async function POST(request) {
         return deny("Too many requests. Please try again later.", 429);
       }
 
-      const exists = await Customer.findOne({ email });
-      if (exists?.is_blocked) {
-        return deny("Unable to register with this email.", 403);
+      const emailExists = await Customer.findOne({ email });
+      if (emailExists) {
+        if (emailExists.is_blocked) return deny("Unable to register with this email.", 403);
+        if (emailExists.password) return deny("Email already registered", 400);
       }
 
-      if (exists && exists.password) {
-        return deny("Unable to register with this email.", 409);
+      if (phone) {
+        const phoneExists = await Customer.findOne({ phone });
+        if (phoneExists) {
+          return deny("Phone number already in use", 400);
+        }
       }
 
       const hashed = await bcrypt.hash(password, 12);
-      const customer = exists || new Customer({ email });
+      const customer = emailExists || new Customer({ email });
       customer.name = name;
       customer.phone = phone;
       customer.password = hashed;
       customer.is_verified = true;
-      if (!exists) {
+      if (!emailExists) {
         customer.is_blocked = false;
       }
       customer.last_login = new Date();
@@ -153,6 +157,10 @@ export async function POST(request) {
     return deny("Invalid action", 400);
   } catch (e) {
     console.error("[Customer] POST error:", e);
+    if (e.code === 11000) {
+      if (e.keyPattern?.email) return deny("Email already registered", 400);
+      if (e.keyPattern?.phone) return deny("Phone number already in use", 400);
+    }
     return deny("Server error", 500);
   }
 }
@@ -179,11 +187,23 @@ export async function PUT(request) {
 
       if (!name) return deny("Name is required", 400);
 
-      account.name = name;
-      account.phone = phone;
       if (email && email !== account.email) {
+        const emailExists = await Customer.findOne({ email, _id: { $ne: account._id } });
+        if (emailExists) {
+          return deny("Email already registered", 400);
+        }
         account.email = email;
       }
+
+      if (phone && phone !== account.phone) {
+        const phoneExists = await Customer.findOne({ phone, _id: { $ne: account._id } });
+        if (phoneExists) {
+          return deny("Phone number already in use", 400);
+        }
+      }
+      
+      account.name = name;
+      account.phone = phone;
       await account.save();
 
       return NextResponse.json({
@@ -219,6 +239,10 @@ export async function PUT(request) {
     return deny("Invalid action", 400);
   } catch (e) {
     console.error("[Customer] PUT error:", e);
+    if (e.code === 11000) {
+      if (e.keyPattern?.email) return deny("Email already registered", 400);
+      if (e.keyPattern?.phone) return deny("Phone number already in use", 400);
+    }
     return deny(e.message || "Server error", 500);
   }
 }

@@ -353,7 +353,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1152px]">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: '40px' }}>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>DigitalVault</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>{settings.app_name}</div>
               <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs.</p>
             </div>
             <div>
@@ -374,7 +374,7 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>© 2025 DigitalVault. All rights reserved.</p>
+            <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>© {new Date().getFullYear()} {settings.app_name}. All rights reserved.</p>
             <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>Payments secured by Razorpay 🔒</p>
           </div>
         </div>

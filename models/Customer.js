@@ -30,5 +30,6 @@ const CustomerSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 CustomerSchema.index({ is_blocked: 1 });
+CustomerSchema.index({ phone: 1 }, { unique: true, partialFilterExpression: { phone: { $type: "string", $ne: "" } } });
 
 export default mongoose.models.Customer || mongoose.model('Customer', CustomerSchema);

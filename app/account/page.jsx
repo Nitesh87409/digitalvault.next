@@ -5,9 +5,11 @@ import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
 import { User, Download, ShoppingBag, Shield, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2, Lock } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function AccountPage() {
   const [customer, setCustomer] = useState(null);
+  const { settings } = useSettings();
   const [activeTab, setActiveTab] = useState('profile');
   const [form, setForm] = useState({ name: '', phone: '' });
   const [passForm, setPassForm] = useState({ current: '', newp: '', conf: '' });
@@ -221,7 +223,12 @@ export default function AccountPage() {
           {/* Nav */}
           <nav style={{ background: 'var(--nav-bg)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 100 }}>
             <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Link href="/" style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
+              <Link href="/" style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                {settings.app_logo ? (
+                  <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+                ) : null}
+                {settings.app_name}
+              </Link>
               <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
                 <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Store</Link>
                 <ThemeToggle />
@@ -436,8 +443,11 @@ export default function AccountPage() {
         {/* Top Branding Section */}
         <div className="px-5 pt-8 pb-5 relative z-10">
           <div className="mb-5 flex items-center justify-between gap-3">
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide">
-              DigitalVault
+            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide flex items-center gap-2">
+              {settings.app_logo ? (
+                <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" />
+              ) : null}
+              {settings.app_name}
             </motion.div>
             <ThemeToggle />
           </div>

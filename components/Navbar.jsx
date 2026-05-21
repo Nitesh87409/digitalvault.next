@@ -2,10 +2,12 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function Navbar({ onSearchClick }) {
   const [customer, setCustomer] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const { settings } = useSettings();
 
   useEffect(() => {
     const loadCustomer = () => {
@@ -72,9 +74,12 @@ export default function Navbar({ onSearchClick }) {
         {/* Logo */}
         <Link
           href="/"
-          className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline"
+          className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
         >
-          DigitalVault
+          {settings.app_logo ? (
+            <img src={settings.app_logo} alt={settings.app_name} className="h-8 w-auto object-contain" />
+          ) : null}
+          {settings.app_name}
         </Link>
 
         {/* Desktop Nav */}

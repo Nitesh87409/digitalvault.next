@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useSettings } from '@/hooks/useSettings';
 
 let razorpayScriptPromise = null;
 
@@ -43,6 +44,7 @@ export default function CartPage() {
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutEmail, setCheckoutEmail] = useState('');
   const router = useRouter();
+  const { settings } = useSettings();
 
   useEffect(() => {
     // Pre-load Razorpay script for faster checkout
@@ -181,7 +183,7 @@ export default function CartPage() {
         key: data.razorpay_key,
         amount: data.amount,
         currency: 'INR',
-        name: 'DigitalVault',
+        name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
         description: cart.length === 1 ? cart[0].name : `${cart.length} Products`,
         order_id: data.razorpay_order_id,
         prefill: { name: customer.name, email: customer.email || checkoutEmail, contact: customer.phone || checkoutPhone },
@@ -232,7 +234,12 @@ export default function CartPage() {
         {/* Nav */}
         <nav style={{ background: 'var(--nav-bg)', borderBottom: '1px solid var(--line-soft)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
           <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
+            <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+              {settings.app_logo ? (
+                <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+              ) : null}
+              {settings.app_name}
+            </Link>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
               <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
               <Link href="/account" style={{ fontSize: '0.875rem', color: 'var(--muted)', textDecoration: 'none' }}>My Account</Link>

@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function RegisterPage() {
   const [form, setForm] = useState({ name: '', email: '', phone: '', password: '' });
@@ -11,6 +12,7 @@ export default function RegisterPage() {
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const router = useRouter();
+  const { settings } = useSettings();
 
   function checkStrength(val) {
     let score = 0;
@@ -65,7 +67,12 @@ export default function RegisterPage() {
 
       <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
+          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {settings.app_logo ? (
+              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+            ) : null}
+            {settings.app_name}
+          </Link>
           <Link href="/" style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>← Back to Store</Link>
         </div>
       </nav>
@@ -75,7 +82,7 @@ export default function RegisterPage() {
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚀</div>
             <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Create Account</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Join DigitalVault and get instant access</p>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Join {settings.app_name} and get instant access</p>
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>

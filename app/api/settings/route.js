@@ -47,7 +47,9 @@ export async function POST(request) {
       'otp_resend_cooldown_seconds',
       'support_email',
       'support_phone',
-      'business_hours'
+      'business_hours',
+      'app_name',
+      'app_logo'
     ];
 
     fields.forEach((field) => {

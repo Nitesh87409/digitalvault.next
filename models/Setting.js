@@ -13,6 +13,8 @@ const SettingSchema = new mongoose.Schema({
   support_email: { type: String, default: 'support@digitalvault.in' },
   support_phone: { type: String, default: '+91 98765 43210' },
   business_hours: { type: String, default: 'Mon–Sat, 10am–6pm IST' },
+  app_name: { type: String, default: '' },
+  app_logo: { type: String, default: '' },
 }, { timestamps: true });
 
 export default mongoose.models.Setting || mongoose.model('Setting', SettingSchema);

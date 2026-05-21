@@ -13,6 +13,7 @@ export default function ProductPage({ id }) {
   
   // Reviews state
   const [reviews, setReviews] = useState([]);
+  const [isDescExpanded, setIsDescExpanded] = useState(false);
 
 
   const router = useRouter();
@@ -256,7 +257,27 @@ export default function ProductPage({ id }) {
               <div className="mb-8 border-b border-[#f5c842]/10 pb-4">
                 <span className="border-b-2 border-[#f5c842] pb-4 font-syne text-base font-bold text-[var(--heading)]">Description</span>
               </div>
-              <div dangerouslySetInnerHTML={{ __html: product.description }} className="max-w-3xl leading-relaxed text-[var(--text)]" />
+              <div className="relative">
+                <div 
+                  className="max-w-3xl leading-relaxed text-[var(--text)] overflow-hidden transition-all duration-500 ease-in-out"
+                  style={{ maxHeight: isDescExpanded ? '5000px' : '250px' }}
+                >
+                  <div dangerouslySetInnerHTML={{ __html: product.description }} />
+                </div>
+                
+                {!isDescExpanded && (
+                  <div className="absolute bottom-0 left-0 right-0 h-32 bg-gradient-to-t from-[var(--bg)] to-transparent pointer-events-none" />
+                )}
+              </div>
+              <button 
+                onClick={() => setIsDescExpanded(!isDescExpanded)}
+                className="mt-4 text-[#f5c842] font-semibold text-sm hover:underline flex items-center gap-1 transition-colors"
+              >
+                {isDescExpanded ? 'Show Less' : 'Read More'}
+                <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className={`transition-transform duration-300 ${isDescExpanded ? 'rotate-180' : ''}`}>
+                  <polyline points="6 9 12 15 18 9"></polyline>
+                </svg>
+              </button>
             </div>
           )}
 

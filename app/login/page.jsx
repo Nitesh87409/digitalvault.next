@@ -11,7 +11,9 @@ export default function LoginPage() {
     mobile_otp_enabled: false,
     google_login_enabled: false,
     apple_login_enabled: false,
-    otp_length: 6
+    otp_length: 6,
+    app_name: 'DigitalVault',
+    app_logo: ''
   });
   const [activeTab, setActiveTab] = useState('');
   
@@ -42,7 +44,9 @@ export default function LoginPage() {
             mobile_otp_enabled: data.settings.mobile_otp_enabled ?? false,
             google_login_enabled: data.settings.google_login_enabled ?? false,
             apple_login_enabled: data.settings.apple_login_enabled ?? false,
-            otp_length: data.settings.otp_length ?? 6
+            otp_length: data.settings.otp_length ?? 6,
+            app_name: data.settings.app_name || process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
+            app_logo: data.settings.app_logo || ''
           });
           
           if (data.settings.password_login_enabled !== false) {
@@ -261,7 +265,12 @@ export default function LoginPage() {
       {/* Nav */}
       <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
         <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
+          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+            {settings.app_logo ? (
+              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+            ) : null}
+            {settings.app_name}
+          </Link>
           <Link href="/" style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>← Back to Store</Link>
         </div>
       </nav>
@@ -271,8 +280,8 @@ export default function LoginPage() {
         <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
           <div style={{ textAlign: 'center', marginBottom: '28px' }}>
             <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>👋</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Welcome Back!</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Login to access your purchases</p>
+            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Welcome Back</h2>
+            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Login to your {settings.app_name} account</p>
           </div>
 
           <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: '#1a1a2a', padding: '4px', borderRadius: '12px', overflowX: 'auto', scrollbarWidth: 'none' }}>
