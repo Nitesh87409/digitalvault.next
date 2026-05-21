@@ -84,7 +84,7 @@ export async function POST(request) {
       const response = NextResponse.json({
         flag: 1,
         message: "Account created!",
-        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone },
+        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone, has_password: !!customer.password },
       });
 
       response.cookies.set({
@@ -138,7 +138,7 @@ export async function POST(request) {
       const response = NextResponse.json({
         flag: 1,
         message: "Login successful",
-        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone },
+        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone, has_password: !!customer.password },
       });
 
       response.cookies.set({
@@ -209,7 +209,7 @@ export async function PUT(request) {
       return NextResponse.json({
         flag: 1,
         message: "Profile updated",
-        customer: { id: account._id, name: account.name, email: account.email, phone: account.phone },
+        customer: { id: account._id, name: account.name, email: account.email, phone: account.phone, has_password: !!account.password },
       });
     }
 
