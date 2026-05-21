@@ -175,11 +175,15 @@ export async function PUT(request) {
     if (action === "update") {
       const name = typeof body?.name === "string" ? body.name.trim() : "";
       const phone = typeof body?.phone === "string" ? body.phone.trim() : "";
+      const email = typeof body?.email === "string" ? body.email.trim() : account.email;
 
       if (!name) return deny("Name is required", 400);
 
       account.name = name;
       account.phone = phone;
+      if (email && email !== account.email) {
+        account.email = email;
+      }
       await account.save();
 
       return NextResponse.json({
@@ -215,6 +219,6 @@ export async function PUT(request) {
     return deny("Invalid action", 400);
   } catch (e) {
     console.error("[Customer] PUT error:", e);
-    return deny("Server error", 500);
+    return deny(e.message || "Server error", 500);
   }
 }

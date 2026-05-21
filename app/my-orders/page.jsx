@@ -9,9 +9,16 @@ export default function MyOrdersPage() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
   const router = useRouter();
 
   useEffect(() => {
+    fetch('/api/settings').then(res => res.json()).then(data => {
+      if (data.flag && data.settings?.support_email) {
+        setSupportEmail(data.settings.support_email);
+      }
+    }).catch(() => {});
+    
     const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
     if (!customer?.email) {
       router.push('/login?redirect=/my-orders');
@@ -125,7 +132,7 @@ export default function MyOrdersPage() {
       </div>
 
       <div style={{ textAlign: 'center', padding: '32px', borderTop: '1px solid rgba(245,200,66,0.1)', color: '#6b7280', fontSize: '0.875rem' }}>
-        Need help? <a href="mailto:support@digitalvault.in" style={{ color: '#f5c842', textDecoration: 'none' }}>support@digitalvault.in</a>
+        Need help? <a href={`mailto:${supportEmail}`} style={{ color: '#f5c842', textDecoration: 'none' }}>{supportEmail}</a>
       </div>
     </div>
   );

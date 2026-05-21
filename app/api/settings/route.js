@@ -45,6 +45,9 @@ export async function POST(request) {
       'otp_max_attempts',
       'otp_length',
       'otp_resend_cooldown_seconds',
+      'support_email',
+      'support_phone',
+      'business_hours'
     ];
 
     fields.forEach((field) => {

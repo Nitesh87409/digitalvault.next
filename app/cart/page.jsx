@@ -40,12 +40,20 @@ export default function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponData, setCouponData] = useState(null);
   const [couponMsg, setCouponMsg] = useState('');
+  const [checkoutPhone, setCheckoutPhone] = useState('');
+  const [checkoutEmail, setCheckoutEmail] = useState('');
   const router = useRouter();
 
   useEffect(() => {
+    // Pre-load Razorpay script for faster checkout
+    loadRazorpayScript();
+    
     const c = localStorage.getItem('dv_customer');
     if (!c) { router.push('/login?redirect=/cart'); return; }
-    setCustomer(JSON.parse(c));
+    const parsedCustomer = JSON.parse(c);
+    setCustomer(parsedCustomer);
+    if (parsedCustomer.phone) setCheckoutPhone(parsedCustomer.phone);
+    if (parsedCustomer.email) setCheckoutEmail(parsedCustomer.email);
     setCart(JSON.parse(localStorage.getItem('dv_cart') || '[]'));
   }, []);
 
@@ -97,15 +105,53 @@ export default function CartPage() {
   async function proceedToCheckout() {
     if (!customer || cart.length === 0) return;
     setError('');
-    setLoading(true);
+
+    const isPhoneMissing = !customer.phone;
+    const isEmailMissing = !customer.email;
+
+    if (isPhoneMissing || isEmailMissing) {
+      if (isPhoneMissing && (!checkoutPhone || !/^\d{10}$/.test(checkoutPhone))) {
+        setError('Please enter a valid 10-digit phone number in the order summary.');
+        return;
+      }
+      if (isEmailMissing && (!checkoutEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutEmail))) {
+        setError('Please enter a valid email address in the order summary.');
+        return;
+      }
+
+      setLoading(true);
+      try {
+        const updateRes = await fetch('/api/customer', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'update', name: customer.name, phone: checkoutPhone, email: checkoutEmail })
+        });
+        const updateData = await updateRes.json();
+        if (updateData.flag) {
+          const updatedCustomer = { ...customer, phone: checkoutPhone, email: checkoutEmail };
+          localStorage.setItem('dv_customer', JSON.stringify(updatedCustomer));
+          setCustomer(updatedCustomer);
+        } else {
+          setError(updateData.message || 'Error updating details.');
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        setError('Error updating details.');
+        setLoading(false);
+        return;
+      }
+    } else {
+      setLoading(true);
+    }
 
     try {
       let data;
       const authHeaders = { 'Content-Type': 'application/json' };
       const payload = {
         name: customer.name,
-        email: customer.email,
-        phone: customer.phone,
+        email: customer.email || checkoutEmail,
+        phone: customer.phone || checkoutPhone,
         coupon_code: couponData?.code || null,
         discount_amount: couponDiscount || 0,
       };
@@ -138,7 +184,7 @@ export default function CartPage() {
         name: 'DigitalVault',
         description: cart.length === 1 ? cart[0].name : `${cart.length} Products`,
         order_id: data.razorpay_order_id,
-        prefill: { name: customer.name, email: customer.email, contact: customer.phone },
+        prefill: { name: customer.name, email: customer.email || checkoutEmail, contact: customer.phone || checkoutPhone },
         theme: { color: '#f5c842' },
         handler: async function(response) {
           const verRes = await fetch('/api/order', {
@@ -149,7 +195,7 @@ export default function CartPage() {
               razorpay_response: response,
               order_id: data.order_id || null,
               order_ids: data.order_ids || null,
-              email: customer.email,
+              email: customer.email || checkoutEmail,
               coupon_code: couponData?.code || null,
               discount_amount: couponDiscount || 0,
             })
@@ -161,7 +207,7 @@ export default function CartPage() {
             if (verData.download_token) {
               router.push(`/download?token=${verData.download_token}`);
             } else {
-              router.push('/account');
+              router.push('/account?tab=downloads');
             }
           } else {
             setError('Payment error. Check My Account.');
@@ -303,6 +349,39 @@ export default function CartPage() {
                     </div>
                   )}
                 </div>
+
+                {customer && (!customer.email || !customer.phone) && (
+                  <div style={{ marginBottom: '16px', background: 'var(--surface-2)', padding: '16px', borderRadius: '12px', border: '1px solid var(--line)' }}>
+                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '12px' }}>Please complete your details to proceed.</p>
+                    
+                    {!customer.email && (
+                      <div style={{ marginBottom: '12px' }}>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
+                        <input
+                          type="email"
+                          value={checkoutEmail}
+                          onChange={e => setCheckoutEmail(e.target.value)}
+                          placeholder="your@email.com"
+                          style={{ ...inp, width: '100%' }}
+                        />
+                      </div>
+                    )}
+                    
+                    {!customer.phone && (
+                      <div>
+                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>Phone Number</label>
+                        <input
+                          type="tel"
+                          value={checkoutPhone}
+                          onChange={e => setCheckoutPhone(e.target.value)}
+                          placeholder="10-digit mobile number"
+                          style={{ ...inp, width: '100%' }}
+                          maxLength={10}
+                        />
+                      </div>
+                    )}
+                  </div>
+                )}
 
                 {error && (
                   <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', marginBottom: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>

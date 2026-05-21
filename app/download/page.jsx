@@ -7,10 +7,17 @@ function DownloadContent() {
   const [state, setState] = useState('loading'); // loading | success | error
   const [files, setFiles] = useState([]);
   const [errorMsg, setErrorMsg] = useState('');
+  const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
   const searchParams = useSearchParams();
   const token = searchParams.get('token');
 
   useEffect(() => {
+    fetch('/api/settings').then(res => res.json()).then(data => {
+      if (data.flag && data.settings?.support_email) {
+        setSupportEmail(data.settings.support_email);
+      }
+    }).catch(() => {});
+    
     if (!token) { setState('error'); setErrorMsg('Invalid download link.'); return; }
     verifyDownload();
   }, [token]);
@@ -101,7 +108,7 @@ function DownloadContent() {
               <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '24px' }}>Please contact support or check My Account for downloads.</p>
               <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
                 <Link href="/account" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne, sans-serif', fontSize: '0.875rem' }}>My Account</Link>
-                <a href="mailto:support@digitalvault.in" style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Syne, sans-serif', fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.1)' }}>Contact Support</a>
+                <a href={`mailto:${supportEmail}`} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Syne, sans-serif', fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.1)' }}>Contact Support</a>
               </div>
             </>
           )}

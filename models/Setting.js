@@ -10,6 +10,9 @@ const SettingSchema = new mongoose.Schema({
   otp_max_attempts: { type: Number, default: 5 },
   otp_length: { type: Number, default: 6 },
   otp_resend_cooldown_seconds: { type: Number, default: 60 },
+  support_email: { type: String, default: 'support@digitalvault.in' },
+  support_phone: { type: String, default: '+91 98765 43210' },
+  business_hours: { type: String, default: 'Mon–Sat, 10am–6pm IST' },
 }, { timestamps: true });
 
 export default mongoose.models.Setting || mongoose.model('Setting', SettingSchema);

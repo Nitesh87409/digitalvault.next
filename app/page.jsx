@@ -14,13 +14,33 @@ export default function HomePage() {
   const [payModal, setPayModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
+  const [settings, setSettings] = useState({
+    support_email: 'support@digitalvault.in',
+    support_phone: '+91 98765 43210',
+    business_hours: 'Mon–Sat, 10am–6pm IST'
+  });
   const { toast, showToast } = useToast();
 
   useEffect(() => {
     loadProducts();
     loadStats();
+    loadSettings();
     startCountdown();
   }, []);
+
+  async function loadSettings() {
+    try {
+      const res = await fetch('/api/settings');
+      const data = await res.json();
+      if (data.flag && data.settings) {
+        setSettings({
+          support_email: data.settings.support_email || 'support@digitalvault.in',
+          support_phone: data.settings.support_phone || '+91 98765 43210',
+          business_hours: data.settings.business_hours || 'Mon–Sat, 10am–6pm IST'
+        });
+      }
+    } catch(e) {}
+  }
 
   async function loadProducts() {
     try {
@@ -347,9 +367,9 @@ export default function HomePage() {
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Contact</div>
               <div className="flex flex-col gap-2 text-sm text-[var(--muted-2)]">
-                <p>📧 support@digitalvault.in</p>
-                <p>📱 +91 98765 43210</p>
-                <p>🕐 Mon–Sat, 10am–6pm IST</p>
+                <p>📧 {settings.support_email}</p>
+                <p>📱 {settings.support_phone}</p>
+                <p>🕐 {settings.business_hours}</p>
               </div>
             </div>
           </div>

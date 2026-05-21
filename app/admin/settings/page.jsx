@@ -12,7 +12,10 @@ export default function AdminSettingsPage() {
     otp_expiry_minutes: 5,
     otp_max_attempts: 5,
     otp_length: 6,
-    otp_resend_cooldown_seconds: 60
+    otp_resend_cooldown_seconds: 60,
+    support_email: 'support@digitalvault.in',
+    support_phone: '+91 98765 43210',
+    business_hours: 'Mon–Sat, 10am–6pm IST'
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
@@ -36,7 +39,10 @@ export default function AdminSettingsPage() {
           otp_expiry_minutes: data.settings.otp_expiry_minutes ?? 5,
           otp_max_attempts: data.settings.otp_max_attempts ?? 5,
           otp_length: data.settings.otp_length ?? 6,
-          otp_resend_cooldown_seconds: data.settings.otp_resend_cooldown_seconds ?? 60
+          otp_resend_cooldown_seconds: data.settings.otp_resend_cooldown_seconds ?? 60,
+          support_email: data.settings.support_email ?? 'support@digitalvault.in',
+          support_phone: data.settings.support_phone ?? '+91 98765 43210',
+          business_hours: data.settings.business_hours ?? 'Mon–Sat, 10am–6pm IST'
         });
       }
     } catch (e) {
@@ -215,6 +221,42 @@ export default function AdminSettingsPage() {
                     <option value={60}>60 Seconds</option>
                     <option value={120}>120 Seconds</option>
                   </select>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#1a1a2a] rounded-2xl p-5 sm:p-8 border border-white/10 shadow-lg mb-8">
+              <h2 className="text-lg font-syne font-bold text-white mb-6">Contact & Support Settings</h2>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <div className="sm:col-span-2">
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">Support Email</label>
+                  <input
+                    type="email"
+                    value={settings.support_email}
+                    onChange={(e) => handleChange('support_email', e.target.value)}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">Support Phone</label>
+                  <input
+                    type="text"
+                    value={settings.support_phone}
+                    onChange={(e) => handleChange('support_phone', e.target.value)}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
+                  />
+                </div>
+
+                <div>
+                  <label className="text-sm font-semibold text-gray-400 block mb-2 uppercase tracking-wider">Business Hours</label>
+                  <input
+                    type="text"
+                    value={settings.business_hours}
+                    onChange={(e) => handleChange('business_hours', e.target.value)}
+                    className="bg-[#2d2d3a] border border-white/10 text-white px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
+                  />
                 </div>
               </div>
             </div>

@@ -31,6 +31,10 @@ export default function AccountPage() {
     setCustomer(parsed);
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
 
+    const params = new URLSearchParams(window.location.search);
+    const tab = params.get('tab');
+    if (tab) setActiveTab(tab);
+
     const loadCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
       setCartCount(cart.reduce((s, i) => s + i.qty, 0));

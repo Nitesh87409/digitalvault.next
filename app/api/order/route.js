@@ -276,6 +276,9 @@ export async function POST(request) {
         return json(0, 'Product not found');
       }
 
+      if (!customer.email && !body.email) return json(0, 'Email address required');
+      if (!customer.phone && !body.phone) return json(0, 'Phone number required');
+
       const product = await Product.findOne({ _id: product_id, status: true }).lean();
       if (!product) return json(0, 'Product not found');
 
@@ -297,7 +300,7 @@ export async function POST(request) {
       const order = await Order.create({
         customer_id: customer._id,
         name: customer.name,
-        email: customer.email,
+        email: customer.email || body.email,
         phone: customer.phone || body.phone,
         amount: couponResult.finalAmount,
         original_amount: money(product.sale_price),
@@ -327,6 +330,7 @@ export async function POST(request) {
       if (!productIds.length || !productIds.every(id => mongoose.Types.ObjectId.isValid(id))) {
         return json(0, 'No valid products found');
       }
+      if (!customer.email && !body.email) return json(0, 'Email address required');
       if (!customer.phone && !body.phone) return json(0, 'Phone number required');
 
       const products = await Product.find({ _id: { $in: productIds }, status: true }).lean();
@@ -352,7 +356,7 @@ export async function POST(request) {
       const orders = await Order.insertMany(pricedItems.map(({ product, discount, amount }) => ({
         customer_id: customer._id,
         name: customer.name,
-        email: customer.email,
+        email: customer.email || body.email,
         phone: customer.phone || body.phone,
         amount,
         original_amount: money(product.sale_price),
@@ -467,7 +471,7 @@ export async function POST(request) {
         flag: 1,
         message: 'Payment verified!',
         download_token: unpaidOrders.length === 1 ? firstToken : undefined,
-        redirect: unpaidOrders.length > 1 ? '/account' : undefined,
+        redirect: unpaidOrders.length > 1 ? '/account?tab=downloads' : undefined,
       });
     }
 
@@ -505,6 +509,6 @@ export async function POST(request) {
     return json(0, 'Invalid action');
   } catch (e) {
     console.error('Order error:', e.message);
-    return json(0, 'Server error');
+    return json(0, e.message || 'Server error');
   }
 }
