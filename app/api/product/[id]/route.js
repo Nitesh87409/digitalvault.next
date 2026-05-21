@@ -12,7 +12,7 @@ export async function PUT(request, { params }) {
 
     await connectDB();
     const body = await request.json();
-    const { name, description, category, images, original_price, sale_price, file_url } = body;
+    const { name, description, category, images, original_price, sale_price, file_url, included_in_bundle } = body;
     if (!name || !original_price || !sale_price || !file_url)
       return NextResponse.json({ flag: 0, message: 'All fields required' });
     if (Number(sale_price) <= 0 || Number(original_price) <= 0)
@@ -28,6 +28,7 @@ export async function PUT(request, { params }) {
         original_price: Number(original_price),
         sale_price: Number(sale_price),
         file_url,
+        included_in_bundle: !!included_in_bundle,
       },
       { new: true }
     );

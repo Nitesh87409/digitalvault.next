@@ -5,6 +5,7 @@ import { useParams } from 'next/navigation';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import Toast, { useToast } from '@/components/Toast';
+import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 import { ArrowLeft, Search, Box } from 'lucide-react';
 
 export default function CategoryProductsPage() {
@@ -14,6 +15,7 @@ export default function CategoryProductsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
   const { toast, showToast } = useToast();
+  const { hasBundleAccess, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
 
   useEffect(() => {
     loadProducts();
@@ -134,7 +136,16 @@ export default function CategoryProductsPage() {
               </div>
             ) : (
               filteredProducts.map((p, i) => (
-                <ProductCard key={p.id || p._id} product={p} index={i} onAddToCart={addToCart} onBuyNow={buyNow} />
+                <ProductCard
+                  key={p.id || p._id}
+                  product={p}
+                  index={i}
+                  onAddToCart={addToCart}
+                  onBuyNow={buyNow}
+                  hasBundleAccess={hasBundleAccess}
+                  onUnlockBundle={unlockBundle}
+                  bundleLoading={bundleLoading}
+                />
               ))
             )}
           </div>

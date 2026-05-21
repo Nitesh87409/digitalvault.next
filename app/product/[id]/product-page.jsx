@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
@@ -14,6 +15,7 @@ export default function ProductPage({ id }) {
   // Reviews state
   const [reviews, setReviews] = useState([]);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
+  const { hasBundleAccess, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
 
 
   const router = useRouter();
@@ -232,6 +234,15 @@ export default function ProductPage({ id }) {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
+                {product.included_in_bundle && hasBundleAccess ? (
+                  <a href={`/api/bundle/download/${product.id || product._id}`} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] text-[#0a0a0f] hover:brightness-110 transition-all text-center no-underline">
+                    Bundle Access
+                  </a>
+                ) : product.included_in_bundle ? (
+                  <button onClick={() => unlockBundle()} disabled={bundleLoading} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] text-[#0a0a0f] hover:brightness-110 transition-all disabled:opacity-70">
+                    {bundleLoading ? 'Opening...' : 'Unlock Full Bundle'}
+                  </button>
+                ) : null}
                 <button onClick={addToCart} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-[#f5c842]/10 border-2 border-[#f5c842]/40 text-[#f5c842] hover:bg-[#f5c842]/20 transition-all">
                   🛒 Add to Cart
                 </button>

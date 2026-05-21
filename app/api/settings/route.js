@@ -49,7 +49,12 @@ export async function POST(request) {
       'support_phone',
       'business_hours',
       'app_name',
-      'app_logo'
+      'app_logo',
+      'bundle_enabled',
+      'bundle_title',
+      'bundle_description',
+      'bundle_price',
+      'bundle_original_price'
     ];
 
     fields.forEach((field) => {
@@ -57,6 +62,24 @@ export async function POST(request) {
         settings[field] = payload[field];
       }
     });
+
+    if (payload.bundle_price !== undefined || payload.bundle_original_price !== undefined) {
+      const bundlePrice = Number(payload.bundle_price ?? settings.bundle_price);
+      const originalPrice = Number(payload.bundle_original_price ?? settings.bundle_original_price);
+
+      if (!Number.isFinite(bundlePrice) || bundlePrice < 1) {
+        return NextResponse.json({ flag: 0, message: 'Bundle price must be at least Rs 1' }, { status: 400 });
+      }
+      if (!Number.isFinite(originalPrice) || originalPrice < 1) {
+        return NextResponse.json({ flag: 0, message: 'Original price must be at least Rs 1' }, { status: 400 });
+      }
+      if (bundlePrice > originalPrice) {
+        return NextResponse.json({ flag: 0, message: 'Sale price must be less than or equal to original price' }, { status: 400 });
+      }
+
+      settings.bundle_price = Math.round(bundlePrice);
+      settings.bundle_original_price = Math.round(originalPrice);
+    }
 
     await settings.save();
     return NextResponse.json({ flag: 1, message: 'Settings updated successfully', settings: getAdminSettings(settings.toObject()) });

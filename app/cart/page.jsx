@@ -5,6 +5,8 @@ import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useSettings } from '@/hooks/useSettings';
 
+const BUNDLE_CART_ID = '__bundle_subscription__';
+
 let razorpayScriptPromise = null;
 
 function loadRazorpayScript() {
@@ -59,6 +61,41 @@ export default function CartPage() {
     setCart(JSON.parse(localStorage.getItem('dv_cart') || '[]'));
   }, []);
 
+  useEffect(() => {
+    const bundlePrice = Number(settings.bundle_price);
+    const originalPrice = Number(settings.bundle_original_price);
+    if (!Number.isFinite(bundlePrice) || bundlePrice < 1) return;
+
+    const safeOriginalPrice = Number.isFinite(originalPrice) && originalPrice > 0 ? originalPrice : bundlePrice;
+    const currentBundlePrice = Math.min(bundlePrice, safeOriginalPrice);
+    const currentOriginalPrice = Math.max(bundlePrice, safeOriginalPrice);
+
+    setCart(prev => {
+      if (!(prev.length === 1 && prev[0]?.type === 'bundle')) return prev;
+
+      const currentItem = prev[0];
+      const updatedItem = {
+        ...currentItem,
+        name: settings.bundle_title || currentItem.name || 'Complete Bundle',
+        price: currentBundlePrice,
+        orig_price: currentOriginalPrice,
+      };
+
+      if (
+        currentItem.name === updatedItem.name &&
+        currentItem.price === updatedItem.price &&
+        currentItem.orig_price === updatedItem.orig_price
+      ) {
+        return prev;
+      }
+
+      const updatedCart = [updatedItem];
+      localStorage.setItem('dv_cart', JSON.stringify(updatedCart));
+      window.dispatchEvent(new CustomEvent('cart-updated'));
+      return updatedCart;
+    });
+  }, [settings.bundle_price, settings.bundle_original_price, settings.bundle_title]);
+
   function removeItem(id) {
     const updated = cart.filter(i => i.id !== id);
     setCart(updated);
@@ -75,6 +112,7 @@ export default function CartPage() {
   const savings = origTotal - subtotal;
   const couponDiscount = couponData?.discount || 0;
   const finalAmount = subtotal - couponDiscount;
+  const isBundleCart = cart.length === 1 && cart[0]?.type === 'bundle';
 
   // Apply coupon
   async function applyCoupon() {
@@ -83,7 +121,7 @@ export default function CartPage() {
     setCouponMsg('');
     setCouponData(null);
     try {
-      const product_id = cart.length === 1 ? cart[0].id : '';
+      const product_id = cart.length === 1 && cart[0]?.type !== 'bundle' ? cart[0].id : '';
       const res = await fetch(`/api/coupon?action=validate&code=${couponCode}&email=${customer?.email}&amount=${subtotal}&product_id=${product_id}`);
       const data = await res.json();
       if (data.flag) {
@@ -158,7 +196,19 @@ export default function CartPage() {
         discount_amount: couponDiscount || 0,
       };
 
-      if (cart.length === 1) {
+      if (isBundleCart) {
+        const res = await fetch('/api/bundle/create-order', {
+          method: 'POST',
+          headers: authHeaders,
+          body: JSON.stringify({ coupon_code: couponData?.code || null })
+        });
+        data = await res.json();
+        if (!res.ok) {
+          setError(data.message || 'Error creating bundle order.');
+          setLoading(false);
+          return;
+        }
+      } else if (cart.length === 1) {
         const res = await fetch('/api/order', {
           method: 'POST',
           headers: authHeaders,
@@ -174,25 +224,30 @@ export default function CartPage() {
         data = await res.json();
       }
 
-      if (!data.flag) { setError(data.message || 'Error creating order.'); setLoading(false); return; }
+      if (!isBundleCart && !data.flag) { setError(data.message || 'Error creating order.'); setLoading(false); return; }
       const razorpayReady = await loadRazorpayScript();
       if (!razorpayReady || !window.Razorpay) { setError('Payment gateway failed to load. Try again.'); setLoading(false); return; }
       setLoading(false);
 
       const rzp = new window.Razorpay({
-        key: data.razorpay_key,
+        key: isBundleCart ? data.key_id : data.razorpay_key,
         amount: data.amount,
-        currency: 'INR',
+        currency: data.currency || 'INR',
         name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
-        description: cart.length === 1 ? cart[0].name : `${cart.length} Products`,
+        description: isBundleCart ? 'Complete Bundle' : cart.length === 1 ? cart[0].name : `${cart.length} Products`,
         order_id: data.razorpay_order_id,
         prefill: { name: customer.name, email: customer.email || checkoutEmail, contact: customer.phone || checkoutPhone },
         theme: { color: '#f5c842' },
         handler: async function(response) {
-          const verRes = await fetch('/api/order', {
+          const verRes = await fetch(isBundleCart ? '/api/bundle/verify-payment' : '/api/order', {
             method: 'POST',
             headers: authHeaders,
-            body: JSON.stringify({
+            body: JSON.stringify(isBundleCart ? {
+              razorpay_order_id: response.razorpay_order_id,
+              razorpay_payment_id: response.razorpay_payment_id,
+              razorpay_signature: response.razorpay_signature,
+              coupon_code: couponData?.code || null,
+            } : {
               action: 'payment-success',
               razorpay_response: response,
               order_id: data.order_id || null,
@@ -203,10 +258,12 @@ export default function CartPage() {
             })
           });
           const verData = await verRes.json();
-          if (verData.flag) {
+          if (isBundleCart ? verData.success : verData.flag) {
             localStorage.removeItem('dv_cart');
             window.dispatchEvent(new CustomEvent('cart-updated'));
-            if (verData.download_token) {
+            if (isBundleCart) {
+              router.push('/my-downloads');
+            } else if (verData.download_token) {
               router.push(`/download?token=${verData.download_token}`);
             } else {
               router.push('/account?tab=downloads');
@@ -266,7 +323,7 @@ export default function CartPage() {
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
                   {cart.map(item => (
                     <div key={item.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <Link href={`/product/${item.id}`} style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
+                      <Link href={item.type === 'bundle' ? '/#pricing' : `/product/${item.id}`} style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
                       <div style={{ width: '90px', height: '90px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
                         {item.image ? <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
                       </div>

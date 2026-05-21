@@ -15,6 +15,11 @@ const SettingSchema = new mongoose.Schema({
   business_hours: { type: String, default: 'Mon–Sat, 10am–6pm IST' },
   app_name: { type: String, default: '' },
   app_logo: { type: String, default: '' },
+  bundle_enabled: { type: Boolean, default: true },
+  bundle_title: { type: String, default: 'Complete Bundle' },
+  bundle_description: { type: String, default: 'All products + future updates included' },
+  bundle_price: { type: Number, default: 207 },
+  bundle_original_price: { type: Number, default: 8497 },
 }, { timestamps: true });
 
 export default mongoose.models.Setting || mongoose.model('Setting', SettingSchema);

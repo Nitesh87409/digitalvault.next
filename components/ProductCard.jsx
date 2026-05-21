@@ -14,7 +14,7 @@ const cardStyles = [
 ];
 const badges = ['Bestseller', 'Hot', 'New', 'Popular', 'Trending', 'Must Have'];
 
-export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
+export default function ProductCard({ product, index, onAddToCart, onBuyNow, hasBundleAccess = false }) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const style = cardStyles[index % cardStyles.length];
@@ -22,6 +22,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
   const sale = product.sale_price || 0;
   const orig = product.original_price || 0;
   const productId = product.id || product._id;
+  const isBundleProduct = !!product.included_in_bundle;
   const rawDesc = product.description ? product.description.replace(/<[^>]*>/g, '') : '';
   const desc = rawDesc || 'Premium digital product — instant download after purchase.';
   // Use real average rating if available, else generate consistent pseudo-rating for UI
@@ -75,25 +76,46 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow }) {
               <span className="text-[10px] font-medium leading-none text-[var(--heading)]">{rating}</span>
             </div>
             
-            {/* Cart Icon Button */}
-            <button
-              onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-              className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8"
-              title="Add to Cart"
-            >
-              <ShoppingCart size={14} className="sm:w-[16px] sm:h-[16px]" />
-            </button>
+            {hasBundleAccess && isBundleProduct ? (
+              <a
+                href={`/api/bundle/download/${productId}`}
+                download
+                onClick={(e) => e.stopPropagation()}
+                style={{
+                  background: '#FBBF24',
+                  color: '#000',
+                  padding: '8px 16px',
+                  borderRadius: '8px',
+                  fontWeight: 'bold',
+                  textDecoration: 'none',
+                  display: 'inline-block',
+                }}
+                title="Download from bundle"
+              >
+                Access Now
+              </a>
+            ) : (
+              <>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
+                  className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8"
+                  title="Add to Cart"
+                >
+                  <ShoppingCart size={14} className="sm:w-[16px] sm:h-[16px]" />
+                </button>
 
-            {/* Rounded Buy Button */}
-            <button
-              onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
-              className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center"
-            >
-              Buy
-            </button>
+                <button
+                  onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
+                  className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center"
+                >
+                  Buy
+                </button>
+              </>
+            )}
           </div>
         </div>
       </div>
     </div>
   );
 }
+

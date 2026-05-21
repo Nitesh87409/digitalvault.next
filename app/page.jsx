@@ -6,6 +6,7 @@ import ProductCard from '@/components/ProductCard';
 import Toast, { useToast } from '@/components/Toast';
 
 const API = process.env.NEXT_PUBLIC_APP_URL || '';
+const BUNDLE_CART_ID = '__bundle_subscription__';
 
 export default function HomePage() {
   const [products, setProducts] = useState([]);
@@ -17,8 +18,14 @@ export default function HomePage() {
   const [settings, setSettings] = useState({
     support_email: 'support@digitalvault.in',
     support_phone: '+91 98765 43210',
+    bundle_enabled: true,
+    bundle_title: 'Complete Bundle',
+    bundle_description: 'All products + future updates included',
+    bundle_price: 207,
+    bundle_original_price: 8497,
     business_hours: 'Mon–Sat, 10am–6pm IST'
   });
+  const [hasBundleAccess, setHasBundleAccess] = useState(false);
   const { toast, showToast } = useToast();
 
   useEffect(() => {
@@ -26,6 +33,19 @@ export default function HomePage() {
     loadStats();
     loadSettings();
     startCountdown();
+  }, []);
+
+  useEffect(() => {
+    const checkBundle = async () => {
+      try {
+        const res = await fetch('/api/bundle/access');
+        const data = await res.json();
+        setHasBundleAccess(data.hasAccess === true);
+      } catch {
+        setHasBundleAccess(false);
+      }
+    };
+    checkBundle();
   }, []);
 
   async function loadSettings() {
@@ -36,6 +56,11 @@ export default function HomePage() {
         setSettings({
           support_email: data.settings.support_email || 'support@digitalvault.in',
           support_phone: data.settings.support_phone || '+91 98765 43210',
+          bundle_enabled: data.settings.bundle_enabled ?? true,
+          bundle_title: data.settings.bundle_title || 'Complete Bundle',
+          bundle_description: data.settings.bundle_description || 'All products + future updates included',
+          bundle_price: data.settings.bundle_price ?? 207,
+          bundle_original_price: data.settings.bundle_original_price ?? 8497,
           business_hours: data.settings.business_hours || 'Mon–Sat, 10am–6pm IST'
         });
       }
@@ -111,6 +136,25 @@ export default function HomePage() {
     }
 
     // Cart page pe redirect karo
+    window.location.href = '/cart';
+  }
+
+  function addBundleToCart() {
+    const c = localStorage.getItem('dv_customer');
+    if (!c) { window.location.href = '/login?redirect=/#pricing'; return; }
+
+    const bundleItem = {
+      id: BUNDLE_CART_ID,
+      type: 'bundle',
+      name: settings.bundle_title || 'Complete Bundle',
+      price: settings.bundle_price || 207,
+      orig_price: settings.bundle_original_price || 8497,
+      image: null,
+      qty: 1,
+    };
+
+    localStorage.setItem('dv_cart', JSON.stringify([bundleItem]));
+    window.dispatchEvent(new CustomEvent('cart-updated'));
     window.location.href = '/cart';
   }
 
@@ -226,7 +270,14 @@ export default function HomePage() {
               </div>
             ) : (
               filteredProducts.map((p, i) => (
-                <ProductCard key={p.id || p._id} product={p} index={i} onAddToCart={addToCart} onBuyNow={buyNow} />
+                <ProductCard
+                  key={p.id || p._id}
+                  product={p}
+                  index={i}
+                  onAddToCart={addToCart}
+                  onBuyNow={buyNow}
+                  hasBundleAccess={hasBundleAccess}
+                />
               ))
             )}
           </div>
@@ -278,11 +329,11 @@ export default function HomePage() {
           <div className="theme-card relative overflow-hidden rounded-2xl border-[#f5c842]/40 p-8 text-center sm:p-12">
             <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: 'linear-gradient(90deg,#f5c842,#e0a800)' }}></div>
             <div className="badge" style={{ marginBottom: '16px' }}>Most Popular</div>
-            <h3 className="mb-2 text-2xl font-bold text-[var(--heading)]">Complete Bundle</h3>
-            <p className="mb-8 text-[var(--muted)]">All products + future updates included</p>
+            <h3 className="mb-2 text-2xl font-bold text-[var(--heading)]">{settings.bundle_title || 'Complete Bundle'}</h3>
+            <p className="mb-8 text-[var(--muted)]">{settings.bundle_description || 'All products + future updates included'}</p>
             <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '8px' }}>
-              <span className="text-2xl text-[var(--muted-2)] line-through">₹{firstProduct ? (firstProduct.original_price || 8497).toLocaleString() : '8,497'}</span>
-              <span style={{ fontSize: '3.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>₹{firstProduct ? (firstProduct.sale_price || 1999).toLocaleString() : '1,999'}</span>
+              <span className="text-2xl text-[var(--muted-2)] line-through">₹{(settings.bundle_original_price || 8497).toLocaleString()}</span>
+              <span style={{ fontSize: '3.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>₹{(settings.bundle_price || 207).toLocaleString()}</span>
             </div>
             <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '0 auto 40px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
               {['Instant download access', 'Lifetime access', 'Free future updates', '7-day money-back guarantee', 'Email support'].map(item => (
@@ -292,8 +343,8 @@ export default function HomePage() {
               ))}
             </ul>
             {firstProduct && (
-              <button onClick={() => buyNow(firstProduct)} className="gold-btn pulse-glow" style={{ width: '100%', maxWidth: '400px', padding: '20px', borderRadius: '999px', fontSize: '1.1rem' }}>
-                Buy Now — ₹{firstProduct.sale_price?.toLocaleString()}
+              <button onClick={addBundleToCart} disabled={hasBundleAccess || !settings.bundle_enabled} className="gold-btn pulse-glow" style={{ width: '100%', maxWidth: '400px', padding: '20px', borderRadius: '999px', fontSize: '1.1rem', opacity: hasBundleAccess || !settings.bundle_enabled ? 0.75 : 1 }}>
+                {hasBundleAccess ? 'Bundle Active' : settings.bundle_enabled ? 'Unlock Full Bundle' : 'Bundle Disabled'}
               </button>
             )}
           </div>

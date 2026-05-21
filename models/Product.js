@@ -8,6 +8,7 @@ const ProductSchema = new mongoose.Schema({
   original_price: { type: Number, required: true },
   sale_price:     { type: Number, required: true },
   file_url:       { type: String, required: true },
+  included_in_bundle: { type: Boolean, default: false },
   status:         { type: Boolean, default: true },
   average_rating: { type: Number, default: 0 },
   total_reviews:  { type: Number, default: 0 },

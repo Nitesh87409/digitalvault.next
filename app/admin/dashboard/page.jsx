@@ -15,7 +15,7 @@ export default function AdminDashboard() {
   const [categories, setCategories] = useState([]);
   const [productModal, setProductModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '' });
+  const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '', included_in_bundle: false });
   const [images, setImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -98,6 +98,7 @@ export default function AdminDashboard() {
       original_price: product?.original_price || '',
       sale_price: product?.sale_price || '',
       file_url: product?.file_url || '',
+      included_in_bundle: !!product?.included_in_bundle,
     });
     setImages(product?.images || []);
     setNewFiles([]);
@@ -131,7 +132,7 @@ export default function AdminDashboard() {
       } catch(e) {}
     }
 
-    const payload = { name, description, category, original_price: Number(original_price), sale_price: Number(sale_price), file_url, images: uploadedImages };
+    const payload = { name, description, category, original_price: Number(original_price), sale_price: Number(sale_price), file_url, images: uploadedImages, included_in_bundle: !!form.included_in_bundle };
     const url = editProduct ? `/api/product/${editProduct._id}` : '/api/product';
     const method = editProduct ? 'PUT' : 'POST';
     const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
@@ -199,6 +200,9 @@ export default function AdminDashboard() {
           </Link>
           <Link href="/admin/coupons" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
             <span className="text-lg">🎟️</span> Coupons
+          </Link>
+          <Link href="/admin/bundle" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
+            <span className="text-lg">🎁</span> Bundle
           </Link>
           <Link href="/admin/customers" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
             <span className="text-lg">👥</span> All Customers
@@ -354,6 +358,9 @@ export default function AdminDashboard() {
                     <span className="text-gray-500 line-through text-xs">₹{p.original_price?.toLocaleString()}</span>
                     <span className="text-[#10b981] text-[10px] font-bold tracking-wider uppercase bg-[#10b981]/10 px-2 py-0.5 rounded">{Math.round((p.original_price - p.sale_price) / p.original_price * 100)}% off</span>
                     <span className="bg-[#f5c842]/10 text-[#f5c842] text-[10px] px-2 py-0.5 rounded border border-[#f5c842]/20 truncate max-w-[120px]">{p.category || 'Uncategorized'}</span>
+                    {p.included_in_bundle && (
+                      <span className="bg-[#8b5cf6]/10 text-[#c4b5fd] text-[10px] px-2 py-0.5 rounded border border-[#8b5cf6]/20">Bundle</span>
+                    )}
                   </div>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
@@ -560,8 +567,19 @@ export default function AdminDashboard() {
                   <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">⬇️ Download File URL *</label>
                   <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} placeholder="https://drive.google.com/..." />
                 </div>
+                <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 cursor-pointer">
+                  <span>
+                    <span className="block text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Bundle Access</span>
+                    <span className="block text-[11px] text-gray-500 mt-1">Include this product in the full bundle</span>
+                  </span>
+                  <input
+                    type="checkbox"
+                    checked={!!form.included_in_bundle}
+                    onChange={e => setForm({ ...form, included_in_bundle: e.target.checked })}
+                    className="h-5 w-5 accent-[#f5c842]"
+                  />
+                </label>
               </div>
-              
               {/* Right Rich Editor */}
               <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden bg-[#0a0a0f] relative min-h-[400px] lg:min-h-0 shrink-0 lg:shrink">
                 <div className="bg-[#12121a] border-b border-white/10 p-2 md:p-3 flex flex-wrap gap-1.5 items-center shrink-0 sticky top-0 z-10 w-full max-w-full min-w-0 overflow-x-auto custom-scrollbar">

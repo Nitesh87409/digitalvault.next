@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { verifyAdmin } from '@/lib/auth';
 
-const PUBLIC_PRODUCT_FIELDS = 'name description category images original_price sale_price average_rating total_reviews';
+const PUBLIC_PRODUCT_FIELDS = 'name description category images original_price sale_price average_rating total_reviews included_in_bundle';
 
 function toPublicProduct(product) {
   return {
@@ -16,6 +16,7 @@ function toPublicProduct(product) {
     sale_price: product.sale_price,
     average_rating: product.average_rating || 0,
     total_reviews: product.total_reviews || 0,
+    included_in_bundle: !!product.included_in_bundle,
   };
 }
 
@@ -60,7 +61,7 @@ export async function POST(request) {
 
     await connectDB();
     const body = await request.json();
-    const { name, description, category, images, original_price, sale_price, file_url } = body;
+    const { name, description, category, images, original_price, sale_price, file_url, included_in_bundle } = body;
 
     if (!name || !original_price || !sale_price || !file_url)
       return NextResponse.json({ flag: 0, message: 'All fields required' });
@@ -75,6 +76,7 @@ export async function POST(request) {
       original_price: Number(original_price),
       sale_price: Number(sale_price),
       file_url,
+      included_in_bundle: !!included_in_bundle,
     });
     return NextResponse.json({ flag: 1, message: 'Product created', product });
   } catch (e) {
