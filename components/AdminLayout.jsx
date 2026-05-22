@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import ThemeToggle from './ThemeToggle';
 
 export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -131,10 +132,13 @@ export default function AdminLayout({ children }) {
       {/* Main Content */}
       <div className={`flex-1 flex flex-col w-full min-w-0 p-4 sm:p-6 lg:p-8 transition-all duration-300 ${sidebarOpen ? 'md:ml-[260px]' : 'ml-0'}`}>
 
-        {/* Persistent Header: hamburger + welcome */}
-        <div className="flex items-center gap-3 mb-6 shrink-0">
-          <button className="text-[#f5c842] text-2xl p-1 bg-white/5 rounded-lg border border-white/10 cursor-pointer flex items-center justify-center w-10 h-10 shrink-0 hover:bg-[#f5c842]/10 hover:border-[#f5c842]/30 transition-all" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-          <p className="text-gray-500 text-sm">Welcome back, {admin?.name || 'Admin'}!</p>
+        {/* Persistent Header: hamburger + welcome + theme toggle */}
+        <div className="flex items-center justify-between mb-6 shrink-0">
+          <div className="flex items-center gap-3">
+            <button className="text-[#f5c842] text-2xl p-1 bg-white/5 rounded-lg border border-white/10 cursor-pointer flex items-center justify-center w-10 h-10 shrink-0 hover:bg-[#f5c842]/10 hover:border-[#f5c842]/30 transition-all" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+            <p className="text-gray-500 text-sm">Welcome back, {admin?.name || 'Admin'}!</p>
+          </div>
+          <ThemeToggle />
         </div>
 
         {/* Page content rendered here — each page provides its own title/actions */}
