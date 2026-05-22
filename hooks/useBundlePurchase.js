@@ -40,6 +40,7 @@ async function readErrorMessage(response, fallback) {
 
 export function useBundlePurchase({ showToast } = {}) {
   const [hasBundleAccess, setHasBundleAccess] = useState(false);
+  const [bundleStatus, setBundleStatus] = useState('none');
   const [bundleLoading, setBundleLoading] = useState(false);
 
   const refreshBundleAccess = useCallback(async () => {
@@ -47,14 +48,17 @@ export function useBundlePurchase({ showToast } = {}) {
       const res = await fetch('/api/bundle/access', { cache: 'no-store' });
       if (res.status === 401) {
         setHasBundleAccess(false);
+        setBundleStatus('none');
         return false;
       }
 
       const data = await res.json();
       setHasBundleAccess(!!data.hasAccess);
+      setBundleStatus(data.status || 'none');
       return !!data.hasAccess;
     } catch {
       setHasBundleAccess(false);
+      setBundleStatus('none');
       return false;
     }
   }, []);
@@ -156,6 +160,7 @@ export function useBundlePurchase({ showToast } = {}) {
 
   return {
     hasBundleAccess,
+    bundleStatus,
     bundleLoading,
     refreshBundleAccess,
     unlockBundle,

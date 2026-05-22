@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
 import { buildRateLimitKey, consumeRateLimit, normalizeBundlePrices } from '@/lib/security';
-import { hasActiveBundleAccess } from '@/lib/bundle-access';
+import { getBundleAccessStatus } from '@/lib/bundle-access';
 import Coupon from '@/models/Coupon';
 import Customer from '@/models/Customer';
 import Setting from '@/models/Setting';
@@ -120,8 +120,13 @@ export async function POST(request) {
       );
     }
 
-    const alreadyActive = await hasActiveBundleAccess(customer._id);
-    if (alreadyActive) return json({ message: 'Bundle already purchased' }, 400);
+    const bundleStatus = await getBundleAccessStatus(customer._id);
+    if (bundleStatus === 'active') {
+      return json({ message: 'Bundle already purchased' }, 400);
+    }
+    if (bundleStatus === 'inactive') {
+      return json({ message: 'Your bundle is inactive. Please contact the support team.' }, 400);
+    }
 
     const body = await request.json().catch(() => ({}));
     const bundleAmountPaise = await getBundleAmountPaise();

@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
-import { hasActiveBundleAccess } from '@/lib/bundle-access';
+import { getBundleAccessStatus } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
 
 export const runtime = 'nodejs';
@@ -21,8 +21,8 @@ export async function GET(request) {
       return NextResponse.json({ message: 'User not logged in' }, { status: 401 });
     }
 
-    const hasAccess = await hasActiveBundleAccess(customer._id);
-    return NextResponse.json({ hasAccess });
+    const status = await getBundleAccessStatus(customer._id);
+    return NextResponse.json({ hasAccess: status === 'active', status });
   } catch (error) {
     console.error('[Bundle] access error:', error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });

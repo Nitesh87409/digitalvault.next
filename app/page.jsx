@@ -35,7 +35,7 @@ export default function HomePage() {
     updatedAt: ''
   });
   const { toast, showToast } = useToast();
-  const { hasBundleAccess } = useBundlePurchase({ showToast });
+  const { hasBundleAccess, bundleStatus } = useBundlePurchase({ showToast });
 
   const [faqs, setFaqs] = useState([
     { q: 'How do I get my download after payment?', a: "After successful payment, you'll receive an email with a secure download link. You also have lifetime access via My Account." },
@@ -180,6 +180,10 @@ export default function HomePage() {
   }
 
   function addBundleToCart() {
+    if (bundleStatus === 'inactive') {
+      showToast('Your bundle is inactive. Please contact the support team.', '#ef4444', '#fff');
+      return;
+    }
     const c = localStorage.getItem('dv_customer');
     if (!c) { window.location.href = '/login?redirect=/#pricing'; return; }
 
@@ -344,12 +348,14 @@ export default function HomePage() {
                     {/* CTA Button */}
                     <button
                       onClick={addBundleToCart}
-                      disabled={hasBundleAccess || isOfferEnded}
-                      className={`gold-btn flex items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl py-1.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded) ? 'pulse-glow' : ''}`}
-                      style={{ opacity: hasBundleAccess || isOfferEnded ? 0.6 : 1 }}
+                      disabled={hasBundleAccess || isOfferEnded || bundleStatus === 'inactive'}
+                      className={`gold-btn flex items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl py-1.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded || bundleStatus === 'inactive') ? 'pulse-glow' : ''}`}
+                      style={{ opacity: hasBundleAccess || isOfferEnded || bundleStatus === 'inactive' ? 0.6 : 1 }}
                     >
                       {hasBundleAccess ? (
                         <>Bundle Active 🎉</>
+                      ) : bundleStatus === 'inactive' ? (
+                        <>Bundle Inactive. Contact Support</>
                       ) : isOfferEnded ? (
                         <>Offer Ended 😢</>
                       ) : (

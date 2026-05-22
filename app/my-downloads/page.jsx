@@ -12,7 +12,7 @@ export default function MyDownloadsPage() {
   const [loading, setLoading] = useState(true);
   const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
   const { toast, showToast } = useToast();
-  const { hasBundleAccess, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
+  const { hasBundleAccess, bundleStatus, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
   const router = useRouter();
 
   useEffect(() => {
@@ -92,11 +92,17 @@ export default function MyDownloadsPage() {
             </div>
             {!hasBundleAccess && (
               <button 
-                onClick={() => unlockBundle()} 
-                disabled={bundleLoading}
+                onClick={() => {
+                  if (bundleStatus === 'inactive') {
+                    showToast('Your bundle is inactive. Please contact the support team.', '#ef4444', '#fff');
+                    return;
+                  }
+                  unlockBundle();
+                }} 
+                disabled={bundleLoading || bundleStatus === 'inactive'}
                 className="rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] px-5 py-3 font-syne text-sm font-bold text-[#0a0a0f] disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                {bundleLoading ? 'Processing...' : 'Unlock Full Bundle'}
+                {bundleLoading ? 'Processing...' : bundleStatus === 'inactive' ? 'Bundle Inactive' : 'Unlock Full Bundle'}
               </button>
             )}
           </div>
