@@ -81,15 +81,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
                 href={`/api/bundle/download/${productId}`}
                 download
                 onClick={(e) => e.stopPropagation()}
-                style={{
-                  background: '#FBBF24',
-                  color: '#000',
-                  padding: '8px 16px',
-                  borderRadius: '8px',
-                  fontWeight: 'bold',
-                  textDecoration: 'none',
-                  display: 'inline-block',
-                }}
+                className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center no-underline"
                 title="Download from bundle"
               >
                 Access Now
