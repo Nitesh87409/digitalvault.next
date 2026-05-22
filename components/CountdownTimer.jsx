@@ -105,10 +105,10 @@ export default function CountdownTimer({ settings, onExpired }) {
 
   return (
     <div>
-      <div className="mb-1 sm:mb-2 text-center text-[7px] sm:text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
+      <div className="mb-1 sm:mb-2 text-center text-[7px] sm:text-[10px] md:text-[10px] lg:text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
         Offer Ending Soon:
       </div>
-      <div className="flex justify-center gap-0.5 xs:gap-1 sm:gap-1.5 md:gap-3">
+      <div className="flex justify-center gap-0.5 xs:gap-1 sm:gap-1.5 lg:gap-3">
         {[
           { val: countdown.d, label: 'Days' },
           { val: countdown.h, label: 'Hours' },
@@ -117,12 +117,12 @@ export default function CountdownTimer({ settings, onExpired }) {
         ].map(c => (
           <div
             key={c.label}
-            className="flex flex-col items-center min-w-[24px] xs:min-w-[28px] sm:min-w-[50px] md:min-w-[60px] rounded-md sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-0.5 px-0.5 sm:py-1.5 sm:px-2 md:py-2 md:px-3"
+            className="flex flex-col items-center min-w-[24px] xs:min-w-[28px] sm:min-w-[38px] md:min-w-[42px] lg:min-w-[60px] rounded-md sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-0.5 px-0.5 sm:py-1 sm:px-1.5 md:py-1.5 md:px-2 lg:py-2 lg:px-3"
           >
-            <span className="font-syne text-[9px] xs:text-[10px] sm:text-base md:text-2xl font-bold text-[#f5c842] whitespace-nowrap">
+            <span className="font-syne text-[9px] xs:text-[10px] sm:text-sm md:text-base lg:text-2xl font-bold text-[#f5c842] whitespace-nowrap">
               {c.val}
             </span>
-            <span className="text-[4px] xs:text-[5px] sm:text-[8px] md:text-[10px] text-[var(--muted-2)] uppercase font-semibold">
+            <span className="text-[4px] xs:text-[5px] sm:text-[7px] md:text-[8px] lg:text-[10px] text-[var(--muted-2)] uppercase font-semibold">
               {c.label}
             </span>
           </div>
