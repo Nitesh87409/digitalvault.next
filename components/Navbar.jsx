@@ -46,6 +46,16 @@ export default function Navbar({ onSearchClick }) {
     };
   }, []);
 
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [isMobileMenuOpen]);
+
   const handleSearchChange = (e) => {
     const val = e.target.value;
     setSearchValue(val);
@@ -258,10 +268,14 @@ export default function Navbar({ onSearchClick }) {
           <div 
             className="fixed inset-0 bg-black/60 z-[998] backdrop-blur-sm transition-opacity duration-300"
             onClick={() => setIsMobileMenuOpen(false)}
+            onTouchMove={(e) => e.preventDefault()}
           />
 
           {/* Side Drawer Panel */}
-          <div className="fixed top-0 right-0 h-screen w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0]">
+          <div 
+            className="fixed top-0 right-0 h-[100dvh] w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0] overflow-y-auto overscroll-contain"
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
             <style jsx>{`
               @keyframes slideIn {
                 from { transform: translateX(100%); }

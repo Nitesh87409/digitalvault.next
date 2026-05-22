@@ -35,6 +35,18 @@ export default function AdminLayout({ children }) {
     }
   }, [pathname, searchParams]);
 
+  useEffect(() => {
+    // Only lock scroll on mobile screens (width < 768px) where sidebar is rendered as an overlay drawer
+    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+    if (sidebarOpen && isMobile) {
+      const originalOverflow = document.body.style.overflow;
+      document.body.style.overflow = 'hidden';
+      return () => {
+        document.body.style.overflow = originalOverflow;
+      };
+    }
+  }, [sidebarOpen]);
+
   async function logout() {
     await fetch('/api/logout', { method: 'POST', headers, body: JSON.stringify({ role: 'admin' }) });
     localStorage.removeItem('admin_data');
@@ -69,11 +81,15 @@ export default function AdminLayout({ children }) {
         <div 
           className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
           onClick={() => setSidebarOpen(false)}
+          onTouchMove={(e) => e.preventDefault()}
         />
       )}
 
       {/* Sidebar */}
-      <div className={`fixed top-0 left-0 h-screen w-[260px] shrink-0 bg-[#0e0e18] border-r border-[#f5c842]/10 p-6 flex flex-col z-50 transform transition-transform duration-300 overflow-y-auto custom-scrollbar ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+      <div 
+        className={`fixed top-0 left-0 h-[100dvh] w-[260px] shrink-0 bg-[#0e0e18] border-r border-[#f5c842]/10 p-6 flex flex-col z-50 transform transition-transform duration-300 overflow-y-auto overscroll-contain custom-scrollbar ${sidebarOpen ? 'translate-x-0' : '-translate-x-full'}`}
+        style={{ WebkitOverflowScrolling: 'touch' }}
+      >
         <div className="flex justify-between items-center mb-8 px-2 shrink-0">
           <Link href="/admin/dashboard" className="font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
           <button className="md:hidden text-gray-400 hover:text-white text-xl border-none bg-transparent cursor-pointer" onClick={() => setSidebarOpen(false)}>✕</button>
