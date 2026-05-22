@@ -1,5 +1,6 @@
 import './globals.css';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { SpeedInsights } from '@vercel/speed-insights/next';
 
 export async function generateMetadata() {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault';
@@ -39,6 +40,7 @@ export default function RootLayout({ children }) {
       <body>
         {children}
         <MobileBottomNav />
+        <SpeedInsights />
       </body>
     </html>
   );
