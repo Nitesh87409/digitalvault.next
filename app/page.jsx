@@ -228,10 +228,10 @@ export default function HomePage() {
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-3 sm:p-6 md:p-12 shadow-[var(--shadow-soft)]">
                 {/* Shimmer background */}
                 <div className="skeleton-shimmer absolute inset-0 opacity-40 pointer-events-none" />
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-center">
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center">
                   
                   {/* Left Column: Title & Highlights Skeleton */}
-                  <div className="md:col-span-7 space-y-3 sm:space-y-5 md:space-y-7">
+                  <div className="lg:col-span-7 space-y-3 sm:space-y-5 md:space-y-7">
                     {/* Limited Time Badge Skeleton */}
                     <div className="w-20 sm:w-28 h-4 sm:h-6 rounded-full bg-white/5 border border-white/5 skeleton-shimmer" />
                     
@@ -253,7 +253,7 @@ export default function HomePage() {
                   </div>
 
                   {/* Right Column: Countdown, Price & CTA Skeleton */}
-                  <div className="md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-3 sm:p-5 md:p-8 flex flex-col gap-3 sm:gap-5 md:gap-7">
+                  <div className="lg:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-3 sm:p-5 md:p-8 flex flex-col gap-3 sm:gap-5 md:gap-7">
                     {/* Countdown Timer Skeleton */}
                     <div>
                       <div className="mx-auto w-24 h-3 rounded bg-white/5 skeleton-shimmer mb-2" />
@@ -268,7 +268,7 @@ export default function HomePage() {
                     </div>
 
                     {/* Price Skeleton */}
-                    <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-2 sm:py-4 px-1">
+                    <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 border-t border-b border-[var(--line)] py-2 sm:py-4 px-1">
                       <div className="space-y-1">
                         <div className="w-12 sm:w-16 h-2 sm:h-3 rounded bg-white/5 skeleton-shimmer" />
                         <div className="w-10 sm:w-14 h-3 sm:h-4 rounded bg-white/5 skeleton-shimmer" />
@@ -292,9 +292,9 @@ export default function HomePage() {
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f5c842]/10 blur-[80px] pointer-events-none" />
                 <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#7c3aed]/5 blur-[80px] pointer-events-none" />
                 
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 sm:gap-6 md:gap-8 items-center">
+                <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-center">
                   {/* Left Column: Title & Highlights */}
-                  <div className="md:col-span-7 space-y-3 sm:space-y-4 md:space-y-6">
+                  <div className="lg:col-span-7 space-y-3 sm:space-y-4 md:space-y-6">
                     <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-2.5 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#f5c842]">
                       <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c842] opacity-75"></span>
@@ -325,12 +325,12 @@ export default function HomePage() {
                   </div>
 
                   {/* Right Column: Countdown, Price & CTA */}
-                  <div className="md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-4 sm:p-5 md:p-8 flex flex-col gap-3 sm:gap-4 md:gap-6">
+                  <div className="lg:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-4 sm:p-5 md:p-8 flex flex-col gap-3 sm:gap-4 md:gap-6">
                     {/* Isolated Countdown Component to encapsulate ticks */}
                     <CountdownTimer settings={settings} onExpired={setIsTimerExpired} />
 
                     {/* Price Display */}
-                    <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-1.5 sm:py-3 md:py-4 px-0.5 sm:px-1 md:px-2">
+                    <div className="flex flex-wrap items-center justify-between gap-2 sm:gap-4 border-t border-b border-[var(--line)] py-1.5 sm:py-3 md:py-4 px-0.5 sm:px-1 md:px-2">
                       <div className="flex flex-col">
                         <span className="text-[10px] sm:text-[10px] md:text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
                         <span className="text-sm sm:text-sm md:text-lg text-[var(--muted-2)] line-through whitespace-nowrap">
