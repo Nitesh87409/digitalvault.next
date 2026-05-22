@@ -7,11 +7,16 @@ export function useSettings() {
     support_email: 'support@digitalvault.in',
     support_phone: '+91 98765 43210',
     business_hours: 'Mon–Sat, 10am–6pm IST',
+    bundle_enabled: true,
+    bundle_title: 'Complete Bundle',
+    bundle_description: 'All products + future updates included',
+    bundle_price: 207,
+    bundle_original_price: 8497,
   });
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetch('/api/settings')
+    fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.flag && data.settings) {

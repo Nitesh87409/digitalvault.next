@@ -41,25 +41,22 @@ export default function CustomerDetail({ params }) {
   }
 
   if (loading) return (
-    <div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 0' }}>
       <div style={{ color: '#f5c842', fontFamily: 'DM Sans, sans-serif' }}>Loading...</div>
     </div>
   );
 
-  if (!data) return <div style={{ background: '#0a0a0f', minHeight: '100vh', color: '#fff', padding: '40px', fontFamily: 'DM Sans, sans-serif' }}>Customer not found.</div>;
+  if (!data) return (
+    <div style={{ color: '#fff', padding: '40px', fontFamily: 'DM Sans, sans-serif' }}>Customer not found.</div>
+  );
 
   const { customer, orders, stats } = data;
   const initials = customer.name?.split(' ').map(w => w[0]).join('').toUpperCase().substring(0, 2);
   const tag = TAG_COLORS[customer.tag] || TAG_COLORS.normal;
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', color: '#e8e8f0' }}>
-      <nav style={{ background: '#0e0e18', borderBottom: '1px solid rgba(245,200,66,0.1)', padding: '16px 24px', display: 'flex', alignItems: 'center', gap: '24px' }}>
-        <Link href="/admin/dashboard" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
-        <Link href="/admin/customers" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Customers</Link>
-      </nav>
-
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 24px' }}>
+    <>
+      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2px 2px' }}>
 
         {/* Customer Header */}
         <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '16px', padding: '28px', marginBottom: '24px', display: 'flex', alignItems: 'center', gap: '24px' }}>
@@ -147,6 +144,6 @@ export default function CustomerDetail({ params }) {
           )}
         </div>
       </div>
-    </div>
+    </>
   );
 }

@@ -19,7 +19,8 @@ function json(body, status = 200) {
 }
 
 async function getBundleAmountPaise() {
-  const settings = await Setting.findOne().select('bundle_price bundle_original_price').lean();
+  const settings = await Setting.findOne().select('bundle_enabled bundle_price bundle_original_price').lean();
+  if (settings?.bundle_enabled === false) return null;
   const normalizedPrices = normalizeBundlePrices(settings);
   const dbAmount = Math.round(Number(normalizedPrices.bundle_price || 0) * 100);
   if (Number.isFinite(dbAmount) && dbAmount > 0) return dbAmount;
@@ -160,6 +161,16 @@ export async function POST(request) {
       return json({ success: true, message: 'Bundle activated' });
     }
 
+    const existingSub = await BundleSubscription.findOne({ razorpay_order_id });
+    if (existingSub) {
+      console.info('[Bundle] payment verification success: subscription already created', {
+        customer_id: customer._id?.toString(),
+        razorpay_order_id,
+        razorpay_payment_id,
+      });
+      return json({ success: true, message: 'Bundle activated' });
+    }
+
     const razorpayOrder = await getRazorpay().orders.fetch(razorpay_order_id);
     const orderCustomerId = razorpayOrder?.notes?.customer_id;
     if (orderCustomerId && orderCustomerId !== customer._id.toString()) {
@@ -189,7 +200,7 @@ export async function POST(request) {
         status: 'active',
         payment_id: razorpay_payment_id,
         razorpay_order_id,
-        amount,
+        amount, // Note: BundleSubscription stores amount in paise (from Razorpay)
         coupon_code: appliedCouponCode ? appliedCouponCode.toUpperCase() : null,
         purchase_date: new Date(),
       });
@@ -197,13 +208,15 @@ export async function POST(request) {
       await Customer.updateOne(
         { _id: customer._id },
         {
+          // total_spent is stored in Rupees, so we divide amount (paise) by 100
           $inc: { total_spent: amount / 100, total_orders: 1 },
           $set: { last_login: new Date() },
         }
       );
 
       if (appliedCouponCode) {
-        const discountAmountRupees = Math.max(0, ((await getBundleAmountPaise()) - amount) / 100);
+        const bundleOriginalPaise = (await getBundleAmountPaise()) || amount;
+        const discountAmountRupees = Math.max(0, (bundleOriginalPaise - amount) / 100);
         await markBundleCouponUsed({
           couponCode: appliedCouponCode,
           email: customer.email,
@@ -212,6 +225,13 @@ export async function POST(request) {
         });
       }
     } catch (error) {
+      if (error.code === 11000) {
+        console.info('[Bundle] duplicate subscription creation attempt caught', {
+          customer_id: customer._id?.toString(),
+          razorpay_order_id,
+        });
+        return json({ success: true, message: 'Bundle activated' });
+      }
       console.error('[Bundle] DB save failed after verified payment. Manual rollback/reconcile required:', {
         customer_id: customer._id?.toString(),
         razorpay_order_id,

@@ -17,6 +17,7 @@ const BundleSubscriptionSchema = new mongoose.Schema({
   razorpay_order_id: {
     type: String,
     required: true,
+    unique: true,
   },
   amount: {
     type: Number,

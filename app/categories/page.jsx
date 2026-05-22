@@ -297,14 +297,14 @@ export default function CategoriesPage() {
 
       {/* SEARCH OVERLAY */}
       {isSearchOpen && (
-        <div className="fixed inset-0 z-[99999] bg-[#0a0a0f]/98 backdrop-blur-md flex flex-col animate-[fadeIn_0.2s_ease-out]">
+        <div className="fixed inset-0 z-[99999] bg-[var(--bg)]/98 backdrop-blur-md flex flex-col animate-[fadeIn_0.2s_ease-out]">
           <style jsx>{`
             @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
           `}</style>
           
-          <div className="p-4 px-6 border-b border-white/5 flex items-center gap-4">
+          <div className="p-4 px-6 border-b border-[var(--line)] flex items-center gap-4">
             <div className="flex-1 relative">
-              <Search size={18} className="text-gray-400 absolute left-4 top-1/2 -translate-y-1/2" />
+              <Search size={18} className="text-[var(--muted-2)] absolute left-4 top-1/2 -translate-y-1/2" />
               <input 
                 type="text"
                 autoFocus
@@ -312,10 +312,10 @@ export default function CategoriesPage() {
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleSearchSubmit(searchQuery)}
-                className="w-full py-3 pr-4 pl-11 bg-white/5 border border-[#f5c842]/20 rounded-2xl text-white outline-none text-[0.95rem] focus:bg-white/10 transition-colors"
+                className="w-full py-3 pr-4 pl-11 bg-[var(--surface-muted)] border border-[#f5c842]/20 rounded-2xl text-[var(--text)] outline-none text-[0.95rem] focus:bg-[var(--surface)] transition-colors"
               />
             </div>
-            <button onClick={() => setIsSearchOpen(false)} className="bg-transparent border-none text-gray-400 cursor-pointer p-2 hover:text-white transition-colors">
+            <button onClick={() => setIsSearchOpen(false)} className="bg-transparent border-none text-[var(--muted)] cursor-pointer p-2 hover:text-[var(--text)] transition-colors">
               <X size={24} />
             </button>
           </div>
@@ -325,12 +325,12 @@ export default function CategoriesPage() {
               <>
                 {recentSearches.length > 0 && (
                   <div className="mb-8">
-                    <h3 className="text-white text-sm font-semibold mb-4 flex items-center gap-2">
-                      <Clock size={16} className="text-gray-500" /> Recent Searches
+                    <h3 className="text-[var(--heading)] text-sm font-semibold mb-4 flex items-center gap-2">
+                      <Clock size={16} className="text-[var(--muted-2)]" /> Recent Searches
                     </h3>
                     <div className="flex flex-wrap gap-2">
                       {recentSearches.map((s, i) => (
-                        <button key={i} onClick={() => handleSearchSubmit(s)} className="bg-white/5 border border-white/10 text-gray-300 py-2 px-4 rounded-full text-xs cursor-pointer hover:bg-white/10 transition-colors">
+                        <button key={i} onClick={() => handleSearchSubmit(s)} className="bg-[var(--surface-muted)] border border-[var(--line)] text-[var(--text)] py-2 px-4 rounded-full text-xs cursor-pointer hover:bg-[var(--surface)] transition-colors">
                           {s}
                         </button>
                       ))}
@@ -339,7 +339,7 @@ export default function CategoriesPage() {
                 )}
 
                 <div>
-                  <h3 className="text-white text-sm font-semibold mb-4 flex items-center gap-2">
+                  <h3 className="text-[var(--heading)] text-sm font-semibold mb-4 flex items-center gap-2">
                     <TrendingUp size={16} className="text-[#f5c842]" /> Trending Searches
                   </h3>
                   <div className="flex flex-wrap gap-2">
@@ -355,12 +355,12 @@ export default function CategoriesPage() {
               <div className="flex flex-col gap-6">
                 {matchedCategories.length > 0 && (
                   <div>
-                    <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Categories</h3>
+                    <h3 className="text-[var(--muted-2)] text-xs font-semibold uppercase tracking-wider mb-3">Categories</h3>
                     <div className="flex flex-col gap-2">
                       {matchedCategories.map(c => (
-                        <button key={c.name} onClick={() => handleSearchCategory(c.name)} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left cursor-pointer hover:bg-white/10 transition-colors">
+                        <button key={c.name} onClick={() => handleSearchCategory(c.name)} className="flex items-center gap-3 p-3 bg-[var(--surface-muted)] rounded-xl border border-[var(--line)] text-left cursor-pointer hover:bg-[var(--surface)] transition-colors">
                           <div className="text-[#f5c842] scale-90">{c.icon}</div>
-                          <span className="text-white text-sm">{c.name}</span>
+                          <span className="text-[var(--text)] text-sm">{c.name}</span>
                         </button>
                       ))}
                     </div>
@@ -369,15 +369,15 @@ export default function CategoriesPage() {
                 
                 {matchedProducts.length > 0 && (
                   <div>
-                    <h3 className="text-gray-400 text-xs font-semibold uppercase tracking-wider mb-3">Products</h3>
+                    <h3 className="text-[var(--muted-2)] text-xs font-semibold uppercase tracking-wider mb-3">Products</h3>
                     <div className="flex flex-col gap-2">
                       {matchedProducts.map(p => (
-                        <button key={p.id || p._id} onClick={() => handleSearchProduct(p)} className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5 text-left cursor-pointer hover:bg-white/10 transition-colors">
-                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-white/5 shrink-0 flex items-center justify-center">
-                            {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : <Box size={20} className="text-gray-500 m-2"/>}
+                        <button key={p.id || p._id} onClick={() => handleSearchProduct(p)} className="flex items-center gap-3 p-3 bg-[var(--surface-muted)] rounded-xl border border-[var(--line)] text-left cursor-pointer hover:bg-[var(--surface)] transition-colors">
+                          <div className="w-10 h-10 rounded-lg overflow-hidden bg-[var(--surface-muted)] shrink-0 flex items-center justify-center">
+                            {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : <Box size={20} className="text-[var(--muted-2)] m-2"/>}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <div className="text-white text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{p.name}</div>
+                            <div className="text-[var(--heading)] text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{p.name}</div>
                             <div className="text-[#f5c842] text-xs mt-0.5">₹{p.sale_price?.toLocaleString()}</div>
                           </div>
                         </button>
@@ -387,7 +387,7 @@ export default function CategoriesPage() {
                 )}
 
                 {matchedCategories.length === 0 && matchedProducts.length === 0 && (
-                  <div className="text-center py-10 text-gray-500">
+                  <div className="text-center py-10 text-[var(--muted-2)]">
                     <Search size={32} className="opacity-20 mb-4 mx-auto" />
                     <p>No results found for "{searchQuery}"</p>
                   </div>

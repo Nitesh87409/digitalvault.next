@@ -12,11 +12,11 @@ export default function MyDownloadsPage() {
   const [loading, setLoading] = useState(true);
   const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
   const { toast, showToast } = useToast();
-  const { hasBundleAccess, unlockBundle } = useBundlePurchase({ showToast });
+  const { hasBundleAccess, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/settings').then(res => res.json()).then(data => {
+    fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' }).then(res => res.json()).then(data => {
       if (data.flag && data.settings?.support_email) setSupportEmail(data.settings.support_email);
     }).catch(() => {});
   }, []);
@@ -91,8 +91,12 @@ export default function MyDownloadsPage() {
               <p className="mt-2 text-sm text-[var(--muted)]">Your normal purchases and bundle products in one place.</p>
             </div>
             {!hasBundleAccess && (
-              <button onClick={() => unlockBundle()} className="rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] px-5 py-3 font-syne text-sm font-bold text-[#0a0a0f]">
-                Unlock Full Bundle
+              <button 
+                onClick={() => unlockBundle()} 
+                disabled={bundleLoading}
+                className="rounded-xl bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] px-5 py-3 font-syne text-sm font-bold text-[#0a0a0f] disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {bundleLoading ? 'Processing...' : 'Unlock Full Bundle'}
               </button>
             )}
           </div>

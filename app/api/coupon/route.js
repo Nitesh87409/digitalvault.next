@@ -16,6 +16,7 @@ export async function GET(request) {
       const email = searchParams.get('email')?.toLowerCase().trim();
       const amount = Number(searchParams.get('amount'));
       const product_id = searchParams.get('product_id');
+      const is_bundle = searchParams.get('is_bundle') === 'true';
       if (!code || !amount || amount <= 0)
         return NextResponse.json({ flag: 0, message: 'Invalid coupon request' });
 
@@ -57,7 +58,11 @@ export async function GET(request) {
         return NextResponse.json({ flag: 0, message: `Minimum order ₹${coupon.min_order} required` });
 
       // Product specific check
-      if (coupon.product_ids.length > 0) {
+      if (is_bundle) {
+        if (coupon.product_ids && coupon.product_ids.length > 0) {
+          return NextResponse.json({ flag: 0, message: 'This coupon is not valid for bundles' });
+        }
+      } else if (coupon.product_ids && coupon.product_ids.length > 0) {
         if (!product_id || !coupon.product_ids.map(id => id.toString()).includes(product_id))
           return NextResponse.json({ flag: 0, message: 'Coupon not valid for these products' });
       }

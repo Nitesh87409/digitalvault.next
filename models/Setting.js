@@ -20,6 +20,15 @@ const SettingSchema = new mongoose.Schema({
   bundle_description: { type: String, default: 'All products + future updates included' },
   bundle_price: { type: Number, default: 207 },
   bundle_original_price: { type: Number, default: 8497 },
+  bundle_timer_enabled: { type: Boolean, default: true },
+  bundle_timer_days: { type: Number, default: 0 },
+  bundle_timer_hours: { type: Number, default: 24 },
+  bundle_timer_minutes: { type: Number, default: 0 },
+  bundle_timer_action: { type: String, default: 'hide_timer' },
 }, { timestamps: true });
+
+if (mongoose.models.Setting) {
+  delete mongoose.models.Setting;
+}
 
 export default mongoose.models.Setting || mongoose.model('Setting', SettingSchema);

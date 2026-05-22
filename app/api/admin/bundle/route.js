@@ -17,6 +17,11 @@ const DEFAULT_SETTINGS = {
   bundle_description: 'All products + future updates included',
   bundle_price: 207,
   bundle_original_price: 8497,
+  bundle_timer_enabled: true,
+  bundle_timer_days: 0,
+  bundle_timer_hours: 24,
+  bundle_timer_minutes: 0,
+  bundle_timer_action: 'hide_timer',
 };
 
 function json(body, status = 200) {
@@ -32,6 +37,12 @@ function toBundleSettings(settings = {}) {
     bundle_description: settings.bundle_description || DEFAULT_SETTINGS.bundle_description,
     bundle_price: bundlePrices.bundle_price,
     bundle_original_price: bundlePrices.bundle_original_price,
+    bundle_timer_enabled: settings.bundle_timer_enabled ?? DEFAULT_SETTINGS.bundle_timer_enabled,
+    bundle_timer_days: settings.bundle_timer_days ?? DEFAULT_SETTINGS.bundle_timer_days,
+    bundle_timer_hours: settings.bundle_timer_hours ?? DEFAULT_SETTINGS.bundle_timer_hours,
+    bundle_timer_minutes: settings.bundle_timer_minutes ?? DEFAULT_SETTINGS.bundle_timer_minutes,
+    bundle_timer_action: settings.bundle_timer_action || DEFAULT_SETTINGS.bundle_timer_action,
+    updatedAt: settings.updatedAt,
   };
 }
 
@@ -136,6 +147,11 @@ export async function POST(request) {
       settings.bundle_description = String(body.bundle_description || DEFAULT_SETTINGS.bundle_description).trim();
       settings.bundle_price = Math.round(enteredBundlePrice);
       settings.bundle_original_price = Math.round(enteredOriginalPrice);
+      settings.bundle_timer_enabled = body.bundle_timer_enabled !== false;
+      settings.bundle_timer_days = Math.max(0, Math.floor(Number(body.bundle_timer_days) || 0));
+      settings.bundle_timer_hours = Math.max(0, Math.floor(Number(body.bundle_timer_hours) || 0));
+      settings.bundle_timer_minutes = Math.max(0, Math.floor(Number(body.bundle_timer_minutes) || 0));
+      settings.bundle_timer_action = String(body.bundle_timer_action || DEFAULT_SETTINGS.bundle_timer_action).trim();
       await settings.save();
 
       return json({ flag: 1, message: 'Bundle settings saved', settings: toBundleSettings(settings.toObject()) });

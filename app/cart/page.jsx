@@ -122,7 +122,7 @@ export default function CartPage() {
     setCouponData(null);
     try {
       const product_id = cart.length === 1 && cart[0]?.type !== 'bundle' ? cart[0].id : '';
-      const res = await fetch(`/api/coupon?action=validate&code=${couponCode}&email=${customer?.email}&amount=${subtotal}&product_id=${product_id}`);
+      const res = await fetch(`/api/coupon?action=validate&code=${couponCode}&email=${customer?.email}&amount=${subtotal}&product_id=${product_id}&is_bundle=${isBundleCart}`);
       const data = await res.json();
       if (data.flag) {
         setCouponData(data.coupon);
@@ -363,15 +363,22 @@ export default function CartPage() {
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '12px 16px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                        <span style={{ fontSize: '1.2rem' }}>✅</span>
-                        <div>
-                          <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Syne, sans-serif' }}>{couponData.code}</div>
-                          <div style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>You save ₹{couponDiscount.toLocaleString()}</div>
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '12px 16px' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                          <span style={{ fontSize: '1.2rem' }}>✅</span>
+                          <div>
+                            <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Syne, sans-serif' }}>{couponData.code}</div>
+                            <div style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>You save ₹{couponDiscount.toLocaleString()}</div>
+                          </div>
                         </div>
+                        <button onClick={removeCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem' }}>✕ Remove</button>
                       </div>
-                      <button onClick={removeCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem' }}>✕ Remove</button>
+                      {isBundleCart && (
+                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-2)', margin: '4px 0 0' }}>
+                          ℹ️ Coupon discount will be securely verified and applied by the payment gateway.
+                        </p>
+                      )}
                     </div>
                   )}
 

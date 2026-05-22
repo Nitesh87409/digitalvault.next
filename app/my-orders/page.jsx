@@ -1,4 +1,4 @@
-﻿'use client';
+'use client';
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -13,7 +13,7 @@ export default function MyOrdersPage() {
   const router = useRouter();
 
   useEffect(() => {
-    fetch('/api/settings').then(res => res.json()).then(data => {
+    fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' }).then(res => res.json()).then(data => {
       if (data.flag && data.settings?.support_email) {
         setSupportEmail(data.settings.support_email);
       }

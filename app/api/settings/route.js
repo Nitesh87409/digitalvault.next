@@ -54,7 +54,12 @@ export async function POST(request) {
       'bundle_title',
       'bundle_description',
       'bundle_price',
-      'bundle_original_price'
+      'bundle_original_price',
+      'bundle_timer_enabled',
+      'bundle_timer_days',
+      'bundle_timer_hours',
+      'bundle_timer_minutes',
+      'bundle_timer_action'
     ];
 
     fields.forEach((field) => {

@@ -4,6 +4,7 @@ import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import Toast, { useToast } from '@/components/Toast';
+import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 
 const API = process.env.NEXT_PUBLIC_APP_URL || '';
 const BUNDLE_CART_ID = '__bundle_subscription__';
@@ -11,7 +12,8 @@ const BUNDLE_CART_ID = '__bundle_subscription__';
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [totalSales, setTotalSales] = useState(1247);
-  const [countdown, setCountdown] = useState({ h: '00', m: '00', s: '00' });
+  const [countdown, setCountdown] = useState({ d: '00', h: '00', m: '00', s: '00' });
+  const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [payModal, setPayModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -23,34 +25,72 @@ export default function HomePage() {
     bundle_description: 'All products + future updates included',
     bundle_price: 207,
     bundle_original_price: 8497,
-    business_hours: 'Mon–Sat, 10am–6pm IST'
+    business_hours: 'Mon–Sat, 10am–6pm IST',
+    bundle_timer_enabled: true,
+    bundle_timer_days: 0,
+    bundle_timer_hours: 24,
+    bundle_timer_minutes: 0,
+    bundle_timer_action: 'hide_timer',
+    updatedAt: ''
   });
-  const [hasBundleAccess, setHasBundleAccess] = useState(false);
   const { toast, showToast } = useToast();
+  const { hasBundleAccess } = useBundlePurchase({ showToast });
+
+  const [faqs, setFaqs] = useState([
+    { q: 'How do I get my download after payment?', a: "After successful payment, you'll receive an email with a secure download link. You also have lifetime access via My Account." },
+    { q: 'Can I use these products for clients?', a: 'Yes! You get a commercial license to use all products for personal and client projects.' },
+    { q: 'What payment methods are accepted?', a: 'We accept all major credit/debit cards, UPI, net banking, and wallets via Razorpay.' },
+    { q: 'Is there a refund policy?', a: 'Yes! We offer a 7-day no-questions-asked refund policy.' },
+    { q: 'Do I get future updates?', a: 'Yes! All future updates are free for existing customers forever.' },
+  ]);
+  const [homepageReviews, setHomepageReviews] = useState([
+    { name: 'Rahul Kumar', role: 'Freelance Designer', review: 'Best investment I made this year. The templates saved me 40+ hours of work. Highly recommended!', initials: 'RK', color: 'linear-gradient(135deg,#f5c842,#e0a800)', textColor: '#0a0a0f', rating: 5 },
+    { name: 'Priya Sharma', role: 'Startup Founder', review: 'The growth playbook alone is worth 10x the price. My startup grew from 0 to 5k users in 3 months!', initials: 'PS', color: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', textColor: '#fff', rating: 5 },
+    { name: 'Arjun Mehta', role: 'Digital Marketer', review: 'Instant download worked perfectly. Quality is exceptional. Will definitely buy again!', initials: 'AM', color: 'linear-gradient(135deg,#10b981,#065f46)', textColor: '#fff', rating: 5 },
+  ]);
 
   useEffect(() => {
     loadProducts();
     loadStats();
     loadSettings();
-    startCountdown();
+    loadFaqs();
+    loadHomepageReviews();
   }, []);
 
   useEffect(() => {
-    const checkBundle = async () => {
-      try {
-        const res = await fetch('/api/bundle/access');
-        const data = await res.json();
-        setHasBundleAccess(data.hasAccess === true);
-      } catch {
-        setHasBundleAccess(false);
-      }
+    const cleanup = startCountdown();
+    return () => {
+      if (cleanup) cleanup();
     };
-    checkBundle();
+  }, [settings.bundle_timer_enabled, settings.bundle_timer_days, settings.bundle_timer_hours, settings.bundle_timer_minutes, settings.updatedAt, settings.bundle_timer_action]);
+
+  useEffect(() => {
+    const handleSearchUpdate = (e) => {
+      setSearchQuery(e.detail || '');
+    };
+    window.addEventListener('search-updated', handleSearchUpdate);
+
+    // Sync search from URL query parameter on mount and scroll to products
+    const params = new URLSearchParams(window.location.search);
+    const q = params.get('q');
+    if (q) {
+      setSearchQuery(q);
+      setTimeout(() => {
+        const productsSection = document.getElementById('products');
+        if (productsSection) {
+          productsSection.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, 600);
+    }
+
+    return () => {
+      window.removeEventListener('search-updated', handleSearchUpdate);
+    };
   }, []);
 
   async function loadSettings() {
     try {
-      const res = await fetch('/api/settings');
+      const res = await fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       if (data.flag && data.settings) {
         setSettings({
@@ -61,7 +101,13 @@ export default function HomePage() {
           bundle_description: data.settings.bundle_description || 'All products + future updates included',
           bundle_price: data.settings.bundle_price ?? 207,
           bundle_original_price: data.settings.bundle_original_price ?? 8497,
-          business_hours: data.settings.business_hours || 'Mon–Sat, 10am–6pm IST'
+          business_hours: data.settings.business_hours || 'Mon–Sat, 10am–6pm IST',
+          bundle_timer_enabled: data.settings.bundle_timer_enabled ?? true,
+          bundle_timer_days: data.settings.bundle_timer_days ?? 0,
+          bundle_timer_hours: data.settings.bundle_timer_hours ?? 24,
+          bundle_timer_minutes: data.settings.bundle_timer_minutes ?? 0,
+          bundle_timer_action: data.settings.bundle_timer_action || 'hide_timer',
+          updatedAt: data.settings.updatedAt || ''
         });
       }
     } catch(e) {}
@@ -69,34 +115,92 @@ export default function HomePage() {
 
   async function loadProducts() {
     try {
-      const res = await fetch('/api/product');
+      const res = await fetch('/api/product?t=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       if (data.flag) setProducts(data.products);
     } catch(e) {}
   }
 
+  async function loadFaqs() {
+    try {
+      const res = await fetch('/api/faqs?t=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.flag) setFaqs(data.faqs || []);
+    } catch(e) {}
+  }
+
+  async function loadHomepageReviews() {
+    try {
+      const res = await fetch('/api/homepage-reviews?t=' + Date.now(), { cache: 'no-store' });
+      const data = await res.json();
+      if (data.flag) setHomepageReviews(data.reviews || []);
+    } catch(e) {}
+  }
+
   async function loadStats() {
     try {
-      const res = await fetch('/api/order?type=stats');
+      const res = await fetch('/api/order?type=stats&t=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       if (data.flag) setTotalSales(data.totalSales || 1247);
     } catch(e) {}
   }
 
   function startCountdown() {
+    if (!settings.bundle_timer_enabled) return;
+
     const key = 'dv_deadline';
+    const durationKey = 'dv_deadline_duration';
+    const updatedKey = 'dv_settings_updated';
+
+    const configDays = Math.max(0, Number(settings.bundle_timer_days) || 0);
+    const configHours = Math.max(0, Number(settings.bundle_timer_hours) || 0);
+    const configMinutes = Math.max(0, Number(settings.bundle_timer_minutes) || 0);
+    const totalMs = (configDays * 86400000) + (configHours * 3600000) + (configMinutes * 60000);
+    const durationFingerprint = `${configDays}d${configHours}h${configMinutes}m`;
+    const configUpdated = settings.updatedAt || '';
+
     let deadline = localStorage.getItem(key);
-    if (!deadline) {
-      deadline = Date.now() + 24 * 60 * 60 * 1000;
-      localStorage.setItem(key, deadline);
+    let savedDuration = localStorage.getItem(durationKey);
+    let savedUpdated = localStorage.getItem(updatedKey);
+
+    let parsedDeadline = parseInt(deadline, 10);
+    const isDeadlineInvalid = isNaN(parsedDeadline) || parsedDeadline <= 0;
+
+    if (isDeadlineInvalid || savedDuration !== durationFingerprint || (configUpdated && savedUpdated !== configUpdated)) {
+      parsedDeadline = Date.now() + (totalMs > 0 ? totalMs : 86400000);
+      localStorage.setItem(key, String(parsedDeadline));
+      localStorage.setItem(durationKey, durationFingerprint);
+      if (configUpdated) {
+        localStorage.setItem(updatedKey, configUpdated);
+      } else {
+        localStorage.removeItem(updatedKey);
+      }
+      setIsTimerExpired(false);
+    } else {
+      if (parsedDeadline - Date.now() <= 0) {
+        setIsTimerExpired(true);
+      } else {
+        setIsTimerExpired(false);
+      }
     }
+
     const timer = setInterval(() => {
-      const diff = Number(deadline) - Date.now();
-      if (diff <= 0) { setCountdown({ h: '00', m: '00', s: '00' }); clearInterval(timer); return; }
+      const diff = parsedDeadline - Date.now();
+      if (diff <= 0) {
+        setCountdown({ d: '00', h: '00', m: '00', s: '00' });
+        setIsTimerExpired(true);
+        clearInterval(timer);
+        return;
+      }
+      const days = Math.floor(diff / 86400000);
+      const hours = Math.floor((diff % 86400000) / 3600000);
+      const mins = Math.floor((diff % 3600000) / 60000);
+      const secs = Math.floor((diff % 60000) / 1000);
       setCountdown({
-        h: Math.floor(diff / 3600000).toString().padStart(2, '0'),
-        m: Math.floor((diff % 3600000) / 60000).toString().padStart(2, '0'),
-        s: Math.floor((diff % 60000) / 1000).toString().padStart(2, '0'),
+        d: days.toString().padStart(2, '0'),
+        h: hours.toString().padStart(2, '0'),
+        m: mins.toString().padStart(2, '0'),
+        s: secs.toString().padStart(2, '0'),
       });
     }, 1000);
     return () => clearInterval(timer);
@@ -143,6 +247,14 @@ export default function HomePage() {
     const c = localStorage.getItem('dv_customer');
     if (!c) { window.location.href = '/login?redirect=/#pricing'; return; }
 
+    const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
+    if (cart.length > 0 && !cart.find(i => i.id === BUNDLE_CART_ID)) {
+      const confirmClear = window.confirm(
+        'Purchasing the bundle unlocks all products! Your current cart items will be cleared. Do you want to proceed?'
+      );
+      if (!confirmClear) return;
+    }
+
     const bundleItem = {
       id: BUNDLE_CART_ID,
       type: 'bundle',
@@ -160,11 +272,125 @@ export default function HomePage() {
 
   const firstProduct = products[0];
   const filteredProducts = products.filter(p => p.name?.toLowerCase().includes(searchQuery.toLowerCase()) || p.description?.toLowerCase().includes(searchQuery.toLowerCase()));
+  const isOfferEnded = settings.bundle_timer_enabled && isTimerExpired && (settings.bundle_timer_action === 'disable_checkout' || settings.bundle_timer_action === 'show_expired');
 
   return (
     <>
       <Navbar />
       <Toast toast={toast} />
+
+      {/* COMPLETE BUNDLE PROMOTIONAL HERO BANNER */}
+      {settings.bundle_enabled && (
+        <section id="pricing" className="bg-[var(--bg)] px-6 pt-24 pb-10 transition-colors duration-300">
+          <div className="mx-auto max-w-[1152px]">
+            <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)] p-8 md:p-12 shadow-[var(--shadow-soft)]">
+              {/* Glowing radial background effects */}
+              <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f5c842]/10 blur-[80px] pointer-events-none" />
+              <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#7c3aed]/5 blur-[80px] pointer-events-none" />
+              
+              <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
+                {/* Left Column: Title & Highlights */}
+                <div className="lg:col-span-7 space-y-6">
+                  <div className="inline-flex items-center gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#f5c842]">
+                    <span className="relative flex h-2 w-2">
+                      <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c842] opacity-75"></span>
+                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f5c842]"></span>
+                    </span>
+                    Limited Time Deal
+                  </div>
+                  
+                  <div>
+                    <h1 className="font-syne text-3xl font-extrabold tracking-tight text-[var(--heading)] sm:text-4xl lg:text-5xl leading-tight">
+                      {settings.bundle_title || 'Complete Bundle'}
+                    </h1>
+                    <p className="mt-3 text-lg text-[var(--muted)] leading-relaxed max-w-xl">
+                      {settings.bundle_description || 'All products + future updates included'}
+                    </p>
+                  </div>
+
+                  <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2 text-sm text-[var(--muted)]">
+                    {['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'].map((feat) => (
+                      <div key={feat} className="flex items-center gap-2">
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c842]/10 text-xs font-bold text-[#f5c842]">
+                          ✓
+                        </span>
+                        {feat}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Right Column: Countdown, Price & CTA */}
+                <div className="lg:col-span-5 rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-6 sm:p-8 flex flex-col gap-6">
+                  {/* Countdown */}
+                  {settings.bundle_timer_enabled && (
+                    isTimerExpired && (settings.bundle_timer_action === 'disable_checkout' || settings.bundle_timer_action === 'show_expired') ? (
+                      <div className="flex flex-col items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 py-4 px-6 text-center animate-pulse">
+                        <span className="font-syne text-lg font-bold text-red-500 tracking-wide uppercase">
+                          ⚠️ Offer Expired
+                        </span>
+                        <span className="mt-1 text-xs text-red-400/80 font-medium">
+                          This limited-time promotion has ended.
+                        </span>
+                      </div>
+                    ) : !(isTimerExpired && settings.bundle_timer_action === 'hide_timer') ? (
+                      <div>
+                        <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
+                          Offer Ending Soon:
+                        </div>
+                        <div className="flex justify-center gap-3">
+                          {[{ val: countdown.d, label: 'Days' }, { val: countdown.h, label: 'Hours' }, { val: countdown.m, label: 'Mins' }, { val: countdown.s, label: 'Secs' }].map(c => (
+                            <div key={c.label} className="flex flex-col items-center min-w-[60px] rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-2 px-3">
+                              <span className="font-syne text-2xl font-bold text-[#f5c842]">
+                                {c.val}
+                              </span>
+                              <span className="text-[10px] text-[var(--muted-2)] uppercase font-semibold">
+                                {c.label}
+                              </span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null
+                  )}
+
+                  {/* Price Display */}
+                  <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-4 px-2">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
+                      <span className="text-lg text-[var(--muted-2)] line-through">
+                        ₹{(settings.bundle_original_price || 8497).toLocaleString()}
+                      </span>
+                    </div>
+                    <div className="flex flex-col items-end">
+                      <span className="text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
+                      <span className="font-syne text-3xl font-extrabold text-[var(--heading)]">
+                        ₹{(settings.bundle_price || 207).toLocaleString()}
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* CTA Button */}
+                  <button
+                    onClick={addBundleToCart}
+                    disabled={hasBundleAccess || isOfferEnded}
+                    className={`gold-btn flex items-center justify-center gap-2 rounded-xl py-4 px-6 text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded) ? 'pulse-glow' : ''}`}
+                    style={{ opacity: hasBundleAccess || isOfferEnded ? 0.6 : 1 }}
+                  >
+                    {hasBundleAccess ? (
+                      <>Bundle Active 🎉</>
+                    ) : isOfferEnded ? (
+                      <>Offer Ended 😢</>
+                    ) : (
+                      <>Unlock Full Bundle →</>
+                    )}
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
 
       {/* HERO */}
       {/* <section style={{ minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center', paddingTop: '80px', paddingBottom: '80px', position: 'relative', overflow: 'hidden' }}>
@@ -233,25 +459,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1152px]">
           <div className="mb-14 text-center">
             <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">What You'll Get</h2>
-            <p className="mb-8 text-lg text-[var(--muted)]">Premium digital products crafted for modern entrepreneurs</p>
-            
-            <div className="relative mx-auto max-w-[500px]">
-              <input 
-                type="text" 
-                placeholder="Search products by name or description..." 
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="theme-input rounded-full py-4 pl-12 pr-6 text-base"
-              />
-              <svg 
-                width="20" height="20" fill="none" stroke="#f5c842" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" 
-                style={{ position: 'absolute', left: '18px', top: '50%', transform: 'translateY(-50%)' }}
-                viewBox="0 0 24 24"
-              >
-                <circle cx="11" cy="11" r="8"></circle>
-                <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-              </svg>
-            </div>
+            <p className="text-lg text-[var(--muted)]">Premium digital products crafted for modern entrepreneurs</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
             {products.length === 0 ? (
@@ -310,46 +518,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRICING */}
-      <section id="pricing" className="bg-[var(--bg)] px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-14 text-center">
-            <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">Get Everything. Pay Once.</h2>
-            <p className="mb-6 text-[var(--muted)]">Offer ends in:</p>
-            <div className="flex justify-center gap-4">
-              {[{ val: countdown.h, label: 'Hours' }, { val: countdown.m, label: 'Minutes' }, { val: countdown.s, label: 'Seconds' }].map(c => (
-                <div key={c.label} className="countdown-box">
-                  <div style={{ fontSize: '2rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>{c.val}</div>
-                  <div className="mt-1 text-xs text-[var(--muted-2)]">{c.label}</div>
-                </div>
-              ))}
-            </div>
-          </div>
 
-          <div className="theme-card relative overflow-hidden rounded-2xl border-[#f5c842]/40 p-8 text-center sm:p-12">
-            <div style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '3px', background: 'linear-gradient(90deg,#f5c842,#e0a800)' }}></div>
-            <div className="badge" style={{ marginBottom: '16px' }}>Most Popular</div>
-            <h3 className="mb-2 text-2xl font-bold text-[var(--heading)]">{settings.bundle_title || 'Complete Bundle'}</h3>
-            <p className="mb-8 text-[var(--muted)]">{settings.bundle_description || 'All products + future updates included'}</p>
-            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '16px', marginBottom: '8px' }}>
-              <span className="text-2xl text-[var(--muted-2)] line-through">₹{(settings.bundle_original_price || 8497).toLocaleString()}</span>
-              <span style={{ fontSize: '3.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif' }}>₹{(settings.bundle_price || 207).toLocaleString()}</span>
-            </div>
-            <ul style={{ textAlign: 'left', maxWidth: '400px', margin: '0 auto 40px', listStyle: 'none', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-              {['Instant download access', 'Lifetime access', 'Free future updates', '7-day money-back guarantee', 'Email support'].map(item => (
-                <li key={item} className="flex items-center gap-3 text-sm text-[var(--text)]">
-                  <span style={{ color: '#f5c842' }}>✓</span> {item}
-                </li>
-              ))}
-            </ul>
-            {firstProduct && (
-              <button onClick={addBundleToCart} disabled={hasBundleAccess || !settings.bundle_enabled} className="gold-btn pulse-glow" style={{ width: '100%', maxWidth: '400px', padding: '20px', borderRadius: '999px', fontSize: '1.1rem', opacity: hasBundleAccess || !settings.bundle_enabled ? 0.75 : 1 }}>
-                {hasBundleAccess ? 'Bundle Active' : settings.bundle_enabled ? 'Unlock Full Bundle' : 'Bundle Disabled'}
-              </button>
-            )}
-          </div>
-        </div>
-      </section>
 
       {/* TESTIMONIALS */}
       <section className="bg-[#f5c842]/[0.03] px-6 py-20">
@@ -358,13 +527,11 @@ export default function HomePage() {
             <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">What Customers Say</h2>
           </div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-            {[
-              { name: 'Rahul Kumar', role: 'Freelance Designer', review: 'Best investment I made this year. The templates saved me 40+ hours of work. Highly recommended!', initials: 'RK', color: 'linear-gradient(135deg,#f5c842,#e0a800)', textColor: '#0a0a0f' },
-              { name: 'Priya Sharma', role: 'Startup Founder', review: 'The growth playbook alone is worth 10x the price. My startup grew from 0 to 5k users in 3 months!', initials: 'PS', color: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', textColor: '#fff' },
-              { name: 'Arjun Mehta', role: 'Digital Marketer', review: 'Instant download worked perfectly. Quality is exceptional. Will definitely buy again!', initials: 'AM', color: 'linear-gradient(135deg,#10b981,#065f46)', textColor: '#fff' },
-            ].map(t => (
-              <div key={t.name} className="theme-card rounded-2xl p-6">
-                <div className="stars" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>★★★★★</div>
+            {homepageReviews.map(t => (
+              <div key={t._id || t.name} className="theme-card rounded-2xl p-6">
+                <div className="stars text-[#f5c842]" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>
+                  {'★'.repeat(t.rating || 5) + '☆'.repeat(5 - (t.rating || 5))}
+                </div>
                 <p className="mb-5 text-sm text-[var(--text)]">{t.review}</p>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                   <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.color, color: t.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem', fontFamily: 'Syne,sans-serif' }}>{t.initials}</div>
@@ -386,14 +553,8 @@ export default function HomePage() {
             <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">Frequently Asked Questions</h2>
           </div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {[
-              { q: 'How do I get my download after payment?', a: 'After successful payment, you\'ll receive an email with a secure download link. You also have lifetime access via My Account.' },
-              { q: 'Can I use these products for clients?', a: 'Yes! You get a commercial license to use all products for personal and client projects.' },
-              { q: 'What payment methods are accepted?', a: 'We accept all major credit/debit cards, UPI, net banking, and wallets via Razorpay.' },
-              { q: 'Is there a refund policy?', a: 'Yes! We offer a 7-day no-questions-asked refund policy.' },
-              { q: 'Do I get future updates?', a: 'Yes! All future updates are free for existing customers forever.' },
-            ].map((faq, i) => (
-              <FaqItem key={i} q={faq.q} a={faq.a} />
+            {faqs.map((faq, i) => (
+              <FaqItem key={faq._id || i} q={faq.q} a={faq.a} />
             ))}
           </div>
         </div>
@@ -410,9 +571,11 @@ export default function HomePage() {
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Quick Links</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[['/#products', 'Products'], ['/#pricing', 'Pricing'], ['/#faq', 'FAQ'], ['/account', 'My Account']].map(([href, label]) => (
-                  <Link key={href} href={href} className="theme-link text-sm no-underline">{label}</Link>
-                ))}
+                {[['/#products', 'Products'], ['/#pricing', 'Pricing'], ['/#faq', 'FAQ'], ['/account', 'My Account']]
+                  .filter(([_, label]) => label !== 'Pricing' || settings.bundle_enabled !== false)
+                  .map(([href, label]) => (
+                    <Link key={href} href={href} className="theme-link text-sm no-underline">{label}</Link>
+                  ))}
               </div>
             </div>
             <div>

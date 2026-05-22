@@ -87,22 +87,20 @@ export default function AdminCoupons() {
 
   const isExpired = (coupon) => coupon.end_date && new Date(coupon.end_date) < new Date();
 
-  return (
-    <div className="font-sans bg-[#0a0a0f] min-h-screen text-[#e8e8f0] flex flex-col relative">
-      {/* Nav */}
-      <nav className="bg-[#0e0e18] border-b border-[#f5c842]/10 p-4 sm:px-6 flex items-center justify-between sticky top-0 z-10">
-        <div className="flex items-center gap-4 sm:gap-6">
-          <Link href="/admin/dashboard" className="font-syne text-lg sm:text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
-          <Link href="/admin/dashboard" className="text-sm text-gray-500 no-underline hover:text-white transition-colors">← Dashboard</Link>
-        </div>
-        <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-4 sm:px-5 py-2.5 rounded-xl text-xs sm:text-sm shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
-          + Create Coupon
-        </button>
-      </nav>
+  const headerActions = (
+    <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
+      + Create Coupon
+    </button>
+  );
 
-      <div className="w-full max-w-6xl mx-auto my-6 sm:my-10 px-4 sm:px-6 flex-1">
-        <h1 className="font-syne text-2xl sm:text-3xl font-bold text-white mb-2 tracking-tight">🎟️ Coupon Management</h1>
-        <p className="text-gray-500 text-sm mb-8">{coupons.length} coupons total</p>
+  return (
+    <>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 shrink-0">
+        <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight">🎟️ Coupon Management</h1>
+        <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">{headerActions}</div>
+      </div>
+      <div className="w-full max-w-6xl mx-auto my-2 px-2 flex-1">
+        <p className="text-gray-500 text-sm mb-6">{coupons.length} coupons total</p>
 
         {/* Stats Row */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
@@ -262,12 +260,6 @@ export default function AdminCoupons() {
           </div>
         </div>
       )}
-      <style>{`
-        .custom-scrollbar::-webkit-scrollbar { width: 8px; height: 8px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-      `}</style>
-    </div>
+    </>
   );
 }

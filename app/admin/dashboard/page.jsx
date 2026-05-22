@@ -1,17 +1,15 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
+import { useRouter, useSearchParams } from 'next/navigation';
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('dashboard');
-  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [admin, setAdmin] = useState(null);
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, customers: 0, paidOrders: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
-  const [customers, setCustomers] = useState([]);
   const [categories, setCategories] = useState([]);
   const [productModal, setProductModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
@@ -22,6 +20,7 @@ export default function AdminDashboard() {
   const [modalError, setModalError] = useState('');
   const descRef = useRef(null);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   const headers = { 'Content-Type': 'application/json' };
 
@@ -33,9 +32,17 @@ export default function AdminDashboard() {
   }, []);
 
   useEffect(() => {
+    const t = searchParams.get('tab');
+    if (t && ['dashboard', 'products', 'orders'].includes(t)) {
+      setTab(t);
+    } else {
+      setTab('dashboard');
+    }
+  }, [searchParams]);
+
+  useEffect(() => {
     if (tab === 'products') loadProducts();
     if (tab === 'orders') loadOrders();
-    if (tab === 'customers') loadCustomers();
   }, [tab]);
 
   async function loadCategories() {
@@ -81,12 +88,6 @@ export default function AdminDashboard() {
     const res = await fetch('/api/order', { headers });
     const data = await res.json();
     if (data.flag) setOrders(data.orders || []);
-  }
-
-  async function loadCustomers() {
-    const res = await fetch('/api/customers', { headers });
-    const data = await res.json();
-    if (data.flag) setCustomers(data.customers || []);
   }
 
   function openModal(product = null) {
@@ -163,90 +164,26 @@ export default function AdminDashboard() {
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
     { id: 'products', icon: '📦', label: 'Products' },
     { id: 'orders', icon: '🛒', label: 'Orders' },
-    { id: 'customers', icon: '👥', label: 'Customers' },
   ];
 
+  const pageTitle = 
+    tab === 'dashboard' ? '📊 Dashboard' :
+    tab === 'products' ? '📦 Products' :
+    tab === 'orders' ? '🛒 Orders' : '';
+
+  const headerActions = tab === 'products' ? (
+    <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
+      + Add Product
+    </button>
+  ) : null;
+
   return (
-    <div className="flex min-h-screen font-sans bg-[#0a0a0f] text-[#e8e8f0] relative">
-      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-
-      {/* Mobile Sidebar Overlay */}
-      {sidebarOpen && (
-        <div 
-          className="fixed inset-0 bg-black/60 z-40 md:hidden backdrop-blur-sm"
-          onClick={() => setSidebarOpen(false)}
-        />
-      )}
-
-      {/* Sidebar */}
-      <div className={`fixed md:sticky top-0 left-0 h-screen w-[260px] shrink-0 bg-[#0e0e18] border-r border-[#f5c842]/10 p-6 flex flex-col z-50 transform transition-transform duration-300 overflow-y-auto ${sidebarOpen ? 'translate-x-0' : '-translate-x-full md:translate-x-0'}`}>
-        <div className="flex justify-between items-center mb-8 px-2 shrink-0">
-          <div className="font-syne text-xl font-bold text-[#f5c842]">DigitalVault</div>
-          <button className="md:hidden text-gray-400 hover:text-white text-xl border-none bg-transparent cursor-pointer" onClick={() => setSidebarOpen(false)}>✕</button>
-        </div>
-        <nav className="flex-1 flex flex-col gap-1">
-          {sidebarItems.map(item => (
-            <button 
-              key={item.id} 
-              onClick={() => { setTab(item.id); setSidebarOpen(false); }} 
-              className={`flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-sans text-sm border-none w-full text-left transition-all duration-200 ${tab === item.id ? 'bg-[#f5c842]/10 text-[#f5c842]' : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'}`}
-            >
-              <span className="text-lg">{item.icon}</span> {item.label}
-            </button>
-          ))}
-          <div className="border-t border-white/5 my-2 mx-2"></div>
-          <Link href="/admin/categories" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">📂</span> Categories
-          </Link>
-          <Link href="/admin/coupons" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">🎟️</span> Coupons
-          </Link>
-          <Link href="/admin/bundle" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">🎁</span> Bundle
-          </Link>
-          <Link href="/admin/customers" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">👥</span> All Customers
-          </Link>
-          <Link href="/admin/reviews" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">⭐</span> Reviews
-          </Link>
-          <Link href="/admin/settings" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline">
-            <span className="text-lg">⚙️</span> Settings
-          </Link>
-        </nav>
-        <div className="border-t border-white/5 pt-3 mt-4 shrink-0">
-          <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline mb-1">
-            <span className="text-lg">🌐</span> View Site
-          </Link>
-          <button onClick={logout} className="flex items-center gap-3 px-4 py-3 rounded-xl cursor-pointer font-sans text-sm border-none bg-transparent text-red-500 hover:bg-red-500/10 transition-all w-full text-left">
-            <span className="text-lg">🚪</span> Logout
-          </button>
-        </div>
+    <>
+      {/* Page Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 shrink-0">
+        <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight">{pageTitle}</h1>
+        {headerActions && <div className="flex items-center gap-3 w-full sm:w-auto shrink-0">{headerActions}</div>}
       </div>
-
-      {/* Main Content */}
-      <div className="flex-1 flex flex-col w-full min-w-0 p-4 sm:p-6 lg:p-8">
-
-        {/* Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
-          <div className="flex items-center gap-3">
-            <button className="md:hidden text-[#f5c842] text-2xl p-1 bg-white/5 rounded-lg border border-white/10 cursor-pointer flex items-center justify-center w-10 h-10 shrink-0" onClick={() => setSidebarOpen(true)}>☰</button>
-            <div>
-              <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight">
-                {tab === 'dashboard' && '📊 Dashboard'}
-                {tab === 'products' && '📦 Products'}
-                {tab === 'orders' && '🛒 Orders'}
-                {tab === 'customers' && '👥 Customers'}
-              </h1>
-              <p className="text-gray-500 text-sm mt-1">Welcome back, {admin?.name || 'Admin'}!</p>
-            </div>
-          </div>
-          {tab === 'products' && (
-            <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
-              + Add Product
-            </button>
-          )}
-        </div>
 
         {/* DASHBOARD TAB */}
         {tab === 'dashboard' && (
@@ -407,90 +344,6 @@ export default function AdminDashboard() {
           </div>
         )}
 
-        {/* CUSTOMERS TAB */}
-        {tab === 'customers' && (
-          <div className="flex flex-col gap-6">
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4">
-              {[
-                { label: 'Total', val: customers.length },
-                { label: 'VIP', val: customers.filter(c => c.tag === 'vip' || c.total_spent >= 5000).length },
-                { label: 'Blocked', val: customers.filter(c => c.is_blocked).length },
-                { label: 'New', val: customers.filter(c => c.total_orders === 0).length },
-              ].map(s => (
-                <div key={s.label} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-4 sm:p-5 hover:border-[#f5c842]/30 transition-colors min-w-0">
-                  <p className="text-gray-500 text-xs mb-1 font-medium truncate">{s.label}</p>
-                  <p className="font-syne text-xl sm:text-2xl font-bold text-white truncate">{s.val}</p>
-                </div>
-              ))}
-            </div>
-            
-            <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
-              <div className="p-4 sm:p-6 border-b border-white/5 flex justify-between items-center bg-white/[0.02]">
-                <h3 className="font-syne font-bold text-white text-base">Recent Customers</h3>
-                <Link href="/admin/customers" className="text-[#f5c842] text-sm no-underline hover:underline">View all →</Link>
-              </div>
-
-              {/* Mobile Cards Layout */}
-              <div className="md:hidden flex flex-col divide-y divide-white/5">
-                {customers.slice(0, 8).map((c, i) => (
-                  <div key={i} className="p-4 flex flex-col gap-3 hover:bg-white/[0.02] transition-colors">
-                    <div className="flex justify-between items-start gap-2">
-                      <div className="flex-1 min-w-0">
-                        <Link href={`/admin/customers/${c._id}`} className="text-white font-medium hover:text-[#f5c842] transition-colors truncate block">{c.name}</Link>
-                        <p className="text-gray-500 text-xs truncate">{c.email}</p>
-                      </div>
-                      <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap shrink-0 ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
-                        {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center bg-[#0a0a0f] rounded-lg p-3 border border-white/5">
-                      <div className="flex flex-col">
-                        <span className="text-gray-500 text-[10px] uppercase tracking-wider">Orders</span>
-                        <span className="text-white font-bold">{c.total_orders || 0}</span>
-                      </div>
-                      <div className="flex flex-col text-right">
-                        <span className="text-gray-500 text-[10px] uppercase tracking-wider">Spent</span>
-                        <span className="text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</span>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-              {/* Desktop Table Layout */}
-              <div className="hidden md:block overflow-x-auto w-full custom-scrollbar">
-                <table className="w-full min-w-[800px] border-collapse text-sm text-left">
-                  <thead>
-                    <tr className="border-b border-white/5 text-gray-400 font-medium">
-                      {['Name', 'Email', 'Orders', 'Spent', 'Status'].map(h => (
-                        <th key={h} className="p-4 font-medium whitespace-nowrap">{h}</th>
-                      ))}
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {customers.slice(0, 8).map((c, i) => (
-                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                        <td className="p-4">
-                          <Link href={`/admin/customers/${c._id}`} className="text-white no-underline font-medium hover:text-[#f5c842] transition-colors whitespace-nowrap">{c.name}</Link>
-                        </td>
-                        <td className="p-4 text-gray-500 text-xs whitespace-nowrap">{c.email}</td>
-                        <td className="p-4 text-white whitespace-nowrap">{c.total_orders || 0}</td>
-                        <td className="p-4 text-[#f5c842] font-bold whitespace-nowrap">₹{(c.total_spent || 0).toLocaleString()}</td>
-                        <td className="p-4 whitespace-nowrap">
-                          <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase ${c.is_blocked ? 'bg-red-500/15 text-red-500' : 'bg-[#10b981]/15 text-[#10b981]'}`}>
-                            {c.is_blocked ? '🚫 Blocked' : '✓ Active'}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-          </div>
-        )}
-      </div>
-
       {/* Product Modal */}
       {productModal && (
         <div className="fixed inset-0 bg-black/90 z-[100] flex flex-col backdrop-blur-sm p-0 md:p-6 lg:p-10">
@@ -615,6 +468,6 @@ export default function AdminDashboard() {
           `}</style>
         </div>
       )}
-    </div>
+    </>
   );
 }

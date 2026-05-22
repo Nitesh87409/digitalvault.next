@@ -13,6 +13,11 @@ export default function AdminBundlePage() {
     bundle_description: 'All products + future updates included',
     bundle_price: 207,
     bundle_original_price: 8497,
+    bundle_timer_enabled: true,
+    bundle_timer_days: 0,
+    bundle_timer_hours: 24,
+    bundle_timer_minutes: 0,
+    bundle_timer_action: 'hide_timer',
   });
   const [stats, setStats] = useState({ activeSubscriptions: 0, revenue: 0, totalProducts: 0, bundleProducts: 0 });
   const [products, setProducts] = useState([]);
@@ -27,7 +32,7 @@ export default function AdminBundlePage() {
   async function loadBundleAdmin() {
     setLoading(true);
     try {
-      const res = await fetch('/api/admin/bundle', { cache: 'no-store' });
+      const res = await fetch('/api/admin/bundle?t=' + Date.now(), { cache: 'no-store' });
       const data = await res.json();
       if (data.flag) {
         setSettings(data.settings);
@@ -126,23 +131,10 @@ export default function AdminBundlePage() {
   const inputClass = 'bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors';
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] text-[#e8e8f0] font-sans">
-      <nav className="sticky top-0 z-10 flex items-center justify-between border-b border-[#f5c842]/10 bg-[#0e0e18] px-4 py-4 sm:px-6">
-        <div className="flex items-center gap-4">
-          <Link href="/admin/dashboard" className="font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
-          <Link href="/admin/dashboard" className="text-sm text-gray-500 no-underline hover:text-white">← Dashboard</Link>
-        </div>
-        <Link href="/" target="_blank" className="text-sm text-[#f5c842] no-underline">View Site</Link>
-      </nav>
-
-      <main className="mx-auto flex max-w-7xl flex-col gap-6 px-4 py-8 sm:px-6">
-        <div className="flex flex-col gap-2 sm:flex-row sm:items-end sm:justify-between">
-          <div>
-            <h1 className="font-syne text-3xl font-bold text-white">Bundle Management</h1>
-            <p className="mt-2 text-sm text-gray-500">Manage full-bundle pricing, included products, and active bundle customers.</p>
-          </div>
-          {message && <div className="rounded-xl border border-[#f5c842]/20 bg-[#f5c842]/10 px-4 py-3 text-sm text-[#f5c842]">{message}</div>}
-        </div>
+    <>
+      <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight mb-8">🎁 Bundle Management</h1>
+      <main className="mx-auto flex max-w-7xl flex-col gap-6 my-2 px-2 flex-1">
+        {message && <div className="rounded-xl border border-[#f5c842]/20 bg-[#f5c842]/10 px-4 py-3 text-sm text-[#f5c842]">{message}</div>}
 
         {loading ? (
           <div className="rounded-2xl border border-white/10 bg-[#12121a] p-10 text-center text-gray-400">Loading bundle data...</div>
@@ -193,6 +185,50 @@ export default function AdminBundlePage() {
                       <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Original ₹</label>
                       <input type="number" min="1" className={inputClass} value={settings.bundle_original_price} onChange={e => setSettings({ ...settings, bundle_original_price: Number(e.target.value) })} />
                     </div>
+                  </div>
+
+                  {/* Countdown Timer Settings */}
+                  <div className="border-t border-white/5 pt-4 mt-2 flex flex-col gap-4">
+                    <h3 className="font-syne text-sm font-bold text-white uppercase tracking-wider text-[#f5c842]">⏰ Countdown Timer Settings</h3>
+                    
+                    <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
+                      <span>
+                        <span className="block text-sm font-bold text-white">Show Countdown Timer</span>
+                        <span className="text-xs text-gray-500">Show urgency timer on landing page.</span>
+                      </span>
+                      <input type="checkbox" checked={!!settings.bundle_timer_enabled} onChange={e => setSettings({ ...settings, bundle_timer_enabled: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                    </label>
+
+                    {settings.bundle_timer_enabled && (
+                      <>
+                        <div>
+                          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Timer Duration</label>
+                          <div className="grid grid-cols-3 gap-2">
+                            <div>
+                              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Days</label>
+                              <input type="number" min="0" className={inputClass} value={settings.bundle_timer_days} onChange={e => setSettings({ ...settings, bundle_timer_days: Number(e.target.value) || 0 })} />
+                            </div>
+                            <div>
+                              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Hours</label>
+                              <input type="number" min="0" max="23" className={inputClass} value={settings.bundle_timer_hours} onChange={e => setSettings({ ...settings, bundle_timer_hours: Number(e.target.value) || 0 })} />
+                            </div>
+                            <div>
+                              <label className="mb-1 block text-[10px] font-semibold uppercase tracking-wider text-gray-500">Minutes</label>
+                              <input type="number" min="0" max="59" className={inputClass} value={settings.bundle_timer_minutes} onChange={e => setSettings({ ...settings, bundle_timer_minutes: Number(e.target.value) || 0 })} />
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Action On Expiration</label>
+                          <select className={inputClass} value={settings.bundle_timer_action} onChange={e => setSettings({ ...settings, bundle_timer_action: e.target.value })}>
+                            <option value="hide_timer">Hide Timer Only (Boost Urgency)</option>
+                            <option value="disable_checkout">Disable Checkout (Show "Offer Ended")</option>
+                            <option value="show_expired">Show "Offer Expired" Badge & Disable Checkout</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
                   </div>
 
                   <button onClick={saveSettings} disabled={saving} className="mt-2 rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-5 py-3 font-syne font-bold text-[#0a0a0f] shadow-lg shadow-[#f5c842]/20 disabled:opacity-70">
@@ -298,6 +334,6 @@ export default function AdminBundlePage() {
           </>
         )}
       </main>
-    </div>
+    </>
   );
 }
