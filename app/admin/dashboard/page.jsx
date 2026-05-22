@@ -8,6 +8,8 @@ export default function AdminDashboard() {
   const [admin, setAdmin] = useState(null);
   const [stats, setStats] = useState({ revenue: 0, orders: 0, products: 0, customers: 0, paidOrders: 0 });
   const [recentOrders, setRecentOrders] = useState([]);
+  const [chartData, setChartData] = useState([]);
+  const [bundleAlert, setBundleAlert] = useState(null);
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
@@ -21,6 +23,12 @@ export default function AdminDashboard() {
   const descRef = useRef(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  // Search & Filter states
+  const [productSearch, setProductSearch] = useState('');
+  const [orderSearch, setOrderSearch] = useState('');
+  const [orderStatusFilter, setOrderStatusFilter] = useState('all');
+  const [orderDetail, setOrderDetail] = useState(null);
 
   const headers = { 'Content-Type': 'application/json' };
 
@@ -73,6 +81,8 @@ export default function AdminDashboard() {
             : 0,
         });
         setRecentOrders(statsData.recentOrders || []);
+        setChartData(statsData.chartData || []);
+        setBundleAlert(statsData.bundleAlert || null);
       }
       if (pData.flag) setProducts(pData.products || []);
     } catch(e) {}
@@ -149,6 +159,43 @@ export default function AdminDashboard() {
     loadProducts(); loadAll();
   }
 
+  async function toggleProductStatus(product) {
+    await fetch(`/api/product/${product._id}`, {
+      method: 'PATCH',
+      headers,
+      body: JSON.stringify({ status: !product.status })
+    });
+    loadProducts(); loadAll();
+  }
+
+  async function updateOrderStatus(orderId, newStatus) {
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'update-status', order_id: orderId, payment_status: newStatus })
+    });
+    const data = await res.json();
+    if (data.flag) loadOrders();
+  }
+
+  async function exportOrdersCSV() {
+    const res = await fetch('/api/order', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'export-csv' })
+    });
+    const data = await res.json();
+    if (data.flag && data.csv) {
+      const blob = new Blob([data.csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `orders_${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  }
+
   async function logout() {
     await fetch('/api/logout', { method: 'POST', headers, body: JSON.stringify({ role: 'admin' }) });
     localStorage.removeItem('admin_data');
@@ -159,6 +206,29 @@ export default function AdminDashboard() {
     descRef.current?.focus();
     document.execCommand(cmd, false, val);
   }
+
+  // Filtered products
+  const filteredProducts = products.filter(p =>
+    p.name?.toLowerCase().includes(productSearch.toLowerCase()) ||
+    p.category?.toLowerCase().includes(productSearch.toLowerCase())
+  );
+
+  // Filtered orders
+  const filteredOrders = orders.filter(o => {
+    const matchSearch = !orderSearch ||
+      o.name?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+      o.email?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+      o.razorpay_payment_id?.toLowerCase().includes(orderSearch.toLowerCase()) ||
+      o.product_id?.name?.toLowerCase().includes(orderSearch.toLowerCase());
+    const matchStatus = orderStatusFilter === 'all' ||
+      (orderStatusFilter === 'paid' && o.payment_status === 1) ||
+      (orderStatusFilter === 'pending' && o.payment_status === 0) ||
+      (orderStatusFilter === 'refunded' && o.payment_status === 2);
+    return matchSearch && matchStatus;
+  });
+
+  // Revenue chart helpers
+  const maxRevenue = Math.max(...chartData.map(d => d.revenue), 1);
 
   const sidebarItems = [
     { id: 'dashboard', icon: '📊', label: 'Dashboard' },
@@ -175,6 +245,10 @@ export default function AdminDashboard() {
     <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
       + Add Product
     </button>
+  ) : tab === 'orders' ? (
+    <button onClick={exportOrdersCSV} className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] font-syne font-bold cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto hover:bg-[#10b981]/20 transition-colors">
+      📥 Export CSV
+    </button>
   ) : null;
 
   return (
@@ -188,6 +262,35 @@ export default function AdminDashboard() {
         {/* DASHBOARD TAB */}
         {tab === 'dashboard' && (
           <div className="flex flex-col gap-6">
+
+            {/* Bundle Sales Limit Alert */}
+            {bundleAlert && (
+              <div className={`rounded-2xl p-5 border flex items-center gap-4 ${bundleAlert.critical ? 'bg-red-500/10 border-red-500/30' : 'bg-[#f5c842]/10 border-[#f5c842]/30'}`}>
+                <span className="text-3xl">{bundleAlert.critical ? '🚨' : '⚠️'}</span>
+                <div className="flex-1">
+                  <p className={`font-syne font-bold ${bundleAlert.critical ? 'text-red-400' : 'text-[#f5c842]'}`}>
+                    Bundle Sales Limit {bundleAlert.critical ? 'Almost Full!' : 'Warning'}
+                  </p>
+                  <p className="text-gray-400 text-sm mt-1">
+                    {bundleAlert.current} / {bundleAlert.limit} sold ({bundleAlert.percentage}%)
+                    {bundleAlert.critical && ' — Only ' + (bundleAlert.limit - bundleAlert.current) + ' remaining!'}
+                  </p>
+                </div>
+                <div className="w-20 h-20 relative shrink-0">
+                  <svg viewBox="0 0 36 36" className="w-20 h-20 -rotate-90">
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="3" />
+                    <path d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
+                      fill="none" stroke={bundleAlert.critical ? '#ef4444' : '#f5c842'} strokeWidth="3"
+                      strokeDasharray={`${bundleAlert.percentage}, 100`} strokeLinecap="round" />
+                  </svg>
+                  <span className={`absolute inset-0 flex items-center justify-center font-syne font-bold text-sm ${bundleAlert.critical ? 'text-red-400' : 'text-[#f5c842]'}`}>
+                    {bundleAlert.percentage}%
+                  </span>
+                </div>
+              </div>
+            )}
+
             {/* Stats Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
               {[
@@ -206,6 +309,44 @@ export default function AdminDashboard() {
                 </div>
               ))}
             </div>
+
+            {/* Revenue Chart */}
+            {chartData.length > 0 && (
+              <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden">
+                <div className="p-5 sm:p-6 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                  <h3 className="font-syne font-bold text-white text-base">📈 Revenue (Last 30 Days)</h3>
+                  <span className="text-gray-500 text-xs">
+                    Total: ₹{chartData.reduce((s, d) => s + d.revenue, 0).toLocaleString()}
+                  </span>
+                </div>
+                <div className="p-4 sm:p-6">
+                  <div className="flex items-end gap-[3px] sm:gap-1 h-36 sm:h-48">
+                    {chartData.map((d, i) => (
+                      <div key={d.date} className="flex-1 flex flex-col items-center justify-end group relative" title={`${d.label}: ₹${d.revenue.toLocaleString()} (${d.orders} orders)`}>
+                        <div
+                          className="w-full rounded-t-sm sm:rounded-t transition-all duration-300 group-hover:opacity-100 min-h-[2px]"
+                          style={{
+                            height: `${Math.max(2, (d.revenue / maxRevenue) * 100)}%`,
+                            background: d.revenue > 0 ? 'linear-gradient(to top, #f5c842, #e0a800)' : 'rgba(255,255,255,0.03)',
+                            opacity: d.revenue > 0 ? 0.8 : 0.3,
+                          }}
+                        />
+                        {/* Tooltip */}
+                        <div className="absolute bottom-full mb-2 hidden group-hover:block z-20 pointer-events-none">
+                          <div className="bg-[#1a1a2a] border border-white/10 rounded-lg px-3 py-2 text-xs whitespace-nowrap shadow-xl">
+                            <p className="text-white font-bold">₹{d.revenue.toLocaleString()}</p>
+                            <p className="text-gray-400">{d.label} · {d.orders} orders</p>
+                          </div>
+                        </div>
+                        {i % 5 === 0 && (
+                          <span className="text-[7px] sm:text-[9px] text-gray-600 mt-1.5 hidden sm:block">{d.label.split(' ')[0]}</span>
+                        )}
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
 
             {/* Quick Links */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
@@ -259,8 +400,8 @@ export default function AdminDashboard() {
                           <td className="p-4 text-gray-400">{o.product_id?.name || 'Product'}</td>
                           <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
                           <td className="p-4">
-                            <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
-                              {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
+                            <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : o.payment_status === 2 ? 'bg-red-500/15 text-red-500' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
+                              {o.payment_status === 1 ? '✓ Paid' : o.payment_status === 2 ? '↩ Refunded' : '⏳ Pending'}
                             </span>
                           </td>
                           <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
@@ -277,19 +418,32 @@ export default function AdminDashboard() {
         {/* PRODUCTS TAB */}
         {tab === 'products' && (
           <div className="flex flex-col gap-4">
-            {products.length === 0 ? (
+            {/* Search Bar */}
+            <input
+              value={productSearch}
+              onChange={e => setProductSearch(e.target.value)}
+              placeholder="🔍 Search products by name or category..."
+              className="bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors w-full"
+            />
+
+            <p className="text-gray-500 text-xs">{filteredProducts.length} of {products.length} products</p>
+
+            {filteredProducts.length === 0 ? (
               <div className="text-center p-10 md:p-16 text-gray-500 border border-dashed border-white/10 rounded-2xl bg-white/[0.02]">
                 <div className="text-5xl mb-4">📦</div>
-                <p>No products yet.</p>
-                <button onClick={() => openModal()} className="mt-4 bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">Add First Product</button>
+                <p>{productSearch ? 'No products match your search.' : 'No products yet.'}</p>
+                {!productSearch && <button onClick={() => openModal()} className="mt-4 bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">Add First Product</button>}
               </div>
-            ) : products.map(p => (
-              <div key={p._id} className="bg-[#12121a] border border-[#f5c842]/10 rounded-xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 hover:border-[#f5c842]/30 transition-colors">
+            ) : filteredProducts.map(p => (
+              <div key={p._id} className={`bg-[#12121a] border rounded-xl p-4 md:p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4 transition-colors ${p.status === false ? 'border-red-500/20 opacity-60' : 'border-[#f5c842]/10 hover:border-[#f5c842]/30'}`}>
                 <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#1a1a2a] shrink-0 flex items-center justify-center text-2xl border border-white/5">
                   {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : '📦'}
                 </div>
                 <div className="flex-1 min-w-0 w-full">
-                  <div className="font-bold text-white mb-1.5 font-syne truncate text-base">{p.name}</div>
+                  <div className="font-bold text-white mb-1.5 font-syne truncate text-base flex items-center gap-2">
+                    {p.name}
+                    {p.status === false && <span className="text-[10px] bg-red-500/15 text-red-500 px-2 py-0.5 rounded font-bold uppercase">Hidden</span>}
+                  </div>
                   <div className="flex flex-wrap gap-2 items-center mt-1">
                     <span className="text-[#f5c842] font-bold text-sm">₹{p.sale_price?.toLocaleString()}</span>
                     <span className="text-gray-500 line-through text-xs">₹{p.original_price?.toLocaleString()}</span>
@@ -301,6 +455,9 @@ export default function AdminDashboard() {
                   </div>
                 </div>
                 <div className="flex gap-2 w-full sm:w-auto mt-2 sm:mt-0 shrink-0">
+                  <button onClick={() => toggleProductStatus(p)} title={p.status === false ? 'Show product' : 'Hide product'} className={`px-3 py-2 rounded-lg text-sm font-semibold cursor-pointer transition-colors border ${p.status === false ? 'text-[#10b981] bg-[#10b981]/10 border-[#10b981]/20 hover:bg-[#10b981]/20' : 'text-gray-400 bg-white/5 border-white/10 hover:bg-white/10'}`}>
+                    {p.status === false ? '👁️' : '🙈'}
+                  </button>
                   <button onClick={() => openModal(p)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-[#f5c842] bg-[#f5c842]/10 border border-[#f5c842]/20 cursor-pointer hover:bg-[#f5c842]/20 transition-colors">Edit</button>
                   <button onClick={() => deleteProduct(p._id)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-red-500 bg-red-500/10 border border-red-500/20 cursor-pointer hover:bg-red-500/20 transition-colors">Delete</button>
                 </div>
@@ -311,38 +468,103 @@ export default function AdminDashboard() {
 
         {/* ORDERS TAB */}
         {tab === 'orders' && (
-          <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
-            <div className="overflow-x-auto w-full custom-scrollbar">
-              <table className="w-full min-w-[700px] border-collapse text-sm text-left">
-                <thead>
-                  <tr className="border-b border-white/5 bg-white/[0.02]">
-                    {['Customer', 'Email', 'Product', 'Amount', 'Status', 'Date'].map(h => (
-                      <th key={h} className="p-4 text-gray-400 font-medium">{h}</th>
-                    ))}
-                  </tr>
-                </thead>
-                <tbody>
-                  {orders.length === 0 ? (
-                    <tr><td colSpan={6} className="p-10 text-center text-gray-500">No orders yet.</td></tr>
-                  ) : orders.map((o, i) => (
-                    <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors">
-                      <td className="p-4 text-white font-medium">{o.name}</td>
-                      <td className="p-4 text-gray-500 text-xs">{o.email}</td>
-                      <td className="p-4 text-gray-400">{o.product_id?.name || '-'}</td>
-                      <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
-                      <td className="p-4">
-                        <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
-                          {o.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
-                        </span>
-                      </td>
-                      <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+          <div className="flex flex-col gap-4">
+            {/* Search + Filter */}
+            <div className="flex flex-col sm:flex-row gap-3">
+              <input
+                value={orderSearch}
+                onChange={e => setOrderSearch(e.target.value)}
+                placeholder="🔍 Search by name, email, payment ID, or product..."
+                className="flex-1 bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors"
+              />
+              <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans cursor-pointer focus:border-[#f5c842]/50 transition-colors appearance-none sm:w-40">
+                <option value="all">All Status</option>
+                <option value="paid">✓ Paid</option>
+                <option value="pending">⏳ Pending</option>
+                <option value="refunded">↩ Refunded</option>
+              </select>
+            </div>
+
+            <p className="text-gray-500 text-xs">{filteredOrders.length} of {orders.length} orders</p>
+
+            <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl overflow-hidden flex flex-col">
+              <div className="overflow-x-auto w-full custom-scrollbar">
+                <table className="w-full min-w-[900px] border-collapse text-sm text-left">
+                  <thead>
+                    <tr className="border-b border-white/5 bg-white/[0.02]">
+                      {['Customer', 'Email', 'Product', 'Amount', 'Coupon', 'Status', 'Date', 'Actions'].map(h => (
+                        <th key={h} className="p-4 text-gray-400 font-medium">{h}</th>
+                      ))}
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody>
+                    {filteredOrders.length === 0 ? (
+                      <tr><td colSpan={8} className="p-10 text-center text-gray-500">No orders found.</td></tr>
+                    ) : filteredOrders.map((o, i) => (
+                      <tr key={i} className="border-b border-white/5 hover:bg-white/[0.02] transition-colors cursor-pointer" onClick={() => setOrderDetail(o)}>
+                        <td className="p-4 text-white font-medium">{o.name}</td>
+                        <td className="p-4 text-gray-500 text-xs">{o.email}</td>
+                        <td className="p-4 text-gray-400">{o.product_id?.name || '-'}</td>
+                        <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
+                        <td className="p-4 text-gray-500 text-xs">{o.coupon_code || '-'}</td>
+                        <td className="p-4">
+                          <select
+                            value={o.payment_status}
+                            onChange={e => { e.stopPropagation(); updateOrderStatus(o._id, Number(e.target.value)); }}
+                            onClick={e => e.stopPropagation()}
+                            className={`border-none cursor-pointer px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : o.payment_status === 2 ? 'bg-red-500/15 text-red-500' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}
+                          >
+                            <option value={0}>⏳ Pending</option>
+                            <option value={1}>✓ Paid</option>
+                            <option value={2}>↩ Refunded</option>
+                          </select>
+                        </td>
+                        <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
+                        <td className="p-4">
+                          <button onClick={e => { e.stopPropagation(); setOrderDetail(o); }} className="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors">View</button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
         )}
+
+      {/* Order Detail Modal */}
+      {orderDetail && (
+        <div className="fixed inset-0 bg-black/80 z-50 flex items-center justify-center p-4 backdrop-blur-sm" onClick={() => setOrderDetail(null)}>
+          <div className="bg-[#12121a] border border-[#f5c842]/20 rounded-2xl w-full max-w-lg shadow-2xl overflow-hidden" onClick={e => e.stopPropagation()}>
+            <div className="p-5 border-b border-white/10 flex justify-between items-center bg-white/[0.02]">
+              <h3 className="font-syne font-bold text-white text-lg">🧾 Order Details</h3>
+              <button onClick={() => setOrderDetail(null)} className="bg-white/5 border border-white/10 text-gray-400 w-8 h-8 rounded-lg cursor-pointer hover:bg-white/10 hover:text-white transition-all flex items-center justify-center">✕</button>
+            </div>
+            <div className="p-5 flex flex-col gap-4 max-h-[70vh] overflow-y-auto custom-scrollbar">
+              {[
+                { label: 'Customer', value: orderDetail.name },
+                { label: 'Email', value: orderDetail.email },
+                { label: 'Phone', value: orderDetail.phone || '-' },
+                { label: 'Product', value: orderDetail.product_id?.name || orderDetail.product_name || '-' },
+                { label: 'Amount Paid', value: `₹${orderDetail.amount?.toLocaleString()}`, color: '#f5c842' },
+                { label: 'Original Price', value: `₹${(orderDetail.original_amount || 0).toLocaleString()}` },
+                { label: 'Discount', value: `₹${(orderDetail.discount_amount || 0).toLocaleString()}`, color: '#10b981' },
+                { label: 'Coupon', value: orderDetail.coupon_code || 'None' },
+                { label: 'Payment ID', value: orderDetail.razorpay_payment_id || '-' },
+                { label: 'Order ID', value: orderDetail.razorpay_order_id || '-' },
+                { label: 'Downloads', value: orderDetail.download_count || 0 },
+                { label: 'Status', value: orderDetail.payment_status === 1 ? '✓ Paid' : orderDetail.payment_status === 2 ? '↩ Refunded' : '⏳ Pending' },
+                { label: 'Date', value: new Date(orderDetail.createdAt).toLocaleString('en-IN') },
+              ].map(item => (
+                <div key={item.label} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">
+                  <span className="text-gray-500 text-sm">{item.label}</span>
+                  <span className="text-white text-sm font-medium text-right max-w-[60%] break-all" style={{ color: item.color }}>{item.value}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Product Modal */}
       {productModal && (
@@ -465,7 +687,8 @@ export default function AdminDashboard() {
             .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
             .custom-scrollbar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
             .custom-scrollbar::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.2); }
-          `}</style>
+          `}
+          </style>
         </div>
       )}
     </>

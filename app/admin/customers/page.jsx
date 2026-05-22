@@ -41,6 +41,29 @@ export default function AdminCustomers() {
     loadCustomers();
   }
 
+  function exportCSV() {
+    const csvHeaders = ['Name', 'Email', 'Phone', 'Tag', 'Orders', 'Total Spent (₹)', 'Status', 'Last Login', 'Joined'];
+    const rows = filtered.map(c => [
+      (c.name || '').replace(/,/g, ' '),
+      (c.email || '').replace(/,/g, ' '),
+      (c.phone || '-').replace(/,/g, ' '),
+      c.tag || 'normal',
+      c.total_orders || 0,
+      Math.round(c.total_spent || 0),
+      c.is_blocked ? 'Blocked' : 'Active',
+      c.last_login ? new Date(c.last_login).toLocaleDateString('en-IN') : 'Never',
+      new Date(c.createdAt).toLocaleDateString('en-IN'),
+    ]);
+    const csv = [csvHeaders.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `customers_${new Date().toISOString().split('T')[0]}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  }
+
   const filtered = customers.filter(c => {
     const matchSearch = c.name?.toLowerCase().includes(search.toLowerCase()) || c.email?.toLowerCase().includes(search.toLowerCase());
     const matchFilter = filter === 'all' || c.tag === filter || (filter === 'blocked' && c.is_blocked);
@@ -49,9 +72,28 @@ export default function AdminCustomers() {
 
   const totalRevenue = customers.reduce((s, c) => s + (c.total_spent || 0), 0);
 
+  function timeAgo(dateStr) {
+    if (!dateStr) return 'Never';
+    const diff = Date.now() - new Date(dateStr).getTime();
+    const mins = Math.floor(diff / 60000);
+    if (mins < 1) return 'Just now';
+    if (mins < 60) return `${mins}m ago`;
+    const hours = Math.floor(mins / 60);
+    if (hours < 24) return `${hours}h ago`;
+    const days = Math.floor(hours / 24);
+    if (days < 30) return `${days}d ago`;
+    const months = Math.floor(days / 30);
+    return `${months}mo ago`;
+  }
+
   return (
     <>
-      <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight mb-8">👥 Customer Management</h1>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8 shrink-0">
+        <h1 className="font-syne text-2xl md:text-3xl font-bold text-white tracking-tight">👥 Customer Management</h1>
+        <button onClick={exportCSV} className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] font-syne font-bold cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto hover:bg-[#10b981]/20 transition-colors">
+          📥 Export CSV
+        </button>
+      </div>
       <div className="w-full max-w-7xl mx-auto my-2 px-2 flex-1 flex flex-col">
         <p className="text-gray-500 text-sm mb-6 sm:mb-8">{customers.length} total customers</p>
 
@@ -135,8 +177,8 @@ export default function AdminCustomers() {
                           <span className="text-[#f5c842] font-bold">₹{(c.total_spent || 0).toLocaleString()}</span>
                         </div>
                         <div className="flex flex-col text-right">
-                          <span className="text-gray-500 text-[10px] uppercase tracking-wider">Joined</span>
-                          <span className="text-gray-400 text-xs">{new Date(c.createdAt).toLocaleDateString('en-IN')}</span>
+                          <span className="text-gray-500 text-[10px] uppercase tracking-wider">Last Active</span>
+                          <span className="text-gray-400 text-xs">{timeAgo(c.last_login)}</span>
                         </div>
                       </div>
 
@@ -153,17 +195,17 @@ export default function AdminCustomers() {
 
               {/* Desktop Table Layout */}
               <div className="hidden md:block overflow-x-auto w-full custom-scrollbar">
-                <table className="w-full min-w-[900px] border-collapse text-sm text-left">
+                <table className="w-full min-w-[1000px] border-collapse text-sm text-left">
                 <thead>
                   <tr className="border-b border-white/5 bg-white/[0.02] text-gray-400">
-                    {['Customer', 'Email', 'Orders', 'Total Spent', 'Joined', 'Tag', 'Status', 'Actions'].map(h => (
+                    {['Customer', 'Email', 'Orders', 'Total Spent', 'Last Active', 'Joined', 'Tag', 'Status', 'Actions'].map(h => (
                       <th key={h} className="p-4 font-medium whitespace-nowrap">{h}</th>
                     ))}
                   </tr>
                 </thead>
                 <tbody>
                   {filtered.length === 0 ? (
-                    <tr><td colSpan={8} className="p-10 text-center text-gray-500">No customers found.</td></tr>
+                    <tr><td colSpan={9} className="p-10 text-center text-gray-500">No customers found.</td></tr>
                   ) : filtered.map(c => {
                     const tag = TAG_COLORS[c.tag] || TAG_COLORS.normal;
                     return (
@@ -179,6 +221,11 @@ export default function AdminCustomers() {
                         <td className="p-4 text-gray-400 truncate max-w-[180px] whitespace-nowrap" title={c.email}>{c.email}</td>
                         <td className="p-4 text-white font-bold whitespace-nowrap">{c.total_orders || 0}</td>
                         <td className="p-4 text-[#f5c842] font-bold whitespace-nowrap">₹{(c.total_spent || 0).toLocaleString()}</td>
+                        <td className="p-4 whitespace-nowrap">
+                          <span className={`text-xs ${c.last_login ? 'text-gray-400' : 'text-gray-600'}`} title={c.last_login ? new Date(c.last_login).toLocaleString('en-IN') : 'Never logged in'}>
+                            {timeAgo(c.last_login)}
+                          </span>
+                        </td>
                         <td className="p-4 text-gray-500 text-xs whitespace-nowrap">{new Date(c.createdAt).toLocaleDateString('en-IN')}</td>
                         <td className="p-4 whitespace-nowrap">
                           <span className={`${tag.bg} ${tag.color} px-2.5 py-1 rounded-full text-[10px] font-bold tracking-wider uppercase whitespace-nowrap`}>

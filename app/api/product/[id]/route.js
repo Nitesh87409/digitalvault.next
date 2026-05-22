@@ -39,6 +39,28 @@ export async function PUT(request, { params }) {
   }
 }
 
+// PATCH /api/product/[id] — quick status toggle
+export async function PATCH(request, { params }) {
+  try {
+    const { id } = await params;
+    const admin = verifyAdmin(request);
+    if (!admin) return NextResponse.json({ flag: 0, message: 'Unauthorized' });
+
+    await connectDB();
+    const body = await request.json();
+
+    if (typeof body.status === 'boolean') {
+      const product = await Product.findByIdAndUpdate(id, { status: body.status }, { new: true });
+      if (!product) return NextResponse.json({ flag: 0, message: 'Product not found' });
+      return NextResponse.json({ flag: 1, message: product.status ? 'Product visible' : 'Product hidden', product });
+    }
+
+    return NextResponse.json({ flag: 0, message: 'Invalid action' });
+  } catch (e) {
+    return NextResponse.json({ flag: 0, message: 'Server error' });
+  }
+}
+
 // DELETE /api/product/[id] — delete product
 export async function DELETE(request, { params }) {
   try {

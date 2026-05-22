@@ -506,6 +506,40 @@ export async function POST(request) {
       });
     }
 
+    if (action === 'update-status') {
+      const admin = verifyAdmin(request);
+      if (!admin) return json(0, 'Unauthorized');
+      const { order_id, payment_status } = body;
+      if (!mongoose.Types.ObjectId.isValid(order_id) || ![0, 1, 2].includes(payment_status)) {
+        return json(0, 'Invalid order or status');
+      }
+      const order = await Order.findByIdAndUpdate(order_id, { payment_status }, { new: true }).populate('product_id', 'name').lean();
+      if (!order) return json(0, 'Order not found');
+      return NextResponse.json({ flag: 1, message: 'Order status updated', order });
+    }
+
+    if (action === 'export-csv') {
+      const admin = verifyAdmin(request);
+      if (!admin) return json(0, 'Unauthorized');
+      const orders = await Order.find().populate('product_id', 'name').sort({ createdAt: -1 }).lean();
+      const headers = ['Customer', 'Email', 'Phone', 'Product', 'Amount (₹)', 'Original (₹)', 'Discount (₹)', 'Coupon', 'Payment ID', 'Status', 'Date'];
+      const rows = orders.map(o => [
+        (o.name || '').replace(/,/g, ' '),
+        (o.email || '').replace(/,/g, ' '),
+        (o.phone || '-').replace(/,/g, ' '),
+        (o.product_id?.name || o.product_name || '-').replace(/,/g, ' '),
+        Math.round(o.amount || 0),
+        Math.round(o.original_amount || 0),
+        Math.round(o.discount_amount || 0),
+        (o.coupon_code || '-').replace(/,/g, ' '),
+        (o.razorpay_payment_id || '-').replace(/,/g, ' '),
+        o.payment_status === 1 ? 'Paid' : o.payment_status === 2 ? 'Refunded' : 'Pending',
+        new Date(o.createdAt).toLocaleDateString('en-IN'),
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      return NextResponse.json({ flag: 1, csv });
+    }
+
     return json(0, 'Invalid action');
   } catch (e) {
     console.error('Order error:', e.message);
