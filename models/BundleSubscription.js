@@ -23,6 +23,13 @@ const BundleSubscriptionSchema = new mongoose.Schema({
     type: Number,
     required: true,
   },
+  customer_email: {
+    type: String,
+  },
+  product_name: {
+    type: String,
+    default: 'Complete Bundle',
+  },
   coupon_code: {
     type: String,
     default: null,

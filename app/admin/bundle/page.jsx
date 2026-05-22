@@ -298,6 +298,7 @@ export default function AdminBundlePage() {
                     <tr>
                       <th className="p-3 font-medium">Customer</th>
                       <th className="p-3 font-medium">Phone</th>
+                      <th className="p-3 font-medium">Product</th>
                       <th className="p-3 font-medium">Amount</th>
                       <th className="p-3 font-medium">Coupon</th>
                       <th className="p-3 font-medium">Payment ID</th>
@@ -307,15 +308,16 @@ export default function AdminBundlePage() {
                   </thead>
                   <tbody>
                     {filteredSubscriptions.length === 0 ? (
-                      <tr><td colSpan={7} className="p-8 text-center text-gray-500">No bundle subscriptions found.</td></tr>
+                      <tr><td colSpan={8} className="p-8 text-center text-gray-500">No bundle subscriptions found.</td></tr>
                     ) : filteredSubscriptions.map(sub => (
                       <tr key={sub._id} className="border-t border-white/5">
                         <td className="p-3">
                           <div className="font-semibold text-white">{sub.customer?.name || 'Unknown customer'}</div>
-                          <div className="text-xs text-gray-500">{sub.customer?.email || sub.customer_id}</div>
+                          <div className="text-xs text-gray-500">{sub.customer_email || sub.customer?.email || sub.customer_id}</div>
                         </td>
                         <td className="p-3 text-gray-400">{sub.customer?.phone || '-'}</td>
-                        <td className="p-3 text-[#f5c842]">₹{Math.round((sub.amount || 0) / 100).toLocaleString()}</td>
+                        <td className="p-3 text-gray-400">{sub.product_name || 'Complete Bundle'}</td>
+                        <td className="p-3 text-[#f5c842]">₹{Math.round(sub.amount || 0).toLocaleString()}</td>
                         <td className="p-3 text-gray-400">{sub.coupon_code || '-'}</td>
                         <td className="p-3 text-xs text-gray-500">{sub.payment_id}</td>
                         <td className="p-3 text-gray-400">{new Date(sub.purchase_date || sub.createdAt).toLocaleDateString('en-IN')}</td>

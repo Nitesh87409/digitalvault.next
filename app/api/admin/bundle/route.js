@@ -11,6 +11,58 @@ import BundleSubscription from '@/models/BundleSubscription';
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
+let migrationDone = false;
+async function runBundleMigration() {
+  if (migrationDone) return;
+  try {
+    const subscriptions = await BundleSubscription.find({
+      $or: [
+        { customer_email: { $exists: false } },
+        { product_name: { $exists: false } },
+        { amount: { $gt: 9000 } }
+      ]
+    });
+    if (subscriptions.length > 0) {
+      console.log(`[Migration] Running bundle migration for ${subscriptions.length} records...`);
+      for (const sub of subscriptions) {
+        let changed = false;
+        let amt = sub.amount;
+        if (amt > 9000) {
+          amt = Math.round(amt / 100);
+          changed = true;
+        }
+        let email = sub.customer_email;
+        if (!email) {
+          const customer = await Customer.findById(sub.customer_id).select('email').lean();
+          email = customer?.email || 'unknown@customer.com';
+          changed = true;
+        }
+        let prodName = sub.product_name;
+        if (!prodName) {
+          prodName = 'Complete Bundle';
+          changed = true;
+        }
+        if (changed) {
+          await BundleSubscription.updateOne(
+            { _id: sub._id },
+            {
+              $set: {
+                amount: amt,
+                customer_email: email,
+                product_name: prodName
+              }
+            }
+          );
+        }
+      }
+      console.log('[Migration] Bundle migration completed successfully.');
+    }
+    migrationDone = true;
+  } catch (error) {
+    console.error('[Migration] Bundle migration error:', error);
+  }
+}
+
 const DEFAULT_SETTINGS = {
   bundle_enabled: true,
   bundle_title: 'Complete Bundle',
@@ -70,10 +122,17 @@ async function getSubscriptions() {
     : [];
   const customerById = new Map(customers.map(customer => [customer._id.toString(), customer]));
 
-  return subscriptions.map(sub => ({
-    ...sub,
-    customer: customerById.get(sub.customer_id) || null,
-  }));
+  return subscriptions.map(sub => {
+    const amountInRupees = sub.amount > 9000 ? Math.round(sub.amount / 100) : sub.amount;
+    const customer = customerById.get(sub.customer_id) || null;
+    return {
+      ...sub,
+      amount: amountInRupees,
+      customer_email: sub.customer_email || customer?.email || 'unknown@customer.com',
+      product_name: sub.product_name || 'Complete Bundle',
+      customer,
+    };
+  });
 }
 
 export async function GET(request) {
@@ -82,6 +141,7 @@ export async function GET(request) {
     if (!admin) return json({ flag: 0, message: 'Unauthorized' }, 401);
 
     await connectDB();
+    await runBundleMigration();
 
     const [settingsDoc, products, subscriptions, revenueAgg] = await Promise.all([
       getSettingsDoc(),
@@ -92,11 +152,25 @@ export async function GET(request) {
       getSubscriptions(),
       BundleSubscription.aggregate([
         { $match: { status: 'active' } },
-        { $group: { _id: null, activeCount: { $sum: 1 }, revenuePaise: { $sum: '$amount' } } },
+        {
+          $group: {
+            _id: null,
+            activeCount: { $sum: 1 },
+            revenue: {
+              $sum: {
+                $cond: [
+                  { $gt: ['$amount', 9000] },
+                  { $divide: ['$amount', 100] },
+                  '$amount'
+                ]
+              }
+            }
+          }
+        }
       ]),
     ]);
 
-    const stats = revenueAgg[0] || { activeCount: 0, revenuePaise: 0 };
+    const stats = revenueAgg[0] || { activeCount: 0, revenue: 0 };
     const bundleProducts = products.filter(product => product.included_in_bundle);
 
     return json({
@@ -104,7 +178,7 @@ export async function GET(request) {
       settings: toBundleSettings(settingsDoc.toObject()),
       stats: {
         activeSubscriptions: stats.activeCount || 0,
-        revenue: Math.round((stats.revenuePaise || 0) / 100),
+        revenue: Math.round(stats.revenue || 0),
         totalProducts: products.length,
         bundleProducts: bundleProducts.length,
       },
@@ -123,6 +197,7 @@ export async function POST(request) {
     if (!admin) return json({ flag: 0, message: 'Unauthorized' }, 401);
 
     await connectDB();
+    await runBundleMigration();
     const body = await request.json();
     const { action } = body;
 

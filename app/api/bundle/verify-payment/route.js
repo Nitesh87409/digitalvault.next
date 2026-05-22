@@ -197,10 +197,12 @@ export async function POST(request) {
     try {
       await BundleSubscription.create({
         customer_id: customer._id.toString(),
+        customer_email: customer.email,
+        product_name: 'Complete Bundle',
         status: 'active',
         payment_id: razorpay_payment_id,
         razorpay_order_id,
-        amount, // Note: BundleSubscription stores amount in paise (from Razorpay)
+        amount: amount / 100, // Storing amount in Rupees (previously paise)
         coupon_code: appliedCouponCode ? appliedCouponCode.toUpperCase() : null,
         purchase_date: new Date(),
       });
