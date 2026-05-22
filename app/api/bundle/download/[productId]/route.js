@@ -70,7 +70,7 @@ export async function GET(request, { params }) {
       .lean();
 
     if (!product) return new NextResponse('Product not found', { status: 404 });
-    if (!product.status || product.included_in_bundle !== true) {
+    if (!product.status) {
       return new NextResponse('Bundle download not allowed for this product', { status: 403 });
     }
     if (!product.file_url) {

@@ -302,17 +302,23 @@ export default function ProductPage({ id }) {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mb-8">
-                {product.included_in_bundle && hasBundleAccess && (
-                  <a href={`/api/bundle/download/${product.id || product._id}`} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#8b5cf6] to-[#f5c842] text-[#0a0a0f] hover:brightness-110 transition-all text-center no-underline">
-                    Bundle Access
+                {hasBundleAccess ? (
+                  <a
+                    href={`/api/bundle/download/${product.id || product._id}`}
+                    className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all text-center no-underline flex items-center justify-center shadow-lg hover:scale-[1.01]"
+                  >
+                    📥 Access Now (Download)
                   </a>
+                ) : (
+                  <>
+                    <button onClick={addToCart} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-[#f5c842]/10 border-2 border-[#f5c842]/40 text-[#f5c842] hover:bg-[#f5c842]/20 transition-all">
+                      🛒 Add to Cart
+                    </button>
+                    <button onClick={buyNow} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all">
+                      ⚡ Buy Now
+                    </button>
+                  </>
                 )}
-                <button onClick={addToCart} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-[#f5c842]/10 border-2 border-[#f5c842]/40 text-[#f5c842] hover:bg-[#f5c842]/20 transition-all">
-                  🛒 Add to Cart
-                </button>
-                <button onClick={buyNow} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all">
-                  ⚡ Buy Now
-                </button>
               </div>
 
               <div className="border-t border-[#f5c842]/10 pt-6 flex flex-col gap-3 text-xs sm:text-sm">
