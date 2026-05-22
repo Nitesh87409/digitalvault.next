@@ -281,37 +281,37 @@ export default function HomePage() {
 
       {/* COMPLETE BUNDLE PROMOTIONAL HERO BANNER */}
       {settings.bundle_enabled && (
-        <section id="pricing" className="bg-[var(--bg)] px-6 pt-24 pb-10 transition-colors duration-300">
+        <section id="pricing" className="bg-[var(--bg)] px-3 sm:px-4 md:px-6 pt-6 sm:pt-16 md:pt-24 pb-4 sm:pb-6 md:pb-10 transition-colors duration-300">
           <div className="mx-auto max-w-[1152px]">
-            <div className="relative overflow-hidden rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)] p-8 md:p-12 shadow-[var(--shadow-soft)]">
+            <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)] p-3 sm:p-6 md:p-12 shadow-[var(--shadow-soft)]">
               {/* Glowing radial background effects */}
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f5c842]/10 blur-[80px] pointer-events-none" />
               <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#7c3aed]/5 blur-[80px] pointer-events-none" />
               
-              <div className="relative z-10 grid grid-cols-1 gap-8 lg:grid-cols-12 lg:items-center">
+              <div className="relative z-10 grid grid-cols-12 gap-3 sm:gap-6 md:gap-8 items-center">
                 {/* Left Column: Title & Highlights */}
-                <div className="lg:col-span-7 space-y-6">
-                  <div className="inline-flex items-center gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-4 py-1.5 text-xs font-bold uppercase tracking-wider text-[#f5c842]">
-                    <span className="relative flex h-2 w-2">
+                <div className="col-span-7 sm:col-span-7 space-y-2 sm:space-y-4 md:space-y-6">
+                  <div className="inline-flex items-center gap-1 sm:gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-1.5 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-xs font-bold uppercase tracking-wider text-[#f5c842]">
+                    <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c842] opacity-75"></span>
-                      <span className="relative inline-flex rounded-full h-2 w-2 bg-[#f5c842]"></span>
+                      <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#f5c842]"></span>
                     </span>
                     Limited Time Deal
                   </div>
                   
                   <div>
-                    <h1 className="font-syne text-3xl font-extrabold tracking-tight text-[var(--heading)] sm:text-4xl lg:text-5xl leading-tight">
+                    <h1 className="font-syne text-sm min-[380px]:text-base sm:text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--heading)] leading-tight">
                       {settings.bundle_title || 'Complete Bundle'}
                     </h1>
-                    <p className="mt-3 text-lg text-[var(--muted)] leading-relaxed max-w-xl">
+                    <p className="mt-1 sm:mt-2 md:mt-3 text-[9px] min-[380px]:text-[10px] sm:text-sm md:text-lg text-[var(--muted)] leading-relaxed max-w-xl">
                       {settings.bundle_description || 'All products + future updates included'}
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-x-6 gap-y-3 pt-2 text-sm text-[var(--muted)]">
+                  <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-x-4 sm:gap-y-2 pt-0.5 sm:pt-1 text-[8px] min-[380px]:text-[9px] sm:text-xs md:text-sm text-[var(--muted)]">
                     {['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'].map((feat) => (
-                      <div key={feat} className="flex items-center gap-2">
-                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c842]/10 text-xs font-bold text-[#f5c842]">
+                      <div key={feat} className="flex items-center gap-1 sm:gap-1.5">
+                        <span className="flex h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-[#f5c842]/10 text-[7px] sm:text-[10px] md:text-xs font-bold text-[#f5c842]">
                           ✓
                         </span>
                         {feat}
@@ -321,30 +321,30 @@ export default function HomePage() {
                 </div>
 
                 {/* Right Column: Countdown, Price & CTA */}
-                <div className="lg:col-span-5 rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-6 sm:p-8 flex flex-col gap-6">
+                <div className="col-span-5 sm:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-2 sm:p-4 md:p-8 flex flex-col gap-2 sm:gap-4 md:gap-6">
                   {/* Countdown */}
                   {settings.bundle_timer_enabled && (
                     isTimerExpired && (settings.bundle_timer_action === 'disable_checkout' || settings.bundle_timer_action === 'show_expired') ? (
-                      <div className="flex flex-col items-center justify-center rounded-xl border border-red-500/20 bg-red-500/10 py-4 px-6 text-center animate-pulse">
-                        <span className="font-syne text-lg font-bold text-red-500 tracking-wide uppercase">
-                          ⚠️ Offer Expired
+                      <div className="flex flex-col items-center justify-center rounded-lg sm:rounded-xl border border-red-500/20 bg-red-500/10 py-2 sm:py-4 px-3 sm:px-6 text-center animate-pulse">
+                        <span className="font-syne text-[10px] sm:text-lg font-bold text-red-500 tracking-wide uppercase">
+                          ⚠️ Expired
                         </span>
-                        <span className="mt-1 text-xs text-red-400/80 font-medium">
-                          This limited-time promotion has ended.
+                        <span className="mt-0.5 text-[7px] sm:text-xs text-red-400/80 font-medium hidden xs:inline">
+                          Promotion ended
                         </span>
                       </div>
                     ) : !(isTimerExpired && settings.bundle_timer_action === 'hide_timer') ? (
                       <div>
-                        <div className="mb-2 text-center text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
+                        <div className="mb-1 sm:mb-2 text-center text-[7px] sm:text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
                           Offer Ending Soon:
                         </div>
-                        <div className="flex justify-center gap-3">
+                        <div className="flex justify-center gap-1 sm:gap-1.5 md:gap-3">
                           {[{ val: countdown.d, label: 'Days' }, { val: countdown.h, label: 'Hours' }, { val: countdown.m, label: 'Mins' }, { val: countdown.s, label: 'Secs' }].map(c => (
-                            <div key={c.label} className="flex flex-col items-center min-w-[60px] rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-2 px-3">
-                              <span className="font-syne text-2xl font-bold text-[#f5c842]">
+                            <div key={c.label} className="flex flex-col items-center min-w-[28px] xs:min-w-[32px] sm:min-w-[50px] md:min-w-[60px] rounded-lg sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-1 px-0.5 sm:py-1.5 sm:px-2 md:py-2 md:px-3">
+                              <span className="font-syne text-[10px] xs:text-xs sm:text-base md:text-2xl font-bold text-[#f5c842] whitespace-nowrap">
                                 {c.val}
                               </span>
-                              <span className="text-[10px] text-[var(--muted-2)] uppercase font-semibold">
+                              <span className="text-[5px] xs:text-[6px] sm:text-[8px] md:text-[10px] text-[var(--muted-2)] uppercase font-semibold">
                                 {c.label}
                               </span>
                             </div>
@@ -355,16 +355,16 @@ export default function HomePage() {
                   )}
 
                   {/* Price Display */}
-                  <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-4 px-2">
+                  <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-1.5 sm:py-3 md:py-4 px-0.5 sm:px-1 md:px-2">
                     <div className="flex flex-col">
-                      <span className="text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
-                      <span className="text-lg text-[var(--muted-2)] line-through">
+                      <span className="text-[7px] sm:text-[10px] md:text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
+                      <span className="text-[10px] sm:text-sm md:text-lg text-[var(--muted-2)] line-through">
                         ₹{(settings.bundle_original_price || 8497).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex flex-col items-end">
-                      <span className="text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
-                      <span className="font-syne text-3xl font-extrabold text-[var(--heading)]">
+                      <span className="text-[7px] sm:text-[10px] md:text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
+                      <span className="font-syne text-xs xs:text-sm sm:text-xl md:text-3xl font-extrabold text-[var(--heading)]">
                         ₹{(settings.bundle_price || 207).toLocaleString()}
                       </span>
                     </div>
@@ -374,7 +374,7 @@ export default function HomePage() {
                   <button
                     onClick={addBundleToCart}
                     disabled={hasBundleAccess || isOfferEnded}
-                    className={`gold-btn flex items-center justify-center gap-2 rounded-xl py-4 px-6 text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded) ? 'pulse-glow' : ''}`}
+                    className={`gold-btn flex items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl py-1.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded) ? 'pulse-glow' : ''}`}
                     style={{ opacity: hasBundleAccess || isOfferEnded ? 0.6 : 1 }}
                   >
                     {hasBundleAccess ? (
@@ -382,7 +382,7 @@ export default function HomePage() {
                     ) : isOfferEnded ? (
                       <>Offer Ended 😢</>
                     ) : (
-                      <>Unlock Full Bundle →</>
+                      <>Unlock Bundle →</>
                     )}
                   </button>
                 </div>
