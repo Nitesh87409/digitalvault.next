@@ -45,8 +45,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
           />
         ) : null}
         <div 
-          className="absolute inset-0 items-center justify-center text-4xl"
-          style={{ display: (!product.images?.length || imgError) ? 'flex' : 'none' }}
+          className={`absolute inset-0 items-center justify-center text-4xl ${(!product.images?.length || imgError) ? 'flex' : 'hidden'}`}
         >
           {style.emoji}
         </div>

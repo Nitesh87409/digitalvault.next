@@ -61,95 +61,95 @@ export default function RegisterPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'fixed', width: '384px', height: '384px', background: '#f5c842', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.08, top: '-100px', right: '-100px', pointerEvents: 'none' }}></div>
-      <div style={{ position: 'fixed', width: '320px', height: '320px', background: '#7c3aed', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.08, bottom: '-80px', left: '-80px', pointerEvents: 'none' }}></div>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen flex flex-col">
+      <div className="fixed w-[384px] h-[384px] bg-[#f5c842] rounded-full blur-[100px] opacity-[0.08] -top-[100px] -right-[100px] pointer-events-none"></div>
+      <div className="fixed w-[320px] h-[320px] bg-[#7c3aed] rounded-full blur-[100px] opacity-[0.08] -bottom-[80px] -left-[80px] pointer-events-none"></div>
 
-      <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <nav className="bg-[#0a0a0f]/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] px-6 py-4 sticky top-0 z-10">
+        <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
             {settings.app_logo ? (
-              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+              <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" loading="eager" />
             ) : null}
             {settings.app_name}
           </Link>
-          <Link href="/" style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>← Back to Store</Link>
+          <Link href="/" className="text-[#6b7280] text-sm no-underline">← Back to Store</Link>
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', position: 'relative', zIndex: 1 }}>
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '440px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🚀</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Create Account</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Join {settings.app_name} and get instant access</p>
+      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[440px]">
+          <div className="text-center mb-7">
+            <div className="text-[2.5rem] mb-3">🚀</div>
+            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Create Account</h2>
+            <p className="text-[#6b7280] text-sm">Join {settings.app_name} and get instant access</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="flex flex-col gap-4">
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Your full name' },
               { label: 'Email Address', key: 'email', type: 'email', placeholder: 'your@email.com' },
               { label: 'Phone Number (Optional)', key: 'phone', type: 'tel', placeholder: '10-digit mobile number', maxLength: 10 },
             ].map(f => (
               <div key={f.key}>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>{f.label}</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">{f.label}</label>
                 <input
                   type={f.type}
                   value={form[f.key]}
                   onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
                   maxLength={f.maxLength}
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans"
                 />
               </div>
             ))}
 
             {/* Password */}
             <div>
-              <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Password</label>
-              <div style={{ position: 'relative' }}>
+              <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Password</label>
+              <div className="relative">
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={form.password}
                   onChange={e => { setForm({ ...form, password: e.target.value }); checkStrength(e.target.value); }}
                   placeholder="Min 6 characters"
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 48px 12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full pl-4 pr-12 py-3 rounded-xl text-sm font-sans"
                 />
-                <button onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280' }}>
+                <button onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#6b7280]">
                   {showPass ? '🙈' : '👁'}
                 </button>
               </div>
               {/* Strength bars */}
               {form.password && (
-                <div style={{ marginTop: '8px' }}>
-                  <div style={{ display: 'flex', gap: '4px', marginBottom: '4px' }}>
+                <div className="mt-2">
+                  <div className="flex gap-1 mb-1">
                     {[0,1,2,3].map(i => (
-                      <div key={i} style={{ flex: 1, height: '4px', borderRadius: '2px', background: i < strength ? strengthColors[strength - 1] : '#1a1a2a', transition: 'all 0.3s' }}></div>
+                      <div key={i} className="flex-1 h-1 rounded-sm transition-all duration-300" style={{ background: i < strength ? strengthColors[strength - 1] : '#1a1a2a' }}></div>
                     ))}
                   </div>
-                  <p style={{ fontSize: '0.7rem', color: strengthColors[strength - 1] || '#6b7280' }}>
+                  <p className="text-[0.7rem]" style={{ color: strengthColors[strength - 1] || '#6b7280' }}>
                     {form.password.length > 0 ? strengthLabels[strength - 1] || 'Weak' : ''}
                   </p>
                 </div>
               )}
             </div>
 
-            {error && <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</div>}
-            {success && <div style={{ color: '#10b981', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(16,185,129,0.08)', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)' }}>{success}</div>}
+            {error && <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">{error}</div>}
+            {success && <div className="text-[#10b981] text-[0.8rem] px-3.5 py-2.5 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">{success}</div>}
 
             <button
               onClick={register}
               disabled={loading}
-              style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
+              className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create Account →'}
             </button>
           </div>
 
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '20px 0' }}></div>
-          <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
+          <div className="border-t border-white/5 my-5"></div>
+          <p className="text-center text-[#6b7280] text-sm">
             Already have an account?{' '}
-            <Link href="/login" style={{ color: '#f5c842', fontWeight: 600, textDecoration: 'none' }}>Login here</Link>
+            <Link href="/login" className="text-[#f5c842] font-semibold no-underline">Login here</Link>
           </p>
         </div>
       </div>

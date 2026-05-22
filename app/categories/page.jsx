@@ -179,7 +179,7 @@ export default function CategoriesPage() {
         {/* HORIZONTAL CATEGORY SECTION */}
         <div className="pb-4 md:pb-12 w-full">
           <div className="max-w-[1152px] mx-auto md:px-8">
-            <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible [-webkit-overflow-scrolling:touch]">
               <style jsx>{`
                 .hide-scrollbar::-webkit-scrollbar { display: none; }
                 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }

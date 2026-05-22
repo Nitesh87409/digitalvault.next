@@ -47,10 +47,10 @@ export default function MobileBottomNav() {
   return (
     <>
       {/* Spacer to prevent content from being hidden behind the fixed nav */}
-      <div className="md:hidden w-full shrink-0" style={{ height: 'calc(65px + env(safe-area-inset-bottom))' }} aria-hidden="true" />
+      <div className="md:hidden w-full shrink-0 h-[calc(65px+env(safe-area-inset-bottom))]" aria-hidden="true" />
       
       {/* Fixed Navigation */}
-      <div className="fixed bottom-0 left-0 z-[9999] w-full border-t border-[#f5c842]/15 bg-[var(--nav-bg)] shadow-[0_-4px_20px_rgba(0,0,0,0.18)] backdrop-blur-md transition-colors duration-300 md:hidden" style={{ paddingBottom: 'env(safe-area-inset-bottom)' }}>
+      <div className="fixed bottom-0 left-0 z-[9999] w-full border-t border-[#f5c842]/15 bg-[var(--nav-bg)] shadow-[0_-4px_20px_rgba(0,0,0,0.18)] backdrop-blur-md transition-colors duration-300 md:hidden pb-[env(safe-area-inset-bottom)]">
         <div className="flex justify-between items-center h-[65px] px-2 select-none">
           <Link href="/" className={`flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 ${activeTab === 'home' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
             <Home size={22} className="mb-1" />

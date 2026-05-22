@@ -273,8 +273,7 @@ export default function Navbar({ onSearchClick }) {
 
           {/* Side Drawer Panel */}
           <div 
-            className="fixed top-0 right-0 h-[100dvh] w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0] overflow-y-auto overscroll-contain"
-            style={{ WebkitOverflowScrolling: 'touch' }}
+            className="fixed top-0 right-0 h-[100dvh] w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
           >
             <style jsx>{`
               @keyframes slideIn {

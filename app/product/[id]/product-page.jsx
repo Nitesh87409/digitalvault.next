@@ -430,7 +430,10 @@ export default function ProductPage({ id }) {
 
       {/* Toast */}
       {toast && (
-        <div style={{ position: 'fixed', bottom: '24px', right: '24px', zIndex: 9999, padding: '12px 20px', borderRadius: '12px', fontSize: '0.875rem', fontWeight: 600, background: toast.bg, color: toast.color, boxShadow: '0 4px 20px rgba(0,0,0,0.3)', fontFamily: 'DM Sans, sans-serif' }}>
+        <div 
+          className="fixed bottom-6 right-6 z-[9999] px-5 py-3 rounded-xl text-sm font-semibold shadow-[0_4px_20px_rgba(0,0,0,0.3)] font-sans"
+          style={{ background: toast.bg, color: toast.color }}
+        >
           {toast.msg}
         </div>
       )}

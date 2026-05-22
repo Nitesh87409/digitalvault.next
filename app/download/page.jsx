@@ -39,62 +39,62 @@ function DownloadContent() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column', color: '#e8e8f0' }}>
+    <div className="font-['DM_Sans',sans-serif] bg-[#0a0a0f] min-h-screen flex flex-col text-[#e8e8f0]">
       <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
 
-      <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <nav className="bg-[#0a0a0f]/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] px-6 py-4">
+        <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
             {settings.app_logo ? (
-              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+              <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" />
             ) : null}
             {settings.app_name}
           </Link>
-          <Link href="/account" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>My Account →</Link>
+          <Link href="/account" className="text-sm text-[#6b7280] no-underline hover:text-white transition-colors duration-200">My Account →</Link>
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px' }}>
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '40px', width: '100%', maxWidth: '520px', textAlign: 'center' }}>
+      <div className="flex-1 flex items-center justify-center px-4 py-10">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-3xl p-10 w-full max-w-[520px] text-center">
 
           {/* Loading */}
           {state === 'loading' && (
             <>
-              <div style={{ width: '64px', height: '64px', border: '4px solid #f5c842', borderTopColor: 'transparent', borderRadius: '50%', margin: '0 auto 24px', animation: 'spin 0.8s linear infinite' }}></div>
-              <p style={{ color: '#6b7280' }}>Verifying your purchase...</p>
+              <div className="w-16 h-16 border-4 border-[#f5c842] border-t-transparent rounded-full mx-auto mb-6 animate-[spin_0.8s_linear_infinite]"></div>
+              <p className="text-[#6b7280]">Verifying your purchase...</p>
             </>
           )}
 
           {/* Success */}
           {state === 'success' && (
             <>
-              <div style={{ width: '80px', height: '80px', borderRadius: '50%', background: 'rgba(245,200,66,0.1)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2.5rem', margin: '0 auto 24px' }}>🎉</div>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: '#fff', marginBottom: '8px' }}>Payment Successful!</h1>
-              <p style={{ color: '#f5c842', fontWeight: 600, marginBottom: '24px' }}>Your order is confirmed</p>
-              <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '32px' }}>
-                Thank you for your purchase! Download your files below. You have <strong style={{ color: '#f5c842' }}>lifetime access</strong>.
+              <div className="w-20 h-20 rounded-full bg-[#f5c842]/10 flex items-center justify-center text-4xl mx-auto mb-6">🎉</div>
+              <h1 className="font-['Syne',sans-serif] text-[2rem] font-bold text-white mb-2">Payment Successful!</h1>
+              <p className="text-[#f5c842] font-semibold mb-6">Your order is confirmed</p>
+              <p className="text-[#9ca3af] text-sm mb-8">
+                Thank you for your purchase! Download your files below. You have <strong className="text-[#f5c842]">lifetime access</strong>.
               </p>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '32px' }}>
+              <div className="flex flex-col gap-3 mb-8">
                 {files.map(file => (
                   <a
                     key={file.id}
                     href={`/api/download?token=${token}&pid=${file.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontWeight: 700, fontFamily: 'Syne, sans-serif', textDecoration: 'none', padding: '16px 20px', borderRadius: '12px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', fontSize: '1rem', transition: 'all 0.2s' }}
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-['Syne',sans-serif] no-underline px-5 py-4 rounded-xl flex items-center justify-center gap-2.5 text-base transition-transform duration-200 hover:scale-[1.02]"
                   >
                     ⬇️ Download {file.name}
                   </a>
                 ))}
               </div>
 
-              <Link href="/" style={{ display: 'block', fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none', marginBottom: '16px' }}>← Back to Store</Link>
-              <Link href="/account" style={{ display: 'block', fontSize: '0.875rem', color: '#9ca3af', textDecoration: 'none' }}>View My Account →</Link>
+              <Link href="/" className="block text-sm text-[#6b7280] no-underline mb-4">← Back to Store</Link>
+              <Link href="/account" className="block text-sm text-[#9ca3af] no-underline">View My Account →</Link>
 
-              <div style={{ marginTop: '24px', padding: '16px', borderRadius: '12px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.07)', textAlign: 'left' }}>
-                <p style={{ fontWeight: 600, color: '#fff', fontSize: '0.875rem', marginBottom: '4px' }}>📧 Check your email too!</p>
-                <p style={{ color: '#6b7280', fontSize: '0.8rem' }}>We've sent the download links to your registered email address.</p>
+              <div className="mt-6 p-4 rounded-xl bg-white/3 border border-white/7 text-left">
+                <p className="font-semibold text-white text-sm mb-1">📧 Check your email too!</p>
+                <p className="text-[#6b7280] text-[0.8rem]">We've sent the download links to your registered email address.</p>
               </div>
             </>
           )}
@@ -102,13 +102,13 @@ function DownloadContent() {
           {/* Error */}
           {state === 'error' && (
             <>
-              <div style={{ fontSize: '4rem', marginBottom: '24px' }}>❌</div>
-              <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '12px' }}>Invalid or Expired Link</h1>
-              <p style={{ color: '#9ca3af', fontSize: '0.875rem', marginBottom: '8px' }}>{errorMsg}</p>
-              <p style={{ color: '#6b7280', fontSize: '0.875rem', marginBottom: '24px' }}>Please contact support or check My Account for downloads.</p>
-              <div style={{ display: 'flex', gap: '12px', justifyContent: 'center' }}>
-                <Link href="/account" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne, sans-serif', fontSize: '0.875rem' }}>My Account</Link>
-                <a href={`mailto:${settings.support_email}`} style={{ background: 'rgba(255,255,255,0.05)', color: '#fff', padding: '12px 24px', borderRadius: '10px', textDecoration: 'none', fontFamily: 'Syne, sans-serif', fontSize: '0.875rem', border: '1px solid rgba(255,255,255,0.1)' }}>Contact Support</a>
+              <div className="text-[4rem] mb-6">❌</div>
+              <h1 className="font-['Syne',sans-serif] text-2xl font-bold text-white mb-3">Invalid or Expired Link</h1>
+              <p className="text-[#9ca3af] text-sm mb-2">{errorMsg}</p>
+              <p className="text-[#6b7280] text-sm mb-6">Please contact support or check My Account for downloads.</p>
+              <div className="flex gap-3 justify-center">
+                <Link href="/account" className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-6 py-3 rounded-xl no-underline font-bold font-['Syne',sans-serif] text-sm transition-transform duration-200 hover:scale-[1.02]">My Account</Link>
+                <a href={`mailto:${settings.support_email}`} className="bg-white/5 text-white px-6 py-3 rounded-xl no-underline font-['Syne',sans-serif] text-sm border border-white/10 transition-colors duration-200 hover:bg-white/10">Contact Support</a>
               </div>
             </>
           )}
@@ -121,7 +121,7 @@ function DownloadContent() {
 
 export default function DownloadPage() {
   return (
-    <Suspense fallback={<div style={{ background: '#0a0a0f', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}><div style={{ color: '#f5c842' }}>Loading...</div></div>}>
+    <Suspense fallback={<div className="bg-[#0a0a0f] min-h-screen flex items-center justify-center"><div className="text-[#f5c842]">Loading...</div></div>}>
       <DownloadContent />
     </Suspense>
   );

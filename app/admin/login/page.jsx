@@ -40,39 +40,39 @@ export default function AdminLoginPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column', color: '#e8e8f0' }}>
-      <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px' }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none' }}>DigitalVault</Link>
-          <span style={{ fontSize: '0.875rem', color: '#6b7280' }}>Admin Panel</span>
+    <div className="font-dm bg-dark min-h-screen flex flex-col text-[#e8e8f0]">
+      <nav className="bg-dark/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] py-4 px-6">
+        <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+          <Link href="/" className="font-syne text-xl font-bold text-gold no-underline">DigitalVault</Link>
+          <span className="text-sm text-[#6b7280]">Admin Panel</span>
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px' }}>
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '400px' }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔐</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Admin Login</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>DigitalVault Admin Panel</p>
+      <div className="flex-1 flex items-center justify-center py-10 px-4">
+        <div className="bg-card border border-[#f5c842]/15 rounded-[20px] p-[36px] w-full max-w-[400px]">
+          <div className="text-center mb-[28px]">
+            <div className="text-[2.5rem] mb-3">🔐</div>
+            <h2 className="font-syne text-2xl font-bold text-white mb-1.5">Admin Login</h2>
+            <p className="text-[#6b7280] text-sm">DigitalVault Admin Panel</p>
           </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+          <div className="flex flex-col gap-4">
             <div>
-              <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Email</label>
+              <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Email</label>
               <input type="email" value={email} onChange={e => setEmail(e.target.value)} onKeyDown={e => e.key === 'Enter' && login()} placeholder="admin@digitalvault.in"
-                style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }} />
+                className="bg-[#1a1a2a] border border-white/[0.08] text-white outline-none w-full py-3 px-4 rounded-xl text-sm font-dm" />
             </div>
             <div>
-              <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Password</label>
+              <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Password</label>
               <input type="password" value={password} onChange={e => setPassword(e.target.value)} onKeyDown={e => e.key === 'Enter' && login()} placeholder="••••••••"
-                style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }} />
+                className="bg-[#1a1a2a] border border-white/[0.08] text-white outline-none w-full py-3 px-4 rounded-xl text-sm font-dm" />
             </div>
-            {error && <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>{error}</div>}
-            <button onClick={login} disabled={loading} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}>
+            {error && <div className="text-[#ef4444] text-[0.8rem] py-[10px] px-[14px] bg-[#ef4444]/[0.08] rounded-lg border border-[#ef4444]/20">{error}</div>}
+            <button onClick={login} disabled={loading} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-dark font-syne font-bold border-none w-full p-[14px] rounded-xl text-base mt-1 cursor-pointer disabled:cursor-not-allowed disabled:opacity-70">
               {loading ? 'Signing in...' : 'Sign In →'}
             </button>
           </div>
-          <p style={{ textAlign: 'center', marginTop: '20px' }}><Link href="/" style={{ fontSize: '0.875rem', color: '#6b7280', textDecoration: 'none' }}>← Back to site</Link></p>
+          <p className="text-center mt-5"><Link href="/" className="text-sm text-[#6b7280] no-underline">← Back to site</Link></p>
         </div>
       </div>
     </div>

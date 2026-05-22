@@ -128,18 +128,18 @@ export default function AccountPage() {
 
   function renderReviewForm(productId, productName) {
     return (
-      <div style={{ borderTop: '1px solid var(--line-soft)', marginTop: '14px', paddingTop: '14px', width: '100%' }}>
-        <h4 style={{ fontFamily: 'Syne,sans-serif', color: 'var(--heading)', fontWeight: 700, fontSize: '0.9rem', marginBottom: '12px' }}>Review {productName}</h4>
+      <div className="border-t border-[var(--line-soft)] mt-[14px] pt-[14px] w-full">
+        <h4 className="font-['Syne',sans-serif] text-[var(--heading)] font-bold text-[0.9rem] mb-3">Review {productName}</h4>
         {reviewMsg && (
-          <div style={{ padding: '10px 12px', borderRadius: '8px', marginBottom: '12px', fontSize: '0.8rem', background: reviewMsg.ok ? 'rgba(16,185,129,0.1)' : 'rgba(239,68,68,0.1)', color: reviewMsg.ok ? '#10b981' : '#ef4444' }}>
+          <div className={`px-3 py-2.5 rounded-lg mb-3 text-[0.8rem] ${reviewMsg.ok ? 'bg-emerald-500/10 text-[#10b981]' : 'bg-red-500/10 text-[#ef4444]'}`}>
             {reviewMsg.msg}
           </div>
         )}
-        <div style={{ marginBottom: '12px' }}>
-          <label style={{ display: 'block', color: 'var(--muted-2)', fontSize: '0.7rem', fontWeight: 700, textTransform: 'uppercase', marginBottom: '6px' }}>Rating</label>
-          <div style={{ display: 'flex', gap: '6px' }}>
+        <div className="mb-3">
+          <label className="block text-[var(--muted-2)] text-[0.7rem] font-bold uppercase mb-1.5">Rating</label>
+          <div className="flex gap-1.5">
             {[1, 2, 3, 4, 5].map(star => (
-              <button key={star} type="button" onClick={() => setReviewRating(star)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: star <= reviewRating ? '#f5c842' : '#6b7280', fontSize: '1.4rem', padding: 0 }}>
+              <button key={star} type="button" onClick={() => setReviewRating(star)} className={`bg-none border-none cursor-pointer text-[1.4rem] p-0 ${star <= reviewRating ? 'text-[#f5c842]' : 'text-[#6b7280]'}`}>
                 &#9733;
               </button>
             ))}
@@ -150,9 +150,9 @@ export default function AccountPage() {
           onChange={e => setReviewText(e.target.value)}
           maxLength={1000}
           placeholder="What did you like or dislike?"
-          style={{ width: '100%', minHeight: '82px', resize: 'vertical', background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', borderRadius: '10px', padding: '10px 12px', fontSize: '0.85rem', fontFamily: 'DM Sans, sans-serif', marginBottom: '12px' }}
+          className="w-full min-h-[82px] resize-y bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none rounded-[10px] px-3 py-2.5 text-[0.85rem] font-sans mb-3"
         />
-        <button onClick={() => submitReview(productId)} disabled={reviewSubmitting} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontWeight: 700, fontFamily: 'Syne,sans-serif', border: 'none', padding: '9px 16px', borderRadius: '8px', cursor: reviewSubmitting ? 'not-allowed' : 'pointer', opacity: reviewSubmitting ? 0.7 : 1, fontSize: '0.85rem' }}>
+        <button onClick={() => submitReview(productId)} disabled={reviewSubmitting} className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-['Syne',sans-serif] border-none px-4 py-2 rounded-lg text-[0.85rem] ${reviewSubmitting ? 'cursor-not-allowed opacity-70' : 'cursor-pointer hover:opacity-90 transition-opacity'}`}>
           {reviewSubmitting ? 'Submitting...' : 'Submit Review'}
         </button>
       </div>
@@ -286,8 +286,8 @@ export default function AccountPage() {
   }
 
   if (!customer) return (
-    <div style={{ background: 'var(--bg)', minHeight: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-      <div style={{ width: '40px', height: '40px', border: '3px solid #f5c842', borderTopColor: 'transparent', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }}></div>
+    <div className="bg-[var(--bg)] min-h-screen flex items-center justify-center">
+      <div className="w-10 h-10 border-[3px] border-[#f5c842] border-t-transparent rounded-full animate-[spin_0.8s_linear_infinite]"></div>
     </div>
   );
 
@@ -305,93 +305,100 @@ export default function AccountPage() {
       
       {/* ----------------- DESKTOP LAYOUT (Unchanged, hidden on mobile) ----------------- */}
       <div className="hidden md:block">
-        <div style={{ fontFamily: 'DM Sans, sans-serif', background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
+        <div className="font-sans bg-[var(--bg)] min-h-screen text-[var(--text)]">
           {/* Nav */}
-          <nav style={{ background: 'var(--nav-bg)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 100 }}>
-            <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-              <Link href="/" style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+          <nav className="bg-[var(--nav-bg)] border-b border-[#f5c842]/10 backdrop-blur-[20px] px-6 py-4 sticky top-0 z-[100]">
+            <div className="max-w-[1100px] mx-auto flex items-center justify-between">
+              <Link href="/" className="font-['Syne',sans-serif] text-[1.2rem] font-bold text-[#f5c842] no-underline flex items-center gap-2">
                 {settings.app_logo ? (
-                  <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} loading="eager" />
+                  <img src={settings.app_logo} alt={settings.app_name} className="h-[28px] w-auto object-contain" loading="eager" />
                 ) : null}
                 {settings.app_name}
               </Link>
-              <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Store</Link>
+              <div className="flex items-center gap-4">
+                <Link href="/" className="text-[0.875rem] text-[var(--muted-2)] no-underline">← Store</Link>
                 <ThemeToggle />
-                <Link href="/cart" style={{ color: 'var(--muted)' }}>
+                <Link href="/cart" className="text-[var(--muted)]">
                   <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 </Link>
-                <button onClick={logout} style={{ fontSize: '0.8rem', color: '#ef4444', background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', padding: '6px 14px', borderRadius: '8px', cursor: 'pointer', fontFamily: 'DM Sans, sans-serif' }}>Logout</button>
+                <button onClick={logout} className="text-[0.8rem] text-[#ef4444] bg-[#ef4444]/10 border border-[#ef4444]/20 px-3.5 py-1.5 rounded-lg cursor-pointer font-sans">Logout</button>
               </div>
             </div>
           </nav>
 
-          <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '32px 20px' }}>
+          <div className="max-w-[1100px] mx-auto px-5 py-8">
             {/* Profile Header */}
-            <div className="p-5 sm:p-6 mb-6" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', display: 'flex', alignItems: 'center', gap: '20px' }}>
-              <div style={{ width: '64px', height: '64px', borderRadius: '50%', background: 'linear-gradient(135deg,#f5c842,#e0a800)', display: 'flex', alignItems: 'center', justifyContent: 'center', fontFamily: 'Syne,sans-serif', fontWeight: 700, fontSize: '1.5rem', color: '#0a0a0f', flexShrink: 0 }}>
+            <div className="p-5 sm:p-6 mb-6 bg-[var(--surface)] border border-[var(--border)] rounded-[16px] flex items-center gap-5">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-[#f5c842] to-[#e0a800] flex items-center justify-center font-['Syne',sans-serif] font-bold text-[1.5rem] text-[#0a0a0f] shrink-0">
                 {initials}
               </div>
-              <div style={{ flex: 1, minWidth: 0 }}>
-                <h1 style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.4rem', fontWeight: 700, color: 'var(--heading)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>{customer.name}</h1>
-                <p style={{ color: 'var(--muted-2)', fontSize: '0.875rem', marginTop: '2px', wordBreak: 'break-all' }}>{customer.email}</p>
+              <div className="flex-1 min-w-0">
+                <h1 className="font-['Syne',sans-serif] text-[1.4rem] font-bold text-[var(--heading)] truncate">{customer.name}</h1>
+                <p className="text-[var(--muted-2)] text-[0.875rem] mt-0.5 break-all">{customer.email}</p>
               </div>
             </div>
 
             {/* Layout */}
             <div className="flex flex-col md:grid md:grid-cols-[220px_1fr] gap-5 items-start">
               {/* Sidebar */}
-              <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '12px' }}>
+              <div className="bg-[var(--surface)] border border-[var(--border)] rounded-[16px] p-3 w-full">
                 {tabs.map(tab => (
                   <button
                     key={tab.id}
                     onClick={() => setActiveTab(tab.id)}
-                    style={{
-                      display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px',
-                      borderRadius: '12px', cursor: 'pointer', width: '100%', textAlign: 'left',
-                      fontFamily: 'DM Sans, sans-serif', fontSize: '0.875rem', border: 'none',
-                      background: activeTab === tab.id ? 'rgba(245,200,66,0.1)' : 'none',
-                      color: activeTab === tab.id ? '#f5c842' : '#6b7280',
-                      borderColor: activeTab === tab.id ? 'rgba(245,200,66,0.2)' : 'transparent',
-                      marginBottom: '4px',
-                      transition: 'all 0.2s',
-                    }}
+                    className={`flex items-center gap-3 px-4 py-3 rounded-[12px] cursor-pointer w-full text-left font-sans text-[0.875rem] border mb-1 transition-all duration-200 ${
+                      activeTab === tab.id 
+                        ? 'bg-[#f5c842]/10 text-[#f5c842] border-[#f5c842]/20' 
+                        : 'bg-transparent text-[#6b7280] border-transparent'
+                    }`}
                   >
                     <span>{tab.icon}</span> {tab.label}
                   </button>
                 ))}
-                <div style={{ borderTop: '1px solid var(--line-soft)', margin: '8px 0' }}></div>
-                <button onClick={logout} style={{ display: 'flex', alignItems: 'center', gap: '12px', padding: '12px 16px', borderRadius: '12px', cursor: 'pointer', width: '100%', textAlign: 'left', fontFamily: 'DM Sans, sans-serif', fontSize: '0.875rem', border: 'none', background: 'none', color: '#ef4444' }}>
+                <div className="border-t border-[var(--line-soft)] my-2"></div>
+                <button onClick={logout} className="flex items-center gap-3 px-4 py-3 rounded-[12px] cursor-pointer w-full text-left font-sans text-[0.875rem] border-none bg-transparent text-[#ef4444]">
                   <span>🚪</span> Logout
                 </button>
               </div>
 
               {/* Content */}
-              <div className="p-5 sm:p-7" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px' }}>
+              <div className="p-5 sm:p-7 bg-[var(--surface)] border border-[var(--border)] rounded-[16px] w-full">
 
                 {/* PROFILE */}
                 {activeTab === 'profile' && (
                   <div>
-                    <h2 style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '20px' }}>My Profile</h2>
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '480px' }}>
+                    <h2 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-5">My Profile</h2>
+                    <div className="flex flex-col gap-4 max-w-[480px]">
                       {[
                         { label: 'Full Name', key: 'name', type: 'text' },
                         { label: 'Email (cannot change)', key: 'email', type: 'email', disabled: true, value: customer.email },
                         { label: 'Phone Number', key: 'phone', type: 'tel' },
                       ].map(f => (
                         <div key={f.key}>
-                          <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>{f.label}</label>
+                          <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">{f.label}</label>
                           <input
                             type={f.type}
                             value={f.disabled ? f.value : form[f.key]}
                             onChange={f.disabled ? undefined : e => setForm({ ...form, [f.key]: e.target.value })}
                             disabled={f.disabled}
-                            style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: f.disabled ? 'var(--muted-2)' : 'var(--heading)', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', opacity: f.disabled ? 0.5 : 1, cursor: f.disabled ? 'not-allowed' : 'text', fontFamily: 'DM Sans, sans-serif' }}
+                            className={`bg-[var(--surface-2)] border border-[var(--line)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem] font-sans ${
+                              f.disabled 
+                                ? 'text-[var(--muted-2)] opacity-50 cursor-not-allowed' 
+                                : 'text-[var(--heading)] opacity-100 cursor-text'
+                            }`}
                           />
                         </div>
                       ))}
-                      {profileMsg && <div style={{ padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', background: profileMsg.ok ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', color: profileMsg.ok ? '#10b981' : '#ef4444', border: `1px solid ${profileMsg.ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>{profileMsg.msg}</div>}
-                      <button onClick={saveProfile} disabled={loading} className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne,sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '12px 24px', borderRadius: '12px', fontSize: '0.9rem' }}>
+                      {profileMsg && (
+                        <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] border ${
+                          profileMsg.ok 
+                            ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
+                            : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
+                        }`}>
+                          {profileMsg.msg}
+                        </div>
+                      )}
+                      <button onClick={saveProfile} disabled={loading} className="w-full sm:w-auto bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
                         {loading ? 'Saving...' : 'Save Changes'}
                       </button>
                     </div>
@@ -401,39 +408,39 @@ export default function AccountPage() {
                 {/* DOWNLOADS */}
                 {activeTab === 'downloads' && (
                   <div>
-                    <h2 style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '6px' }}>My Downloads</h2>
-                    <p style={{ color: 'var(--muted-2)', fontSize: '0.8rem', marginBottom: '20px' }}>All purchased products — download anytime</p>
+                    <h2 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-1.5">My Downloads</h2>
+                    <p className="text-[var(--muted-2)] text-[0.8rem] mb-5">All purchased products — download anytime</p>
                     {downloads.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>📦</div>
-                        <h3 style={{ color: 'var(--heading)', marginBottom: '8px', fontFamily: 'Syne,sans-serif' }}>No purchases yet</h3>
-                        <p style={{ color: 'var(--muted-2)', fontSize: '0.875rem', marginBottom: '20px' }}>Browse our products and make your first purchase!</p>
-                        <Link href="/" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '10px 24px', borderRadius: '10px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne,sans-serif' }}>Browse Products →</Link>
+                      <div className="text-center py-10">
+                        <div className="text-[3rem] mb-3">📦</div>
+                        <h3 className="text-[var(--heading)] mb-2 font-['Syne',sans-serif] font-bold">No purchases yet</h3>
+                        <p className="text-[var(--muted-2)] text-[0.875rem] mb-5">Browse our products and make your first purchase!</p>
+                        <Link href="/" className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-6 py-2.5 rounded-[10px] no-underline font-bold font-['Syne',sans-serif]">Browse Products →</Link>
                       </div>
                     ) : (
-                      <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                      <div className="flex flex-col gap-3">
                         {downloads.map((order, i) => {
                           const date = new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
                           const productName = order.product_id?.name || 'Digital Product';
                           const productId = order.product_id?._id || order.product_id;
                           const dlUrl = productId ? `/api/download?token=${order.download_token}&pid=${productId}` : `/download?token=${order.download_token}`;
                           return (
-                            <div key={i} className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4" style={{ background: 'var(--surface-muted)', border: '1px solid var(--line-soft)', borderRadius: '14px', padding: '18px' }}>
-                              <Link href={`/product/${productId}`} className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0 no-underline" style={{ color: 'inherit' }}>
-                                <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" alt="" /> : '📦'}
+                            <div key={i} className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4 bg-[var(--surface-muted)] border border-[var(--line-soft)] rounded-[14px] p-[18px]">
+                              <Link href={`/product/${productId}`} className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0 no-underline text-inherit">
+                                <div className="w-16 h-16 rounded-[10px] overflow-hidden bg-[var(--surface-2)] shrink-0 flex items-center justify-center text-[1.5rem]">
+                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                                 </div>
-                                <div style={{ flex: 1, minWidth: 0 }}>
-                                  <h3 style={{ fontWeight: 700, color: 'var(--heading)', fontSize: '0.95rem', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{productName}</h3>
-                                  <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>{date} · ₹{order.amount?.toLocaleString()}</p>
+                                <div className="flex-1 min-w-0">
+                                  <h3 className="font-bold text-[var(--heading)] text-[0.95rem] mb-0.5 truncate">{productName}</h3>
+                                  <p className="text-[var(--muted-2)] text-[0.75rem]">{date} · ₹{order.amount?.toLocaleString()}</p>
                                 </div>
                               </Link>
                               {productId && (
-                                <button onClick={() => toggleReviewForm(productId)} className="w-full sm:w-auto justify-center" style={{ background: 'rgba(245,200,66,0.1)', color: '#f5c842', fontWeight: 700, fontFamily: 'Syne,sans-serif', border: '1px solid rgba(245,200,66,0.2)', padding: '10px 16px', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0, cursor: 'pointer' }}>
+                                <button onClick={() => toggleReviewForm(productId)} className="w-full sm:w-auto justify-center bg-[#f5c842]/10 text-[#f5c842] font-bold font-['Syne',sans-serif] border border-[#f5c842]/20 px-4 py-2.5 rounded-lg text-[0.875rem] flex items-center gap-1.5 shrink-0 cursor-pointer">
                                   {reviewFormOpen === productId ? 'Cancel' : 'Write Review'}
                                 </button>
                               )}
-                              <a href={dlUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto justify-center" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontWeight: 700, fontFamily: 'Syne,sans-serif', textDecoration: 'none', padding: '10px 16px', borderRadius: '8px', fontSize: '0.875rem', display: 'flex', alignItems: 'center', gap: '6px', flexShrink: 0 }}>
+                              <a href={dlUrl} target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto justify-center bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-['Syne',sans-serif] no-underline px-4 py-2.5 rounded-lg text-[0.875rem] flex items-center gap-1.5 shrink-0">
                                 ⬇️ Download
                               </a>
                               {productId && reviewFormOpen === productId && renderReviewForm(productId, productName)}
@@ -448,31 +455,31 @@ export default function AccountPage() {
                 {/* ORDERS */}
                 {activeTab === 'orders' && (
                   <div>
-                    <h2 style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '20px' }}>Order History</h2>
+                    <h2 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-5">Order History</h2>
                     {orders.length === 0 ? (
-                      <div style={{ textAlign: 'center', padding: '40px 0' }}>
-                        <div style={{ fontSize: '3rem', marginBottom: '12px' }}>🛒</div>
-                        <p style={{ color: 'var(--muted-2)' }}>No orders yet.</p>
+                      <div className="text-center py-10">
+                        <div className="text-[3rem] mb-3">🛒</div>
+                        <p className="text-[var(--muted-2)]">No orders yet.</p>
                       </div>
                     ) : (
-                      <div style={{ overflowX: 'auto' }}>
-                        <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.85rem' }}>
+                      <div className="overflow-x-auto">
+                        <table className="w-full border-collapse text-[0.85rem]">
                           <thead>
-                            <tr style={{ borderBottom: '1px solid var(--line-soft)' }}>
+                            <tr className="border-b border-[var(--line-soft)]">
                               {['#', 'Product', 'Date', 'Amount', 'Status'].map(h => (
-                                <th key={h} style={{ textAlign: 'left', padding: '10px 12px', color: 'var(--muted-2)', fontWeight: 500 }}>{h}</th>
+                                <th key={h} className="text-left px-3 py-2.5 text-[var(--muted-2)] font-medium">{h}</th>
                               ))}
                             </tr>
                           </thead>
                           <tbody>
                             {orders.map((order, i) => (
-                              <tr key={i} style={{ borderBottom: '1px solid var(--line-soft)' }}>
-                                <td style={{ padding: '12px', color: '#4b5563' }}>{i + 1}</td>
-                                <td style={{ padding: '12px', color: 'var(--text)', fontWeight: 500 }}>{order.product_id?.name || 'Digital Product'}</td>
-                                <td style={{ padding: '12px', color: 'var(--muted-2)' }}>{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
-                                <td style={{ padding: '12px', color: '#f5c842', fontWeight: 700 }}>₹{order.amount?.toLocaleString()}</td>
-                                <td style={{ padding: '12px' }}>
-                                  <span style={{ background: order.payment_status === 1 ? 'rgba(16,185,129,0.15)' : 'rgba(245,200,66,0.15)', color: order.payment_status === 1 ? '#10b981' : '#f5c842', padding: '3px 10px', borderRadius: '999px', fontSize: '0.7rem', fontWeight: 700 }}>
+                              <tr key={i} className="border-b border-[var(--line-soft)]">
+                                <td className="p-3 text-[#4b5563]">{i + 1}</td>
+                                <td className="p-3 text-[var(--text)] font-medium">{order.product_id?.name || 'Digital Product'}</td>
+                                <td className="p-3 text-[var(--muted-2)]">{new Date(order.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}</td>
+                                <td className="p-3 text-[#f5c842] font-bold">₹{order.amount?.toLocaleString()}</td>
+                                <td className="p-3">
+                                  <span className={`px-2.5 py-0.5 rounded-full text-[0.7rem] font-bold ${order.payment_status === 1 ? 'bg-emerald-500/15 text-[#10b981]' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
                                     {order.payment_status === 1 ? '✓ Paid' : '⏳ Pending'}
                                   </span>
                                 </td>
@@ -488,26 +495,34 @@ export default function AccountPage() {
                 {/* PASSWORD */}
                 {activeTab === 'password' && (
                   <div>
-                    <h2 style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '20px' }}>Security & Password</h2>
+                    <h2 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-5">Security & Password</h2>
                     
-                    <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: 'var(--surface-2)', padding: '4px', borderRadius: '12px', width: 'fit-content' }}>
+                    <div className="flex gap-2 mb-6 bg-[var(--surface-2)] p-1 rounded-[12px] w-fit">
                       {customer.has_password && (
                         <button
                           onClick={() => setPassTab('update')}
-                          style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: passTab === 'update' ? 'var(--surface)' : 'transparent', color: passTab === 'update' ? '#f5c842' : 'var(--muted)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s', border: passTab === 'update' ? '1px solid var(--line)' : '1px solid transparent' }}
+                          className={`px-4 py-2 rounded-lg border text-[0.875rem] font-semibold cursor-pointer transition-all duration-200 ${
+                            passTab === 'update' 
+                              ? 'bg-[var(--surface)] text-[#f5c842] border-[var(--line)]' 
+                              : 'bg-transparent text-[var(--muted)] border-transparent'
+                          }`}
                         >
                           Update Password
                         </button>
                       )}
                       <button
                         onClick={() => setPassTab('reset')}
-                        style={{ padding: '8px 16px', borderRadius: '8px', border: 'none', background: passTab === 'reset' ? 'var(--surface)' : 'transparent', color: passTab === 'reset' ? '#f5c842' : 'var(--muted)', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s', border: passTab === 'reset' ? '1px solid var(--line)' : '1px solid transparent' }}
+                        className={`px-4 py-2 rounded-lg border text-[0.875rem] font-semibold cursor-pointer transition-all duration-200 ${
+                          passTab === 'reset' 
+                            ? 'bg-[var(--surface)] text-[#f5c842] border-[var(--line)]' 
+                            : 'bg-transparent text-[var(--muted)] border-transparent'
+                        }`}
                       >
                         {customer.has_password ? 'Reset with OTP' : 'Set Password'}
                       </button>
                     </div>
 
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', maxWidth: '480px' }}>
+                    <div className="flex flex-col gap-4 max-w-[480px]">
                       {passTab === 'update' ? (
                         <>
                           {[
@@ -516,71 +531,95 @@ export default function AccountPage() {
                             { label: 'Confirm New Password', key: 'conf' },
                           ].map(f => (
                             <div key={f.key}>
-                              <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>{f.label}</label>
+                              <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">{f.label}</label>
                               <input
                                 type="password"
                                 value={passForm[f.key]}
                                 onChange={e => setPassForm({ ...passForm, [f.key]: e.target.value })}
                                 placeholder="••••••••"
-                                style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                                className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem] font-sans"
                               />
                             </div>
                           ))}
-                          {passMsg && <div style={{ padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', background: passMsg.ok ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', color: passMsg.ok ? '#10b981' : '#ef4444', border: `1px solid ${passMsg.ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>{passMsg.msg}</div>}
-                          <button onClick={changePassword} disabled={loading} className="w-full sm:w-auto" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne,sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '12px 24px', borderRadius: '12px', fontSize: '0.9rem' }}>
+                          {passMsg && (
+                            <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] border ${
+                              passMsg.ok 
+                                ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
+                                : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
+                            }`}>
+                              {passMsg.msg}
+                            </div>
+                          )}
+                          <button onClick={changePassword} disabled={loading} className="w-full sm:w-auto bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
                             {loading ? 'Updating...' : 'Update Password'}
                           </button>
                         </>
                       ) : (
                         <>
                           {otpStep === 1 ? (
-                            <div style={{ textAlign: 'center', padding: '20px', background: 'var(--surface-2)', borderRadius: '16px', border: '1px solid var(--line)' }}>
-                              <p style={{ fontSize: '0.875rem', color: 'var(--text)', marginBottom: '16px' }}>We will send an OTP to <strong>{customer.email}</strong> to verify your identity.</p>
-                              {passMsg && <div style={{ padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', background: passMsg.ok ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', color: passMsg.ok ? '#10b981' : '#ef4444', border: `1px solid ${passMsg.ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}`, marginBottom: '16px' }}>{passMsg.msg}</div>}
-                              <button onClick={sendOtp} disabled={loading} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne,sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '12px 24px', borderRadius: '12px', fontSize: '0.9rem' }}>
+                            <div className="text-center p-5 bg-[var(--surface-2)] rounded-[16px] border border-[var(--line)]">
+                              <p className="text-[0.875rem] text-[var(--text)] mb-4">We will send an OTP to <strong>{customer.email}</strong> to verify your identity.</p>
+                              {passMsg && (
+                                <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] mb-4 border ${
+                                  passMsg.ok 
+                                    ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
+                                    : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
+                                }`}>
+                                  {passMsg.msg}
+                                </div>
+                              )}
+                              <button onClick={sendOtp} disabled={loading} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
                                 {loading ? 'Sending...' : 'Send OTP Code'}
                               </button>
                             </div>
                           ) : (
                             <>
                               <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Enter OTP Code</label>
+                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">Enter OTP Code</label>
                                 <input
                                   type="text"
                                   maxLength={settings.otp_length}
                                   value={otpCode}
                                   onChange={e => setOtpCode(e.target.value)}
                                   placeholder={"0".repeat(settings.otp_length)}
-                                  style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '1.25rem', letterSpacing: '4px', textAlign: 'center' }}
+                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[1.25rem] tracking-[4px] text-center"
                                 />
                               </div>
                               <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>New Password</label>
+                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">New Password</label>
                                 <input
                                   type="password"
                                   value={passForm.newp}
                                   onChange={e => setPassForm({ ...passForm, newp: e.target.value })}
                                   placeholder="••••••••"
-                                  style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem' }}
+                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem]"
                                 />
                               </div>
                               <div>
-                                <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Confirm New Password</label>
+                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">Confirm New Password</label>
                                 <input
                                   type="password"
                                   value={passForm.conf}
                                   onChange={e => setPassForm({ ...passForm, conf: e.target.value })}
                                   placeholder="••••••••"
-                                  style={{ background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem' }}
+                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem]"
                                 />
                               </div>
-                              {passMsg && <div style={{ padding: '10px 14px', borderRadius: '10px', fontSize: '0.8rem', background: passMsg.ok ? 'rgba(16,185,129,0.08)' : 'rgba(239,68,68,0.08)', color: passMsg.ok ? '#10b981' : '#ef4444', border: `1px solid ${passMsg.ok ? 'rgba(16,185,129,0.2)' : 'rgba(239,68,68,0.2)'}` }}>{passMsg.msg}</div>}
-                              <button onClick={resetPassword} disabled={loading} style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne,sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '12px 24px', borderRadius: '12px', fontSize: '0.9rem' }}>
+                              {passMsg && (
+                                <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] border ${
+                                  passMsg.ok 
+                                    ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
+                                    : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
+                                }`}>
+                                  {passMsg.msg}
+                                </div>
+                              )}
+                              <button onClick={resetPassword} disabled={loading} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
                                 {loading ? 'Resetting...' : (customer.has_password ? 'Reset Password' : 'Set Password')}
                               </button>
-                              <div style={{ display: 'flex', justifyContent: 'space-between', marginTop: '8px' }}>
-                                <button onClick={() => setOtpStep(1)} style={{ background: 'none', border: 'none', color: 'var(--muted)', cursor: 'pointer', fontSize: '0.8rem' }}>← Back</button>
-                                <button onClick={sendOtp} disabled={timer > 0 || loading} style={{ background: 'none', border: 'none', color: timer > 0 ? 'var(--muted-2)' : '#f5c842', cursor: timer > 0 ? 'not-allowed' : 'pointer', fontSize: '0.8rem' }}>
+                              <div className="flex justify-between mt-2">
+                                <button onClick={() => setOtpStep(1)} className="bg-none border-none text-[var(--muted)] cursor-pointer text-[0.8rem]">← Back</button>
+                                <button onClick={sendOtp} disabled={timer > 0 || loading} className={`bg-none border-none cursor-pointer text-[0.8rem] ${timer > 0 ? 'text-[var(--muted-2)] cursor-not-allowed' : 'text-[#f5c842]'}`}>
                                   {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
                                 </button>
                               </div>
@@ -751,7 +790,7 @@ export default function AccountPage() {
                        const dlUrl = productId ? `/api/download?token=${order.download_token}&pid=${productId}` : `/download?token=${order.download_token}`;
                        return (
                          <div key={i} className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
-                            <Link href={`/product/${productId}`} className="flex items-center gap-3.5 min-w-0 flex-1 no-underline" style={{ color: 'inherit' }}>
+                            <Link href={`/product/${productId}`} className="flex items-center gap-3.5 min-w-0 flex-1 no-underline text-inherit">
                               <div className="w-[52px] h-[52px] rounded-[14px] overflow-hidden bg-black/50 border border-white/5 flex-shrink-0 flex items-center justify-center text-xl">
                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                               </div>

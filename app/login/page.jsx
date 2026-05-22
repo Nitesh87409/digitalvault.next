@@ -257,38 +257,38 @@ export default function LoginPage() {
   const hasSocialLogins = settings.google_login_enabled || settings.apple_login_enabled;
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen flex flex-col">
       {/* Blobs */}
-      <div style={{ position: 'fixed', width: '384px', height: '384px', background: '#f5c842', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.08, top: '-100px', left: '-100px', pointerEvents: 'none' }}></div>
-      <div style={{ position: 'fixed', width: '320px', height: '320px', background: '#7c3aed', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.08, bottom: '-80px', right: '-80px', pointerEvents: 'none' }}></div>
+      <div className="fixed w-96 h-96 bg-[#f5c842] rounded-full blur-[100px] opacity-[0.08] -top-[100px] -left-[100px] pointer-events-none"></div>
+      <div className="fixed w-80 h-80 bg-[#7c3aed] rounded-full blur-[100px] opacity-[0.08] -bottom-[80px] -right-[80px] pointer-events-none"></div>
 
       {/* Nav */}
-      <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <nav className="bg-[#0a0a0f]/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] py-4 px-6 sticky top-0 z-10">
+        <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
             {settings.app_logo ? (
-              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+              <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" />
             ) : null}
             {settings.app_name}
           </Link>
-          <Link href="/" style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>← Back to Store</Link>
+          <Link href="/" className="text-[#6b7280] text-sm no-underline">← Back to Store</Link>
         </div>
       </nav>
 
       {/* Main */}
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', position: 'relative', zIndex: 1 }}>
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>👋</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Welcome Back</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>Login to your {settings.app_name} account</p>
+      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="text-center mb-7">
+            <div className="text-[2.5rem] mb-3">👋</div>
+            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Welcome Back</h2>
+            <p className="text-[#6b7280] text-sm">Login to your {settings.app_name} account</p>
           </div>
 
-          <div style={{ display: 'flex', gap: '8px', marginBottom: '24px', background: '#1a1a2a', padding: '4px', borderRadius: '12px', overflowX: 'auto', scrollbarWidth: 'none' }}>
+          <div className="flex gap-2 mb-6 bg-[#1a1a2a] p-1 rounded-xl overflow-x-auto [scrollbar-width:none]">
             {settings.password_login_enabled && (
               <button
                 onClick={() => changeTab('password')}
-                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'password' ? '#2d2d3a' : 'transparent', color: activeTab === 'password' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+                className={`flex-1 min-w-[90px] p-2.5 rounded-lg border-none cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'password' ? 'bg-[#2d2d3a] text-white' : 'bg-transparent text-[#6b7280]'}`}
               >
                 Password
               </button>
@@ -296,7 +296,7 @@ export default function LoginPage() {
             {settings.email_otp_enabled && (
               <button
                 onClick={() => changeTab('email')}
-                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'email' ? '#2d2d3a' : 'transparent', color: activeTab === 'email' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+                className={`flex-1 min-w-[90px] p-2.5 rounded-lg border-none cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'email' ? 'bg-[#2d2d3a] text-white' : 'bg-transparent text-[#6b7280]'}`}
               >
                 Email OTP
               </button>
@@ -304,7 +304,7 @@ export default function LoginPage() {
             {settings.mobile_otp_enabled && (
               <button
                 onClick={() => changeTab('mobile')}
-                style={{ flex: 1, minWidth: '90px', padding: '10px', borderRadius: '8px', border: 'none', background: activeTab === 'mobile' ? '#2d2d3a' : 'transparent', color: activeTab === 'mobile' ? '#fff' : '#6b7280', cursor: 'pointer', fontSize: '0.875rem', fontWeight: 600, transition: '0.2s' }}
+                className={`flex-1 min-w-[90px] p-2.5 rounded-lg border-none cursor-pointer text-sm font-semibold transition-all duration-200 ${activeTab === 'mobile' ? 'bg-[#2d2d3a] text-white' : 'bg-transparent text-[#6b7280]'}`}
               >
                 Mobile OTP
               </button>
@@ -312,46 +312,42 @@ export default function LoginPage() {
           </div>
 
           {!activeTab && !hasSocialLogins ? (
-            <div style={{ color: '#9ca3af', textAlign: 'center', padding: '20px' }}>Loading login methods...</div>
+            <div className="text-[#9ca3af] text-center p-5">Loading login methods...</div>
           ) : activeTab === 'password' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="flex flex-col gap-4">
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Email Address</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && loginPassword()}
                   placeholder="your@email.com"
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s' }}
-                  onFocus={e => e.target.style.borderColor = 'rgba(245,200,66,0.5)'}
-                  onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                 />
               </div>
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Password</label>
-                <div style={{ position: 'relative' }}>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Password</label>
+                <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && loginPassword()}
                     placeholder="••••••••"
-                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 48px 12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s' }}
-                    onFocus={e => e.target.style.borderColor = 'rgba(245,200,66,0.5)'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full pl-4 pr-12 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
-                  <button onClick={() => setShowPass(!showPass)} style={{ position: 'absolute', right: '14px', top: '50%', transform: 'translateY(-50%)', background: 'none', border: 'none', cursor: 'pointer', color: '#6b7280', fontSize: '1rem' }}>
+                  <button onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#6b7280] text-base">
                     {showPass ? '🙈' : '👁'}
                   </button>
                 </div>
-                <div style={{ textAlign: 'right', marginTop: '8px' }}>
-                  <Link href="/forgot-password" style={{ color: '#9ca3af', fontSize: '0.75rem', textDecoration: 'none' }}>Forgot Password?</Link>
+                <div className="text-right mt-2">
+                  <Link href="/forgot-password" className="text-[#9ca3af] text-xs no-underline">Forgot Password?</Link>
                 </div>
               </div>
 
               {error && (
-                <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
@@ -359,18 +355,16 @@ export default function LoginPage() {
               <button
                 onClick={loginPassword}
                 disabled={loading}
-                style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px', transition: 'transform 0.2s' }}
-                onMouseOver={e => !loading && (e.currentTarget.style.transform = 'scale(1.02)')}
-                onMouseOut={e => !loading && (e.currentTarget.style.transform = 'scale(1)')}
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Logging in...' : 'Login →'}
               </button>
             </div>
           ) : activeTab === 'email' || activeTab === 'mobile' ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="flex flex-col gap-4">
               {otpStep === 1 ? (
                 <div>
-                  <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                  <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">
                     {activeTab === 'email' ? 'Email Address' : 'Mobile Number'}
                   </label>
                   <input
@@ -379,28 +373,24 @@ export default function LoginPage() {
                     onChange={e => setIdentifier(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendOtp()}
                     placeholder={getPlaceholder()}
-                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s' }}
-                    onFocus={e => e.target.style.borderColor = 'rgba(245,200,66,0.5)'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
                   {error && (
-                    <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', marginTop: '16px' }}>
+                    <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-4">
                       {error}
                     </div>
                   )}
                   <button
                     onClick={sendOtp}
                     disabled={loading}
-                    style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '16px', transition: 'transform 0.2s' }}
-                    onMouseOver={e => !loading && (e.currentTarget.style.transform = 'scale(1.02)')}
-                    onMouseOut={e => !loading && (e.currentTarget.style.transform = 'scale(1)')}
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-4 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                   >
                     {loading ? 'Sending...' : 'Send OTP →'}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>
+                  <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">
                     Enter {settings.otp_length}-Digit OTP
                   </label>
                   <input
@@ -410,27 +400,23 @@ export default function LoginPage() {
                     onChange={e => setOtpCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && verifyOtp()}
                     placeholder={"0".repeat(settings.otp_length)}
-                    style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '1.25rem', letterSpacing: '4px', textAlign: 'center', fontFamily: 'DM Sans, sans-serif', transition: 'border-color 0.2s' }}
-                    onFocus={e => e.target.style.borderColor = 'rgba(245,200,66,0.5)'}
-                    onBlur={e => e.target.style.borderColor = 'rgba(255,255,255,0.08)'}
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-xl tracking-[4px] text-center font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
                   {error && (
-                    <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', marginTop: '16px' }}>
+                    <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-4">
                       {error}
                     </div>
                   )}
                   <button
                     onClick={verifyOtp}
                     disabled={loading || otpCode.length < settings.otp_length}
-                    style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: (loading || otpCode.length < settings.otp_length) ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: (loading || otpCode.length < settings.otp_length) ? 0.7 : 1, marginTop: '16px', transition: 'transform 0.2s' }}
-                    onMouseOver={e => !(loading || otpCode.length < settings.otp_length) && (e.currentTarget.style.transform = 'scale(1.02)')}
-                    onMouseOut={e => !(loading || otpCode.length < settings.otp_length) && (e.currentTarget.style.transform = 'scale(1)')}
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-4 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                   >
                     {loading ? 'Verifying...' : 'Verify & Login →'}
                   </button>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '16px' }}>
-                    <button onClick={() => setOtpStep(1)} style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '0.875rem' }}>← Back</button>
-                    <button onClick={sendOtp} disabled={timer > 0 || loading} style={{ background: 'none', border: 'none', color: timer > 0 ? '#4b5563' : '#f5c842', cursor: timer > 0 ? 'not-allowed' : 'pointer', fontSize: '0.875rem', fontWeight: 600 }}>
+                  <div className="flex justify-between items-center mt-4">
+                    <button onClick={() => setOtpStep(1)} className="bg-transparent border-none text-[#9ca3af] cursor-pointer text-sm">← Back</button>
+                    <button onClick={sendOtp} disabled={timer > 0 || loading} className="bg-transparent border-none text-sm font-semibold disabled:cursor-not-allowed disabled:text-[#4b5563] enabled:text-[#f5c842] enabled:cursor-pointer">
                       {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
                     </button>
                   </div>
@@ -441,20 +427,20 @@ export default function LoginPage() {
 
           {hasSocialLogins && (
             <>
-              <div style={{ display: 'flex', alignItems: 'center', margin: '24px 0' }}>
-                <div style={{ flex: 1, borderTop: '1px solid rgba(255,255,255,0.06)' }}></div>
-                <span style={{ padding: '0 12px', color: '#6b7280', fontSize: '0.8rem', fontWeight: 600, textTransform: 'uppercase' }}>or continue with</span>
-                <div style={{ flex: 1, borderTop: '1px solid rgba(255,255,255,0.06)' }}></div>
+              <div className="flex items-center my-6">
+                <div className="flex-1 border-t border-white/5"></div>
+                <span className="px-3 text-[#6b7280] text-[0.8rem] font-semibold uppercase">or continue with</span>
+                <div className="flex-1 border-t border-white/5"></div>
               </div>
 
-              <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+              <div className="flex flex-col gap-3">
                 {settings.google_login_enabled && (
-                  <div style={{ display: 'flex', justifyContent: 'center', width: '100%', background: '#fff', borderRadius: '12px', padding: '2px', overflow: 'hidden' }}>
+                  <div className="flex justify-center w-full bg-white rounded-xl p-0.5 overflow-hidden">
                     <div id="googleSignInDiv"></div>
                   </div>
                 )}
                 {settings.apple_login_enabled && (
-                  <button onClick={handleAppleLogin} style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px', width: '100%', padding: '12px', background: '#000', color: '#fff', border: '1px solid rgba(255,255,255,0.2)', borderRadius: '12px', fontSize: '0.95rem', fontWeight: 600, cursor: 'pointer', transition: 'transform 0.2s', boxShadow: '0 2px 4px rgba(0,0,0,0.1)' }} onMouseOver={e => e.currentTarget.style.transform = 'scale(1.02)'} onMouseOut={e => e.currentTarget.style.transform = 'scale(1)'}>
+                  <button onClick={handleAppleLogin} className="flex items-center justify-center gap-2.5 w-full p-3 bg-black text-white border border-white/20 rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-transform duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:scale-[1.02]">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="#fff" xmlns="http://www.w3.org/2000/svg">
                       <path d="M16.365 14.802c.026 3.238 2.806 4.316 2.836 4.327-.023.078-.445 1.545-1.503 3.093-1.022 1.496-2.096 2.987-3.766 3.017-1.637.032-2.176-.97-4.043-.97-1.868 0-2.463.936-4.015 1.002-1.605.06-2.83-1.616-3.856-3.1-2.09-3.056-3.69-8.625-1.55-12.336 1.06-1.833 2.92-2.997 4.965-3.03 1.57-.033 3.064 1.05 4.043 1.05 1.008 0 2.825-1.306 4.776-1.114 1.028.046 3.25.412 4.793 2.68-1.597.986-2.585 2.766-2.58 4.675a4.707 4.707 0 00-.1 4.706M15.42 4.24a4.444 4.444 0 001.077-3.16 4.636 4.636 0 00-3.065 1.56 4.303 4.303 0 00-1.1 3.096 3.738 3.738 0 003.088-1.496z"/>
                     </svg>
@@ -464,17 +450,17 @@ export default function LoginPage() {
               </div>
               
               {error && (!activeTab || hasSocialLogins) && (
-                <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)', marginTop: '16px', textAlign: 'center' }}>
+                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-4 text-center">
                   {error}
                 </div>
               )}
             </>
           )}
 
-          <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', margin: '20px 0' }}></div>
-          <p style={{ textAlign: 'center', color: '#6b7280', fontSize: '0.875rem' }}>
+          <div className="border-t border-white/5 my-5"></div>
+          <p className="text-center text-[#6b7280] text-sm">
             Don't have an account?{' '}
-            <Link href="/register" style={{ color: '#f5c842', fontWeight: 600, textDecoration: 'none' }}>Register here</Link>
+            <Link href="/register" className="text-[#f5c842] font-semibold no-underline">Register here</Link>
           </p>
         </div>
       </div>

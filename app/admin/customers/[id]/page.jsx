@@ -57,13 +57,13 @@ export default function CustomerDetail({ params }) {
   }
 
   if (loading) return (
-    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '100px 0' }}>
-      <div style={{ color: '#f5c842', fontFamily: 'DM Sans, sans-serif' }}>Loading...</div>
+    <div className="flex items-center justify-center py-[100px]">
+      <div className="text-gold font-dm">Loading...</div>
     </div>
   );
 
   if (!data) return (
-    <div style={{ color: '#fff', padding: '40px', fontFamily: 'DM Sans, sans-serif' }}>Customer not found.</div>
+    <div className="text-white p-10 font-dm">Customer not found.</div>
   );
 
   const { customer, orders, stats } = data;
@@ -72,7 +72,7 @@ export default function CustomerDetail({ params }) {
 
   return (
     <>
-      <div style={{ maxWidth: '1100px', margin: '0 auto', padding: '2px 2px' }}>
+      <div className="max-w-[1100px] mx-auto p-[2px]">
 
         {/* Customer Header */}
         <div className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-5 sm:p-7 mb-6 flex flex-col sm:flex-row items-start sm:items-center gap-5">

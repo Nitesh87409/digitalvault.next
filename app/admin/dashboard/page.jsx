@@ -330,11 +330,13 @@ export default function AdminDashboard() {
                     {chartData.map((d, i) => (
                       <div key={d.date} className="flex-1 flex flex-col items-center justify-end group relative" title={`${d.label}: ₹${d.revenue.toLocaleString()} (${d.orders} orders)`}>
                         <div
-                          className="w-full rounded-t-sm sm:rounded-t transition-all duration-300 group-hover:opacity-100 min-h-[2px]"
+                          className={`w-full rounded-t-sm sm:rounded-t transition-all duration-300 group-hover:opacity-100 min-h-[2px] ${
+                            d.revenue > 0
+                              ? 'bg-gradient-to-t from-[#f5c842] to-[#e0a800] opacity-80'
+                              : 'bg-white/[0.03] opacity-30'
+                          }`}
                           style={{
                             height: `${Math.max(2, (d.revenue / maxRevenue) * 100)}%`,
-                            background: d.revenue > 0 ? 'linear-gradient(to top, #f5c842, #e0a800)' : 'rgba(255,255,255,0.03)',
-                            opacity: d.revenue > 0 ? 0.8 : 0.3,
                           }}
                         />
                         {/* Tooltip */}
@@ -664,8 +666,8 @@ export default function AdminDashboard() {
               {/* Right Rich Editor */}
               <div className="flex-1 flex flex-col min-w-0 max-w-full overflow-hidden bg-[#0a0a0f] relative min-h-[400px] lg:min-h-0 shrink-0 lg:shrink">
                 <div className="bg-[#12121a] border-b border-white/10 p-2 md:p-3 flex flex-wrap gap-1.5 items-center shrink-0 sticky top-0 z-10 w-full max-w-full min-w-0 overflow-x-auto custom-scrollbar">
-                  {[['bold','B',{fontWeight:800}],['italic','I',{fontStyle:'italic'}],['underline','U',{textDecoration:'underline'}],['strikeThrough','S',{textDecoration:'line-through'}]].map(([cmd,label,style]) => (
-                    <button key={cmd} onClick={() => fmt(cmd)} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0" style={style}>{label}</button>
+                  {[['bold','B','font-extrabold'],['italic','I','italic'],['underline','U','underline'],['strikeThrough','S','line-through']].map(([cmd,label,className]) => (
+                    <button key={cmd} onClick={() => fmt(cmd)} className={`bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0 ${className}`}>{label}</button>
                   ))}
                   <div className="w-[1px] h-6 bg-white/10 mx-1 hidden sm:block shrink-0"></div>
                   <button onClick={() => fmt('insertUnorderedList')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">• List</button>

@@ -282,102 +282,102 @@ export default function CartPage() {
     }
   }
 
-  const inp = { background: 'var(--surface-2)', border: '1px solid var(--line)', color: 'var(--heading)', outline: 'none', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' };
+  const inputClass = "bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none px-4 py-3 rounded-xl text-sm font-['DM_Sans',sans-serif] focus:border-[#f5c842]/50 transition-colors duration-200";
 
   return (
     <>
-      <div style={{ fontFamily: 'DM Sans, sans-serif', background: 'var(--bg)', minHeight: '100vh', color: 'var(--text)' }}>
+      <div className="font-['DM_Sans',sans-serif] bg-[var(--bg)] min-h-screen text-[var(--text)]">
 
         {/* Nav */}
-        <nav style={{ background: 'var(--nav-bg)', borderBottom: '1px solid var(--line-soft)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-          <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+        <nav className="bg-[var(--nav-bg)] border-b border-[var(--line-soft)] backdrop-blur-[20px] px-6 py-4 sticky top-0 z-10">
+          <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+            <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
               {settings.app_logo ? (
-                <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+                <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" />
               ) : null}
               {settings.app_name}
             </Link>
-            <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <div className="flex gap-4 items-center">
               <div className="hidden sm:flex items-center gap-4">
-                <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
-                <Link href="/account" style={{ fontSize: '0.875rem', color: 'var(--muted)', textDecoration: 'none' }}>My Account</Link>
+                <Link href="/" className="text-sm text-[var(--muted-2)] no-underline hover:text-[#f5c842] transition-colors duration-200">← Continue Shopping</Link>
+                <Link href="/account" className="text-sm text-[var(--muted)] no-underline hover:text-white transition-colors duration-200">My Account</Link>
               </div>
               <ThemeToggle />
             </div>
           </div>
         </nav>
 
-        <div style={{ maxWidth: '1152px', margin: '0 auto', padding: '40px 24px' }}>
-          <h1 style={{ fontFamily: 'Syne, sans-serif', fontSize: '2rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '32px' }}>🛒 Your Cart</h1>
+        <div className="max-w-[1152px] mx-auto px-6 py-10">
+          <h1 className="font-['Syne',sans-serif] text-[2rem] font-bold text-[var(--heading)] mb-8">🛒 Your Cart</h1>
 
           {cart.length === 0 ? (
-            <div style={{ textAlign: 'center', padding: '80px 0' }}>
-              <div style={{ fontSize: '4rem', marginBottom: '24px' }}>🛒</div>
-              <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.5rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '12px' }}>Your cart is empty!</h2>
-              <p style={{ color: 'var(--muted-2)', marginBottom: '32px' }}>Add some products to get started.</p>
-              <Link href="/" style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', padding: '16px 32px', borderRadius: '999px', textDecoration: 'none', fontWeight: 700, fontFamily: 'Syne, sans-serif' }}>Browse Products →</Link>
+            <div className="text-center py-20">
+              <div className="text-[4rem] mb-6">🛒</div>
+              <h2 className="font-['Syne',sans-serif] text-[1.5rem] font-bold text-[var(--heading)] mb-3">Your cart is empty!</h2>
+              <p className="text-[var(--muted-2)] mb-8">Add some products to get started.</p>
+              <Link href="/" className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-8 py-4 rounded-full no-underline font-bold font-['Syne',sans-serif] transition-transform duration-200 hover:scale-[1.02] inline-block">Browse Products →</Link>
             </div>
           ) : (
-            <div className="cart-layout" style={{ display: 'grid', gridTemplateColumns: '1fr 360px', gap: '32px' }}>
+            <div className="cart-layout grid grid-cols-1 lg:grid-cols-[1fr_360px] gap-8">
 
               {/* Cart Items */}
               <div>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginBottom: '24px' }}>
+                <div className="flex flex-col gap-4 mb-6">
                   {cart.map(item => (
-                    <div key={item.id} style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '16px', display: 'flex', alignItems: 'center', gap: '16px' }}>
-                      <Link href={item.type === 'bundle' ? '/#pricing' : `/product/${item.id}`} style={{ display: 'flex', alignItems: 'center', gap: '16px', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
-                      <div style={{ width: '90px', height: '90px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '2rem' }}>
-                        {item.image ? <img src={item.image} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
-                      </div>
-                      <div style={{ flex: 1, minWidth: 0 }}>
-                        <h3 style={{ fontWeight: 700, color: 'var(--heading)', marginBottom: '4px' }}>{item.name}</h3>
-                        <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>Digital Product · Instant Download</p>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginTop: '8px' }}>
-                          <span style={{ color: '#f5c842', fontWeight: 700 }}>₹{item.price?.toLocaleString()}</span>
-                          {item.orig_price > item.price && <span style={{ color: 'var(--muted-2)', textDecoration: 'line-through', fontSize: '0.875rem' }}>₹{item.orig_price?.toLocaleString()}</span>}
+                    <div key={item.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 flex items-center gap-4">
+                      <Link href={item.type === 'bundle' ? '/#pricing' : `/product/${item.id}`} className="flex items-center gap-4 flex-1 min-w-0 text-inherit no-underline">
+                        <div className="w-[90px] h-[90px] rounded-xl overflow-hidden bg-[var(--surface-2)] shrink-0 flex items-center justify-center text-[2rem]">
+                          {item.image ? <img src={item.image} className="w-full h-full object-cover" alt="" /> : '📦'}
                         </div>
-                      </div>
+                        <div className="flex-1 min-w-0">
+                          <h3 className="font-bold text-[var(--heading)] mb-1">{item.name}</h3>
+                          <p className="text-[var(--muted-2)] text-xs">Digital Product · Instant Download</p>
+                          <div className="flex items-center gap-3 mt-2">
+                            <span className="text-[#f5c842] font-bold">₹{item.price?.toLocaleString()}</span>
+                            {item.orig_price > item.price && <span className="text-[var(--muted-2)] line-through text-sm">₹{item.orig_price?.toLocaleString()}</span>}
+                          </div>
+                        </div>
                       </Link>
-                      <button onClick={() => removeItem(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', color: 'var(--muted-2)', padding: '8px' }} title="Remove">🗑</button>
+                      <button onClick={() => removeItem(item.id)} className="bg-transparent border-none cursor-pointer text-[var(--muted-2)] p-2 hover:text-[#ef4444] transition-colors duration-200" title="Remove">🗑</button>
                     </div>
                   ))}
                 </div>
 
                 {/* Coupon Apply */}
-                <div style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '14px', padding: '20px' }}>
-                  <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '16px' }}>🎟️ Apply Coupon</h3>
+                <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5">
+                  <h3 className="font-['Syne',sans-serif] text-base font-bold text-[var(--heading)] mb-4">🎟️ Apply Coupon</h3>
 
                   {!couponData ? (
-                    <div style={{ display: 'flex', gap: '10px' }}>
+                    <div className="flex gap-2.5">
                       <input
                         value={couponCode}
                         onChange={e => setCouponCode(e.target.value.toUpperCase())}
                         onKeyDown={e => e.key === 'Enter' && applyCoupon()}
                         placeholder="Enter coupon code"
-                        style={{ ...inp, flex: 1, textTransform: 'uppercase', letterSpacing: '1px' }}
+                        className={`${inputClass} flex-1 uppercase tracking-[1px]`}
                       />
                       <button
                         onClick={applyCoupon}
                         disabled={couponLoading}
-                        style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: 'pointer', padding: '12px 20px', borderRadius: '12px', fontSize: '0.875rem', opacity: couponLoading ? 0.7 : 1, whiteSpace: 'nowrap' }}
+                        className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-5 py-3 rounded-xl text-sm disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap transition-transform duration-200 enabled:hover:scale-[1.02]"
                       >
                         {couponLoading ? '...' : 'Apply'}
                       </button>
                     </div>
                   ) : (
-                    <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '12px', padding: '12px 16px' }}>
-                        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
-                          <span style={{ fontSize: '1.2rem' }}>✅</span>
+                    <div className="flex flex-col gap-2">
+                      <div className="flex items-center justify-between bg-[#10b981]/8 border border-[#10b981]/20 rounded-xl px-4 py-3">
+                        <div className="flex items-center gap-2.5">
+                          <span className="text-[1.2rem]">✅</span>
                           <div>
-                            <div style={{ color: '#10b981', fontWeight: 700, fontSize: '0.9rem', fontFamily: 'Syne, sans-serif' }}>{couponData.code}</div>
-                            <div style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>You save ₹{couponDiscount.toLocaleString()}</div>
+                            <div className="text-[#10b981] font-bold text-[0.9rem] font-['Syne',sans-serif]">{couponData.code}</div>
+                            <div className="text-[var(--muted-2)] text-xs">You save ₹{couponDiscount.toLocaleString()}</div>
                           </div>
                         </div>
-                        <button onClick={removeCoupon} style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#ef4444', fontSize: '0.8rem' }}>✕ Remove</button>
+                        <button onClick={removeCoupon} className="bg-transparent border-none cursor-pointer text-[#ef4444] text-[0.8rem] hover:underline">✕ Remove</button>
                       </div>
                       {isBundleCart && (
-                        <p style={{ fontSize: '0.75rem', color: 'var(--muted-2)', margin: '4px 0 0' }}>
+                        <p className="text-xs text-[var(--muted-2)] mt-1">
                           ℹ️ Coupon discount will be securely verified and applied by the payment gateway.
                         </p>
                       )}
@@ -385,7 +385,7 @@ export default function CartPage() {
                   )}
 
                   {couponMsg && !couponData && (
-                    <p style={{ marginTop: '10px', fontSize: '0.8rem', color: couponData ? '#10b981' : '#ef4444' }}>
+                    <p className={`mt-2.5 text-[0.8rem] ${couponData ? 'text-[#10b981]' : 'text-[#ef4444]'}`}>
                       {couponMsg}
                     </p>
                   )}
@@ -393,62 +393,62 @@ export default function CartPage() {
               </div>
 
               {/* Order Summary */}
-              <div className="cart-summary" style={{ background: 'var(--surface)', border: '1px solid var(--border)', borderRadius: '16px', padding: '24px', position: 'sticky', top: '100px', alignSelf: 'start' }}>
-                <h3 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.1rem', fontWeight: 700, color: 'var(--heading)', marginBottom: '24px' }}>Order Summary</h3>
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '24px', fontSize: '0.875rem' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
+              <div className="cart-summary bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-6 sticky top-[100px] self-start">
+                <h3 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-6">Order Summary</h3>
+                <div className="flex flex-col gap-3 mb-6 text-sm">
+                  <div className="flex justify-between text-[var(--muted)]">
                     <span>{cart.length} item(s)</span>
-                    <span style={{ color: 'var(--heading)' }}>₹{subtotal.toLocaleString()}</span>
+                    <span className="text-[var(--heading)]">₹{subtotal.toLocaleString()}</span>
                   </div>
                   {savings > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: 'var(--muted)' }}>
+                    <div className="flex justify-between text-[var(--muted)]">
                       <span>Product Discount</span>
-                      <span style={{ color: '#10b981' }}>-₹{savings.toLocaleString()}</span>
+                      <span className="text-[#10b981]">-₹{savings.toLocaleString()}</span>
                     </div>
                   )}
                   {couponDiscount > 0 && (
-                    <div style={{ display: 'flex', justifyContent: 'space-between', color: '#f5c842', fontWeight: 600 }}>
+                    <div className="flex justify-between text-[#f5c842] font-semibold">
                       <span>🎟️ Coupon ({couponData?.code})</span>
                       <span>-₹{couponDiscount.toLocaleString()}</span>
                     </div>
                   )}
-                  <div style={{ borderTop: '1px solid var(--line-soft)', paddingTop: '12px', display: 'flex', justifyContent: 'space-between', color: 'var(--heading)', fontWeight: 700, fontSize: '1.1rem' }}>
+                  <div className="border-t border-[var(--line-soft)] pt-3 flex justify-between text-[var(--heading)] font-bold text-[1.1rem]">
                     <span>Total</span>
-                    <span style={{ color: '#f5c842' }}>₹{finalAmount.toLocaleString()}</span>
+                    <span className="text-[#f5c842]">₹{finalAmount.toLocaleString()}</span>
                   </div>
                   {(savings + couponDiscount) > 0 && (
-                    <div style={{ background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.15)', borderRadius: '8px', padding: '8px 12px', textAlign: 'center', color: '#10b981', fontSize: '0.8rem', fontWeight: 600 }}>
+                    <div className="bg-[#10b981]/8 border border-[#10b981]/15 rounded-lg py-2 px-3 text-center text-[#10b981] text-[0.8rem] font-semibold">
                       🎉 You save ₹{(savings + couponDiscount).toLocaleString()} total!
                     </div>
                   )}
                 </div>
 
                 {customer && (!customer.email || !customer.phone) && (
-                  <div style={{ marginBottom: '16px', background: 'var(--surface-2)', padding: '16px', borderRadius: '12px', border: '1px solid var(--line)' }}>
-                    <p style={{ fontSize: '0.8rem', color: 'var(--muted)', marginBottom: '12px' }}>Please complete your details to proceed.</p>
+                  <div className="mb-4 bg-[var(--surface-2)] p-4 rounded-xl border border-[var(--line)]">
+                    <p className="text-[0.8rem] text-[var(--muted)] mb-3">Please complete your details to proceed.</p>
                     
                     {!customer.email && (
-                      <div style={{ marginBottom: '12px' }}>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>Email Address</label>
+                      <div className="mb-3">
+                        <label className="text-xs text-[var(--muted)] block mb-1.5">Email Address</label>
                         <input
                           type="email"
                           value={checkoutEmail}
                           onChange={e => setCheckoutEmail(e.target.value)}
                           placeholder="your@email.com"
-                          style={{ ...inp, width: '100%' }}
+                          className={`${inputClass} w-full`}
                         />
                       </div>
                     )}
                     
                     {!customer.phone && (
                       <div>
-                        <label style={{ fontSize: '0.75rem', color: 'var(--muted)', display: 'block', marginBottom: '6px' }}>Phone Number</label>
+                        <label className="text-xs text-[var(--muted)] block mb-1.5">Phone Number</label>
                         <input
                           type="tel"
                           value={checkoutPhone}
                           onChange={e => setCheckoutPhone(e.target.value)}
                           placeholder="10-digit mobile number"
-                          style={{ ...inp, width: '100%' }}
+                          className={`${inputClass} w-full`}
                           maxLength={10}
                         />
                       </div>
@@ -457,7 +457,7 @@ export default function CartPage() {
                 )}
 
                 {error && (
-                  <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', marginBottom: '16px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                  <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/8 rounded-lg mb-4 border border-[#ef4444]/20">
                     {error}
                   </div>
                 )}
@@ -465,16 +465,16 @@ export default function CartPage() {
                 <button
                   onClick={proceedToCheckout}
                   disabled={loading}
-                  style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '16px', borderRadius: '12px', fontSize: '1rem', marginBottom: '12px', opacity: loading ? 0.7 : 1 }}
+                  className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-4 rounded-xl text-base mb-3 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                 >
                   {loading ? '⏳ Processing...' : `Pay ₹${finalAmount.toLocaleString()} →`}
                 </button>
 
-                <Link href="/" style={{ display: 'block', textAlign: 'center', fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
+                <Link href="/" className="block text-center text-sm text-[var(--muted-2)] no-underline hover:text-white transition-colors duration-200">← Continue Shopping</Link>
 
-                <div style={{ marginTop: '24px', paddingTop: '24px', borderTop: '1px solid var(--line-soft)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                <div className="mt-6 pt-6 border-t border-[var(--line-soft)] flex flex-col gap-2">
                   {['🔒 Secure Razorpay Payment', '⚡ Instant Download', '💰 7-Day Money Back'].map(t => (
-                    <p key={t} style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>{t}</p>
+                    <p key={t} className="text-[var(--muted-2)] text-xs">{t}</p>
                   ))}
                 </div>
               </div>
@@ -485,3 +485,4 @@ export default function CartPage() {
     </>
   );
 }
+

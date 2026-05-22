@@ -352,7 +352,7 @@ export default function AdminHomepageContent() {
         <div className="bg-[#0e0e18] rounded-2xl border border-white/5 overflow-hidden flex flex-col flex-1 shadow-xl">
           {loading ? (
             <div className="p-16 text-center text-gray-500 flex flex-col items-center justify-center gap-3">
-              <div className="w-8 h-8 rounded-full border-2 border-t-[#f5c842] border-white/5 animate-spin" style={{ animationDuration: '0.6s' }}></div>
+              <div className="w-8 h-8 rounded-full border-2 border-t-[#f5c842] border-white/5 animate-[spin_0.6s_linear_infinite]"></div>
               <span className="text-sm font-medium">Loading content...</span>
             </div>
           ) : activeTab === 'reviews' ? (

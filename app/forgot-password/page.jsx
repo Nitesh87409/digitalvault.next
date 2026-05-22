@@ -109,45 +109,45 @@ export default function ForgotPasswordPage() {
   }
 
   return (
-    <div style={{ fontFamily: 'DM Sans, sans-serif', background: '#0a0a0f', minHeight: '100vh', display: 'flex', flexDirection: 'column' }}>
-      <div style={{ position: 'fixed', width: '384px', height: '384px', background: '#f5c842', borderRadius: '50%', filter: 'blur(100px)', opacity: 0.08, top: '-100px', left: '-100px', pointerEvents: 'none' }}></div>
+    <div className="font-sans bg-[#0a0a0f] min-h-screen flex flex-col">
+      <div className="fixed w-96 h-96 bg-[#f5c842] rounded-full blur-[100px] opacity-[0.08] -top-[100px] -left-[100px] pointer-events-none"></div>
       
-      <nav style={{ background: 'rgba(10,10,15,0.9)', borderBottom: '1px solid rgba(245,200,66,0.1)', backdropFilter: 'blur(20px)', padding: '16px 24px', position: 'sticky', top: 0, zIndex: 10 }}>
-        <div style={{ maxWidth: '1152px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <Link href="/" style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.25rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
+      <nav className="bg-[#0a0a0f]/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] py-4 px-6 sticky top-0 z-10">
+        <div className="max-w-[1152px] mx-auto flex items-center justify-between">
+          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
             {settings.app_logo ? (
-              <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+              <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" />
             ) : null}
             {settings.app_name}
           </Link>
-          <Link href="/login" style={{ color: '#6b7280', fontSize: '0.875rem', textDecoration: 'none' }}>← Back to Login</Link>
+          <Link href="/login" className="text-[#6b7280] text-sm no-underline">← Back to Login</Link>
         </div>
       </nav>
 
-      <div style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '40px 16px', position: 'relative', zIndex: 1 }}>
-        <div style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.15)', borderRadius: '20px', padding: '36px', width: '100%', maxWidth: '420px', boxShadow: '0 20px 40px rgba(0,0,0,0.4)' }}>
-          <div style={{ textAlign: 'center', marginBottom: '28px' }}>
-            <div style={{ fontSize: '2.5rem', marginBottom: '12px' }}>🔒</div>
-            <h2 style={{ fontFamily: 'Syne, sans-serif', fontSize: '1.6rem', fontWeight: 700, color: '#fff', marginBottom: '6px' }}>Reset Password</h2>
-            <p style={{ color: '#6b7280', fontSize: '0.875rem' }}>We'll send you a code to reset your password</p>
+      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="text-center mb-7">
+            <div className="text-[2.5rem] mb-3">🔒</div>
+            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Reset Password</h2>
+            <p className="text-[#6b7280] text-sm">We'll send you a code to reset your password</p>
           </div>
 
           {step === 1 ? (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="flex flex-col gap-4">
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Email or Mobile Number</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Email or Mobile Number</label>
                 <input
                   type="text"
                   value={identifier}
                   onChange={e => setIdentifier(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendOtp()}
                   placeholder="your@email.com or +91..."
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem', fontFamily: 'DM Sans, sans-serif' }}
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               {error && (
-                <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
@@ -155,55 +155,55 @@ export default function ForgotPasswordPage() {
               <button
                 onClick={sendOtp}
                 disabled={loading}
-                style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Sending...' : 'Send Reset Code →'}
               </button>
             </div>
           ) : (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            <div className="flex flex-col gap-4">
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Enter OTP Code</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Enter OTP Code</label>
                 <input
                   type="text"
                   maxLength={settings.otp_length}
                   value={otpCode}
                   onChange={e => setOtpCode(e.target.value)}
                   placeholder={"0".repeat(settings.otp_length)}
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '1.25rem', letterSpacing: '4px', textAlign: 'center' }}
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-xl tracking-[4px] text-center font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>New Password</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">New Password</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem' }}
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               <div>
-                <label style={{ fontSize: '0.75rem', color: '#9ca3af', display: 'block', marginBottom: '6px', fontWeight: 600 }}>Confirm New Password</label>
+                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Confirm New Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  style={{ background: '#1a1a2a', border: '1px solid rgba(255,255,255,0.08)', color: '#fff', outline: 'none', width: '100%', padding: '12px 16px', borderRadius: '12px', fontSize: '0.875rem' }}
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               {error && (
-                <div style={{ color: '#ef4444', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(239,68,68,0.08)', borderRadius: '8px', border: '1px solid rgba(239,68,68,0.2)' }}>
+                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
 
               {message && (
-                <div style={{ color: '#10b981', fontSize: '0.8rem', padding: '10px 14px', background: 'rgba(16,185,129,0.08)', borderRadius: '8px', border: '1px solid rgba(16,185,129,0.2)' }}>
+                <div className="text-[#10b981] text-[0.8rem] px-3.5 py-2.5 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">
                   {message}
                 </div>
               )}
@@ -211,16 +211,16 @@ export default function ForgotPasswordPage() {
               <button
                 onClick={resetPassword}
                 disabled={loading}
-                style={{ background: 'linear-gradient(135deg,#f5c842,#e0a800)', color: '#0a0a0f', fontFamily: 'Syne, sans-serif', fontWeight: 700, border: 'none', cursor: loading ? 'not-allowed' : 'pointer', width: '100%', padding: '14px', borderRadius: '12px', fontSize: '1rem', opacity: loading ? 0.7 : 1, marginTop: '4px' }}
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Resetting...' : 'Reset Password →'}
               </button>
 
-              <div style={{ textAlign: 'center', marginTop: '8px' }}>
+              <div className="text-center mt-2">
                 <button 
                   onClick={() => setStep(1)} 
                   disabled={loading}
-                  style={{ background: 'none', border: 'none', color: '#9ca3af', cursor: 'pointer', fontSize: '0.875rem' }}
+                  className="bg-transparent border-none text-[#9ca3af] cursor-pointer text-sm disabled:cursor-not-allowed"
                 >
                   ← Change Email/Mobile
                 </button>
