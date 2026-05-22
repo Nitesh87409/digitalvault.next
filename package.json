@@ -17,7 +17,6 @@
     "lucide-react": "^1.16.0",
     "mongoose": "^7.0.0",
     "next": "^16.2.6",
-    "nodemailer": "^8.0.7",
     "razorpay": "^2.9.2",
     "react": "^19.2.3",
     "react-dom": "^19.2.3",
@@ -25,9 +24,6 @@
     "uuid": "^11.1.1"
   },
   "devDependencies": {
-    "@types/node": "^20",
-    "@types/react": "^19.2.14",
-    "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.0.1",
     "eslint": "^9.39.4",
     "eslint-config-next": "^16.2.6",
