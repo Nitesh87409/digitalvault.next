@@ -332,14 +332,35 @@ input, textarea, select, button {
   background-color: var(--surface-2) !important;
 }
 
+[data-theme='light'] .bg-\[\#0e0e18\] {
+  background-color: var(--bg-soft) !important;
+}
+
+[data-theme='light'] .bg-\[\#0e0e18\]\/95 {
+  background-color: var(--nav-bg) !important;
+}
+
+[data-theme='light'] .bg-\[\#12121a\]\/95 {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+}
+
 [data-theme='light'] .text-\[\#0a0a0f\] {
   color: #0a0a0f !important;
+}
+
+[data-theme='light'] .text-\[\#e8e8f0\] {
+  color: var(--text) !important;
 }
 
 [data-theme='light'] input,
 [data-theme='light'] textarea,
 [data-theme='light'] select {
   color-scheme: light;
+}
+
+[data-theme='light'] select option {
+  background-color: var(--surface) !important;
+  color: var(--heading) !important;
 }
 
 /* ---------- Mobile-first overflow fixes (Admin dashboard) ---------- */
