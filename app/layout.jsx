@@ -12,8 +12,9 @@ export async function generateMetadata() {
 export default function RootLayout({ children }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <head>
+      <head suppressHydrationWarning>
         <script
+          suppressHydrationWarning
           dangerouslySetInnerHTML={{
             __html: `
               (function () {
