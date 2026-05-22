@@ -74,6 +74,16 @@ const DEFAULT_SETTINGS = {
   bundle_timer_hours: 24,
   bundle_timer_minutes: 0,
   bundle_timer_action: 'hide_timer',
+  bundle_features: ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
+  bundle_badge_text: 'Limited Time Deal',
+  bundle_badge_color: '#f5c842',
+  bundle_cta_text: 'Unlock Bundle →',
+  bundle_show_discount: true,
+  bundle_banner_image: '',
+  bundle_sales_limit: 0,
+  bundle_validity_days: 0,
+  bundle_allow_repurchase: false,
+  bundle_send_email: true,
 };
 
 function json(body, status = 200) {
@@ -94,6 +104,17 @@ function toBundleSettings(settings = {}) {
     bundle_timer_hours: settings.bundle_timer_hours ?? DEFAULT_SETTINGS.bundle_timer_hours,
     bundle_timer_minutes: settings.bundle_timer_minutes ?? DEFAULT_SETTINGS.bundle_timer_minutes,
     bundle_timer_action: settings.bundle_timer_action || DEFAULT_SETTINGS.bundle_timer_action,
+    bundle_features: Array.isArray(settings.bundle_features) && settings.bundle_features.length > 0
+      ? settings.bundle_features : DEFAULT_SETTINGS.bundle_features,
+    bundle_badge_text: settings.bundle_badge_text || DEFAULT_SETTINGS.bundle_badge_text,
+    bundle_badge_color: settings.bundle_badge_color || DEFAULT_SETTINGS.bundle_badge_color,
+    bundle_cta_text: settings.bundle_cta_text || DEFAULT_SETTINGS.bundle_cta_text,
+    bundle_show_discount: settings.bundle_show_discount ?? DEFAULT_SETTINGS.bundle_show_discount,
+    bundle_banner_image: settings.bundle_banner_image || DEFAULT_SETTINGS.bundle_banner_image,
+    bundle_sales_limit: settings.bundle_sales_limit ?? DEFAULT_SETTINGS.bundle_sales_limit,
+    bundle_validity_days: settings.bundle_validity_days ?? DEFAULT_SETTINGS.bundle_validity_days,
+    bundle_allow_repurchase: settings.bundle_allow_repurchase ?? DEFAULT_SETTINGS.bundle_allow_repurchase,
+    bundle_send_email: settings.bundle_send_email ?? DEFAULT_SETTINGS.bundle_send_email,
     updatedAt: settings.updatedAt,
   };
 }
@@ -172,6 +193,7 @@ export async function GET(request) {
 
     const stats = revenueAgg[0] || { activeCount: 0, revenue: 0 };
     const bundleProducts = products.filter(product => product.included_in_bundle);
+    const totalSalesCount = await BundleSubscription.countDocuments();
 
     return json({
       flag: 1,
@@ -181,6 +203,7 @@ export async function GET(request) {
         revenue: Math.round(stats.revenue || 0),
         totalProducts: products.length,
         bundleProducts: bundleProducts.length,
+        totalSalesCount,
       },
       products,
       subscriptions,
@@ -227,6 +250,21 @@ export async function POST(request) {
       settings.bundle_timer_hours = Math.max(0, Math.floor(Number(body.bundle_timer_hours) || 0));
       settings.bundle_timer_minutes = Math.max(0, Math.floor(Number(body.bundle_timer_minutes) || 0));
       settings.bundle_timer_action = String(body.bundle_timer_action || DEFAULT_SETTINGS.bundle_timer_action).trim();
+
+      // New fields
+      if (Array.isArray(body.bundle_features)) {
+        settings.bundle_features = body.bundle_features.map(f => String(f).trim()).filter(Boolean);
+      }
+      settings.bundle_badge_text = String(body.bundle_badge_text || DEFAULT_SETTINGS.bundle_badge_text).trim();
+      settings.bundle_badge_color = String(body.bundle_badge_color || DEFAULT_SETTINGS.bundle_badge_color).trim();
+      settings.bundle_cta_text = String(body.bundle_cta_text || DEFAULT_SETTINGS.bundle_cta_text).trim();
+      settings.bundle_show_discount = body.bundle_show_discount !== false;
+      settings.bundle_banner_image = String(body.bundle_banner_image || '').trim();
+      settings.bundle_sales_limit = Math.max(0, Math.floor(Number(body.bundle_sales_limit) || 0));
+      settings.bundle_validity_days = Math.max(0, Math.floor(Number(body.bundle_validity_days) || 0));
+      settings.bundle_allow_repurchase = !!body.bundle_allow_repurchase;
+      settings.bundle_send_email = body.bundle_send_email !== false;
+
       await settings.save();
 
       return json({ flag: 1, message: 'Bundle settings saved', settings: toBundleSettings(settings.toObject()) });
@@ -262,6 +300,24 @@ export async function POST(request) {
 
       if (!subscription) return json({ flag: 0, message: 'Subscription not found' }, 404);
       return json({ flag: 1, message: 'Subscription status updated', subscription });
+    }
+
+    if (action === 'export-csv') {
+      const subs = await getSubscriptions();
+      const headers = ['Name', 'Email', 'Phone', 'Product', 'Amount (₹)', 'Coupon', 'Payment ID', 'Purchase Date', 'Status'];
+      const rows = subs.map(sub => [
+        (sub.customer?.name || 'Unknown').replace(/,/g, ' '),
+        (sub.customer_email || sub.customer?.email || '').replace(/,/g, ' '),
+        (sub.customer?.phone || '-').replace(/,/g, ' '),
+        (sub.product_name || 'Complete Bundle').replace(/,/g, ' '),
+        Math.round(sub.amount || 0),
+        (sub.coupon_code || '-').replace(/,/g, ' '),
+        (sub.payment_id || '-').replace(/,/g, ' '),
+        new Date(sub.purchase_date || sub.createdAt).toLocaleDateString('en-IN'),
+        sub.status || 'unknown',
+      ]);
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      return json({ flag: 1, csv });
     }
 
     return json({ flag: 0, message: 'Invalid action' }, 400);

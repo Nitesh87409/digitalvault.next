@@ -6,6 +6,7 @@ import { getBundleAccessStatus } from '@/lib/bundle-access';
 import Coupon from '@/models/Coupon';
 import Customer from '@/models/Customer';
 import Setting from '@/models/Setting';
+import BundleSubscription from '@/models/BundleSubscription';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -17,14 +18,15 @@ function json(body, status = 200, headers = {}) {
 }
 
 async function getBundleAmountPaise() {
-  const settings = await Setting.findOne().select('bundle_enabled bundle_price bundle_original_price').lean();
-  if (settings?.bundle_enabled === false) return null;
+  const settings = await Setting.findOne().select('bundle_enabled bundle_price bundle_original_price bundle_sales_limit bundle_allow_repurchase').lean();
+  if (settings?.bundle_enabled === false) return { amountPaise: null, settings };
   const normalizedPrices = normalizeBundlePrices(settings);
   const dbAmount = Math.round(Number(normalizedPrices.bundle_price || 0) * 100);
-  if (Number.isFinite(dbAmount) && dbAmount > 0) return dbAmount;
+  if (Number.isFinite(dbAmount) && dbAmount > 0) return { amountPaise: dbAmount, settings };
 
   const amount = Number(process.env.BUNDLE_PRICE_PAISE);
-  return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : DEFAULT_BUNDLE_AMOUNT_PAISE;
+  const finalAmount = Number.isFinite(amount) && amount > 0 ? Math.round(amount) : DEFAULT_BUNDLE_AMOUNT_PAISE;
+  return { amountPaise: finalAmount, settings };
 }
 
 function getRazorpay() {
@@ -124,13 +126,25 @@ export async function POST(request) {
     if (bundleStatus === 'active') {
       return json({ message: 'Bundle already purchased' }, 400);
     }
-    if (bundleStatus === 'inactive') {
+
+    const body = await request.json().catch(() => ({}));
+    const { amountPaise: bundleAmountPaise, settings: bundleSettings } = await getBundleAmountPaise();
+    if (!bundleAmountPaise) return json({ message: 'Bundle is currently disabled' }, 400);
+
+    // Check re-purchase rules
+    if (bundleStatus === 'inactive' && !bundleSettings?.bundle_allow_repurchase) {
       return json({ message: 'Your bundle is inactive. Please contact the support team.' }, 400);
     }
 
-    const body = await request.json().catch(() => ({}));
-    const bundleAmountPaise = await getBundleAmountPaise();
-    if (!bundleAmountPaise) return json({ message: 'Bundle is currently disabled' }, 400);
+    // Check sales limit
+    const salesLimit = Number(bundleSettings?.bundle_sales_limit) || 0;
+    if (salesLimit > 0) {
+      const totalSales = await BundleSubscription.countDocuments();
+      if (totalSales >= salesLimit) {
+        return json({ message: 'Bundle sales limit reached. This offer is no longer available.' }, 400);
+      }
+    }
+
     const couponResult = await validateBundleCoupon({
       code: body.coupon_code,
       customer,

@@ -18,12 +18,24 @@ export default function AdminBundlePage() {
     bundle_timer_hours: 24,
     bundle_timer_minutes: 0,
     bundle_timer_action: 'hide_timer',
+    bundle_features: ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
+    bundle_badge_text: 'Limited Time Deal',
+    bundle_badge_color: '#f5c842',
+    bundle_cta_text: 'Unlock Bundle →',
+    bundle_show_discount: true,
+    bundle_banner_image: '',
+    bundle_sales_limit: 0,
+    bundle_validity_days: 0,
+    bundle_allow_repurchase: false,
+    bundle_send_email: true,
   });
-  const [stats, setStats] = useState({ activeSubscriptions: 0, revenue: 0, totalProducts: 0, bundleProducts: 0 });
+  const [stats, setStats] = useState({ activeSubscriptions: 0, revenue: 0, totalProducts: 0, bundleProducts: 0, totalSalesCount: 0 });
   const [products, setProducts] = useState([]);
   const [subscriptions, setSubscriptions] = useState([]);
   const [productQuery, setProductQuery] = useState('');
   const [subscriptionQuery, setSubscriptionQuery] = useState('');
+  const [newFeature, setNewFeature] = useState('');
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadBundleAdmin();
@@ -111,6 +123,55 @@ export default function AdminBundlePage() {
     }
   }
 
+  async function exportCSV() {
+    setExporting(true);
+    try {
+      const res = await fetch('/api/admin/bundle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ action: 'export-csv' }),
+      });
+      const data = await res.json();
+      if (data.flag && data.csv) {
+        const blob = new Blob([data.csv], { type: 'text/csv' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `bundle-customers-${new Date().toISOString().split('T')[0]}.csv`;
+        a.click();
+        URL.revokeObjectURL(url);
+        setMessage('CSV exported successfully');
+      } else {
+        setMessage('Export failed');
+      }
+    } catch {
+      setMessage('Connection error');
+    }
+    setExporting(false);
+  }
+
+  function addFeature() {
+    const trimmed = newFeature.trim();
+    if (!trimmed) return;
+    if ((settings.bundle_features || []).includes(trimmed)) return;
+    setSettings({ ...settings, bundle_features: [...(settings.bundle_features || []), trimmed] });
+    setNewFeature('');
+  }
+
+  function removeFeature(index) {
+    const updated = [...(settings.bundle_features || [])];
+    updated.splice(index, 1);
+    setSettings({ ...settings, bundle_features: updated });
+  }
+
+  function moveFeature(index, direction) {
+    const updated = [...(settings.bundle_features || [])];
+    const newIndex = index + direction;
+    if (newIndex < 0 || newIndex >= updated.length) return;
+    [updated[index], updated[newIndex]] = [updated[newIndex], updated[index]];
+    setSettings({ ...settings, bundle_features: updated });
+  }
+
   const filteredProducts = useMemo(() => {
     const q = productQuery.toLowerCase().trim();
     return products.filter(product => !q || product.name?.toLowerCase().includes(q) || product.category?.toLowerCase().includes(q));
@@ -128,6 +189,10 @@ export default function AdminBundlePage() {
     });
   }, [subscriptions, subscriptionQuery]);
 
+  const discountPercent = settings.bundle_original_price > 0
+    ? Math.round(((settings.bundle_original_price - settings.bundle_price) / settings.bundle_original_price) * 100)
+    : 0;
+
   const inputClass = 'bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors';
 
   return (
@@ -140,12 +205,14 @@ export default function AdminBundlePage() {
           <div className="rounded-2xl border border-white/10 bg-[#12121a] p-10 text-center text-gray-400">Loading bundle data...</div>
         ) : (
           <>
-            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            {/* STATS */}
+            <section className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-5">
               {[
                 ['Active Subscribers', stats.activeSubscriptions, '#10b981'],
                 ['Bundle Revenue', `₹${(stats.revenue || 0).toLocaleString()}`, '#f5c842'],
                 ['Bundle Products', `${stats.bundleProducts}/${stats.totalProducts}`, '#8b5cf6'],
                 ['Current Price', `₹${Number(settings.bundle_price || 0).toLocaleString()}`, '#3b82f6'],
+                ['Total Sales', settings.bundle_sales_limit > 0 ? `${stats.totalSalesCount}/${settings.bundle_sales_limit}` : `${stats.totalSalesCount}`, '#f97316'],
               ].map(([label, value, color]) => (
                 <div key={label} className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5">
                   <p className="text-xs uppercase tracking-wider text-gray-500">{label}</p>
@@ -154,43 +221,158 @@ export default function AdminBundlePage() {
               ))}
             </section>
 
+            {/* SETTINGS GRID */}
             <section className="grid grid-cols-1 gap-6 lg:grid-cols-[420px_1fr]">
-              <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
-                <h2 className="font-syne text-xl font-bold text-white">Bundle Settings</h2>
-                <div className="mt-5 flex flex-col gap-4">
-                  <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
-                    <span>
-                      <span className="block text-sm font-bold text-white">Bundle Enabled</span>
-                      <span className="text-xs text-gray-500">Show and sell full-bundle checkout.</span>
-                    </span>
-                    <input type="checkbox" checked={!!settings.bundle_enabled} onChange={e => setSettings({ ...settings, bundle_enabled: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
-                  </label>
+              {/* LEFT: Bundle Settings */}
+              <div className="flex flex-col gap-6">
 
-                  <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Title</label>
-                    <input className={inputClass} value={settings.bundle_title} onChange={e => setSettings({ ...settings, bundle_title: e.target.value })} />
-                  </div>
+                {/* BASIC SETTINGS */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-xl font-bold text-white">Bundle Settings</h2>
+                  <div className="mt-5 flex flex-col gap-4">
+                    <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
+                      <span>
+                        <span className="block text-sm font-bold text-white">Bundle Enabled</span>
+                        <span className="text-xs text-gray-500">Show and sell full-bundle checkout.</span>
+                      </span>
+                      <input type="checkbox" checked={!!settings.bundle_enabled} onChange={e => setSettings({ ...settings, bundle_enabled: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                    </label>
 
-                  <div>
-                    <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Description</label>
-                    <textarea className={`${inputClass} min-h-24 resize-y`} value={settings.bundle_description} onChange={e => setSettings({ ...settings, bundle_description: e.target.value })} />
-                  </div>
-
-                  <div className="grid grid-cols-2 gap-3">
                     <div>
-                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Sale Price ₹</label>
-                      <input type="number" min="1" className={inputClass} value={settings.bundle_price} onChange={e => setSettings({ ...settings, bundle_price: Number(e.target.value) })} />
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Title</label>
+                      <input className={inputClass} value={settings.bundle_title} onChange={e => setSettings({ ...settings, bundle_title: e.target.value })} />
+                    </div>
+
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Description</label>
+                      <textarea className={`${inputClass} min-h-24 resize-y`} value={settings.bundle_description} onChange={e => setSettings({ ...settings, bundle_description: e.target.value })} />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Sale Price ₹</label>
+                        <input type="number" min="1" className={inputClass} value={settings.bundle_price} onChange={e => setSettings({ ...settings, bundle_price: Number(e.target.value) })} />
+                      </div>
+                      <div>
+                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Original ₹</label>
+                        <input type="number" min="1" className={inputClass} value={settings.bundle_original_price} onChange={e => setSettings({ ...settings, bundle_original_price: Number(e.target.value) })} />
+                      </div>
+                    </div>
+                    {discountPercent > 0 && (
+                      <div className="text-xs text-gray-400">Auto-calculated discount: <span className="text-[#10b981] font-bold">{discountPercent}% OFF</span></div>
+                    )}
+                  </div>
+                </div>
+
+                {/* APPEARANCE */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-lg font-bold text-white mb-4">🎨 Appearance</h2>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Badge Text</label>
+                      <input className={inputClass} value={settings.bundle_badge_text} onChange={e => setSettings({ ...settings, bundle_badge_text: e.target.value })} placeholder="e.g. Limited Time Deal, 🔥 Best Value" />
                     </div>
                     <div>
-                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Original ₹</label>
-                      <input type="number" min="1" className={inputClass} value={settings.bundle_original_price} onChange={e => setSettings({ ...settings, bundle_original_price: Number(e.target.value) })} />
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Badge Color</label>
+                      <div className="flex items-center gap-3">
+                        <input type="color" value={settings.bundle_badge_color || '#f5c842'} onChange={e => setSettings({ ...settings, bundle_badge_color: e.target.value })} className="h-10 w-14 cursor-pointer rounded-lg border border-white/10 bg-transparent" />
+                        <input className={`${inputClass} max-w-[140px]`} value={settings.bundle_badge_color} onChange={e => setSettings({ ...settings, bundle_badge_color: e.target.value })} placeholder="#f5c842" />
+                        <div className="rounded-full px-3 py-1 text-xs font-bold" style={{ background: `${settings.bundle_badge_color}20`, color: settings.bundle_badge_color, border: `1px solid ${settings.bundle_badge_color}30` }}>
+                          {settings.bundle_badge_text || 'Preview'}
+                        </div>
+                      </div>
+                    </div>
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">CTA Button Text</label>
+                      <input className={inputClass} value={settings.bundle_cta_text} onChange={e => setSettings({ ...settings, bundle_cta_text: e.target.value })} placeholder="e.g. Unlock Bundle →, Grab Now" />
+                    </div>
+                    <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
+                      <span>
+                        <span className="block text-sm font-bold text-white">Show Discount Badge</span>
+                        <span className="text-xs text-gray-500">Auto-calculated "{discountPercent}% OFF" badge on homepage.</span>
+                      </span>
+                      <input type="checkbox" checked={!!settings.bundle_show_discount} onChange={e => setSettings({ ...settings, bundle_show_discount: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                    </label>
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Banner Image URL</label>
+                      <input className={inputClass} value={settings.bundle_banner_image} onChange={e => setSettings({ ...settings, bundle_banner_image: e.target.value })} placeholder="https://... (Cloudinary URL or leave empty)" />
+                      {settings.bundle_banner_image && (
+                        <div className="mt-2 rounded-xl border border-white/10 overflow-hidden max-h-32">
+                          <img src={settings.bundle_banner_image} alt="Banner Preview" className="w-full h-full object-cover" />
+                        </div>
+                      )}
                     </div>
                   </div>
+                </div>
 
-                  {/* Countdown Timer Settings */}
-                  <div className="border-t border-white/5 pt-4 mt-2 flex flex-col gap-4">
-                    <h3 className="font-syne text-sm font-bold text-white uppercase tracking-wider text-[#f5c842]">⏰ Countdown Timer Settings</h3>
-                    
+                {/* FEATURES LIST */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-lg font-bold text-white mb-4">✅ Features / Highlights</h2>
+                  <p className="text-xs text-gray-500 mb-3">These bullet points appear in the bundle section on the homepage.</p>
+                  <div className="flex flex-col gap-2 mb-3">
+                    {(settings.bundle_features || []).map((feat, i) => (
+                      <div key={i} className="flex items-center gap-2 rounded-lg border border-white/10 bg-[#1a1a2a] px-3 py-2">
+                        <span className="flex-1 text-sm text-white truncate">✓ {feat}</span>
+                        <button onClick={() => moveFeature(i, -1)} disabled={i === 0} className="text-gray-500 hover:text-white text-xs disabled:opacity-30 cursor-pointer">↑</button>
+                        <button onClick={() => moveFeature(i, 1)} disabled={i === (settings.bundle_features?.length || 0) - 1} className="text-gray-500 hover:text-white text-xs disabled:opacity-30 cursor-pointer">↓</button>
+                        <button onClick={() => removeFeature(i)} className="text-red-400 hover:text-red-300 text-xs cursor-pointer">✕</button>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="flex gap-2">
+                    <input
+                      className={`${inputClass} flex-1`}
+                      value={newFeature}
+                      onChange={e => setNewFeature(e.target.value)}
+                      onKeyDown={e => e.key === 'Enter' && addFeature()}
+                      placeholder="Add new feature..."
+                    />
+                    <button onClick={addFeature} className="rounded-xl bg-[#f5c842]/20 border border-[#f5c842]/30 px-4 py-2 text-sm font-bold text-[#f5c842] hover:bg-[#f5c842]/30 cursor-pointer transition-colors">Add</button>
+                  </div>
+                </div>
+
+                {/* ACCESS CONTROL & LIMITS */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-lg font-bold text-white mb-4">🔒 Access & Limits</h2>
+                  <div className="flex flex-col gap-4">
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Bundle Validity</label>
+                      <div className="flex items-center gap-3">
+                        <select className={`${inputClass} max-w-[180px]`} value={settings.bundle_validity_days === 0 ? 'lifetime' : 'custom'} onChange={e => setSettings({ ...settings, bundle_validity_days: e.target.value === 'lifetime' ? 0 : 365 })}>
+                          <option value="lifetime">♾️ Lifetime</option>
+                          <option value="custom">📅 Custom Days</option>
+                        </select>
+                        {settings.bundle_validity_days > 0 && (
+                          <div className="flex items-center gap-2">
+                            <input type="number" min="1" className={`${inputClass} max-w-[100px]`} value={settings.bundle_validity_days} onChange={e => setSettings({ ...settings, bundle_validity_days: Number(e.target.value) || 0 })} />
+                            <span className="text-xs text-gray-400">days</span>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
+                      <span>
+                        <span className="block text-sm font-bold text-white">Allow Re-purchase</span>
+                        <span className="text-xs text-gray-500">Let customers with expired/inactive bundles buy again.</span>
+                      </span>
+                      <input type="checkbox" checked={!!settings.bundle_allow_repurchase} onChange={e => setSettings({ ...settings, bundle_allow_repurchase: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                    </label>
+
+                    <div>
+                      <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Sales Limit</label>
+                      <div className="flex items-center gap-3">
+                        <input type="number" min="0" className={`${inputClass} max-w-[140px]`} value={settings.bundle_sales_limit} onChange={e => setSettings({ ...settings, bundle_sales_limit: Number(e.target.value) || 0 })} />
+                        <span className="text-xs text-gray-400">{settings.bundle_sales_limit === 0 ? '(Unlimited)' : `(${Math.max(0, settings.bundle_sales_limit - (stats.totalSalesCount || 0))} remaining)`}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* COUNTDOWN TIMER */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-lg font-bold text-white mb-4">⏰ Countdown Timer</h2>
+                  <div className="flex flex-col gap-4">
                     <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
                       <span>
                         <span className="block text-sm font-bold text-white">Show Countdown Timer</span>
@@ -230,13 +412,27 @@ export default function AdminBundlePage() {
                       </>
                     )}
                   </div>
-
-                  <button onClick={saveSettings} disabled={saving} className="mt-2 rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-5 py-3 font-syne font-bold text-[#0a0a0f] shadow-lg shadow-[#f5c842]/20 disabled:opacity-70">
-                    {saving ? 'Saving...' : 'Save Bundle Settings'}
-                  </button>
                 </div>
+
+                {/* EMAIL NOTIFICATIONS */}
+                <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
+                  <h2 className="font-syne text-lg font-bold text-white mb-4">📧 Email Notifications</h2>
+                  <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3">
+                    <span>
+                      <span className="block text-sm font-bold text-white">Send Purchase Email</span>
+                      <span className="text-xs text-gray-500">Send confirmation email with receipt to customer after bundle purchase.</span>
+                    </span>
+                    <input type="checkbox" checked={!!settings.bundle_send_email} onChange={e => setSettings({ ...settings, bundle_send_email: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                  </label>
+                </div>
+
+                {/* SAVE BUTTON */}
+                <button onClick={saveSettings} disabled={saving} className="rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-5 py-3 font-syne font-bold text-[#0a0a0f] shadow-lg shadow-[#f5c842]/20 disabled:opacity-70 cursor-pointer hover:scale-[1.02] transition-transform">
+                  {saving ? 'Saving...' : 'Save All Bundle Settings'}
+                </button>
               </div>
 
+              {/* RIGHT: Products Table */}
               <div className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
                 <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                   <h2 className="font-syne text-xl font-bold text-white">Included Products</h2>
@@ -286,10 +482,20 @@ export default function AdminBundlePage() {
               </div>
             </section>
 
+            {/* BUNDLE CUSTOMERS */}
             <section className="rounded-2xl border border-[#f5c842]/10 bg-[#12121a] p-5 sm:p-6">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
                 <h2 className="font-syne text-xl font-bold text-white">Bundle Customers</h2>
-                <input className={`${inputClass} sm:max-w-sm`} placeholder="Search customer, email, phone, payment id..." value={subscriptionQuery} onChange={e => setSubscriptionQuery(e.target.value)} />
+                <div className="flex items-center gap-3 flex-wrap">
+                  <input className={`${inputClass} sm:max-w-sm`} placeholder="Search customer, email, phone, payment id..." value={subscriptionQuery} onChange={e => setSubscriptionQuery(e.target.value)} />
+                  <button
+                    onClick={exportCSV}
+                    disabled={exporting || subscriptions.length === 0}
+                    className="rounded-xl border border-[#f5c842]/30 bg-[#f5c842]/10 px-4 py-3 text-sm font-bold text-[#f5c842] hover:bg-[#f5c842]/20 disabled:opacity-50 cursor-pointer transition-colors whitespace-nowrap"
+                  >
+                    {exporting ? 'Exporting...' : '📤 Export CSV'}
+                  </button>
+                </div>
               </div>
 
               <div className="mt-5 overflow-auto rounded-xl border border-white/5">
@@ -312,7 +518,12 @@ export default function AdminBundlePage() {
                     ) : filteredSubscriptions.map(sub => (
                       <tr key={sub._id} className="border-t border-white/5">
                         <td className="p-3">
-                          <div className="font-semibold text-white">{sub.customer?.name || 'Unknown customer'}</div>
+                          <div className="flex items-center gap-2">
+                            <div className="font-semibold text-white">{sub.customer?.name || 'Unknown customer'}</div>
+                            {sub.customer?.is_blocked && (
+                              <span className="rounded-full bg-red-500/15 px-2 py-0.5 text-[9px] font-bold text-red-400 uppercase">🚫 Blocked</span>
+                            )}
+                          </div>
                           <div className="text-xs text-gray-500">{sub.customer_email || sub.customer?.email || sub.customer_id}</div>
                         </td>
                         <td className="p-3 text-gray-400">{sub.customer?.phone || '-'}</td>

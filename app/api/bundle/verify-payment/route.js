@@ -4,6 +4,7 @@ import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
 import { normalizeBundlePrices } from '@/lib/security';
 import { hasActiveBundleAccess } from '@/lib/bundle-access';
+import { sendBundleConfirmation } from '@/lib/mailer';
 import BundleSubscription from '@/models/BundleSubscription';
 import Coupon from '@/models/Coupon';
 import Customer from '@/models/Customer';
@@ -19,14 +20,15 @@ function json(body, status = 200) {
 }
 
 async function getBundleAmountPaise() {
-  const settings = await Setting.findOne().select('bundle_enabled bundle_price bundle_original_price').lean();
-  if (settings?.bundle_enabled === false) return null;
+  const settings = await Setting.findOne().select('bundle_enabled bundle_price bundle_original_price bundle_validity_days bundle_send_email').lean();
+  if (settings?.bundle_enabled === false) return { amountPaise: null, settings };
   const normalizedPrices = normalizeBundlePrices(settings);
   const dbAmount = Math.round(Number(normalizedPrices.bundle_price || 0) * 100);
-  if (Number.isFinite(dbAmount) && dbAmount > 0) return dbAmount;
+  if (Number.isFinite(dbAmount) && dbAmount > 0) return { amountPaise: dbAmount, settings };
 
   const amount = Number(process.env.BUNDLE_PRICE_PAISE);
-  return Number.isFinite(amount) && amount > 0 ? Math.round(amount) : DEFAULT_BUNDLE_AMOUNT_PAISE;
+  const finalAmount = Number.isFinite(amount) && amount > 0 ? Math.round(amount) : DEFAULT_BUNDLE_AMOUNT_PAISE;
+  return { amountPaise: finalAmount, settings };
 }
 
 function getRazorpay() {
@@ -194,6 +196,16 @@ export async function POST(request) {
 
     const appliedCouponCode = (razorpayOrder?.notes?.coupon_code || '').trim();
 
+    // Get settings for validity and email
+    const { settings: bundleSettings } = await getBundleAmountPaise();
+    const validityDays = Number(bundleSettings?.bundle_validity_days) || 0;
+    let expiryDate = null;
+    let validityText = 'Lifetime Access';
+    if (validityDays > 0) {
+      expiryDate = new Date(Date.now() + validityDays * 24 * 60 * 60 * 1000);
+      validityText = `${validityDays} days (expires ${expiryDate.toLocaleDateString('en-IN')})`;
+    }
+
     try {
       await BundleSubscription.create({
         customer_id: customer._id.toString(),
@@ -205,6 +217,7 @@ export async function POST(request) {
         amount: amount / 100, // Storing amount in Rupees (previously paise)
         coupon_code: appliedCouponCode ? appliedCouponCode.toUpperCase() : null,
         purchase_date: new Date(),
+        expiry_date: expiryDate,
       });
 
       await Customer.updateOne(
@@ -217,7 +230,7 @@ export async function POST(request) {
       );
 
       if (appliedCouponCode) {
-        const bundleOriginalPaise = (await getBundleAmountPaise()) || amount;
+        const bundleOriginalPaise = (await getBundleAmountPaise())?.amountPaise || amount;
         const discountAmountRupees = Math.max(0, (bundleOriginalPaise - amount) / 100);
         await markBundleCouponUsed({
           couponCode: appliedCouponCode,
@@ -225,6 +238,18 @@ export async function POST(request) {
           discountAmountRupees,
           revenueRupees: amount / 100,
         });
+      }
+
+      // Send bundle confirmation email if enabled
+      if (bundleSettings?.bundle_send_email !== false) {
+        sendBundleConfirmation({
+          name: customer.name || 'Customer',
+          email: customer.email,
+          amount: amount / 100,
+          product_name: 'Complete Bundle',
+          payment_id: razorpay_payment_id,
+          validity_text: validityText,
+        }).catch(err => console.error('[Bundle] email error:', err.message));
       }
     } catch (error) {
       if (error.code === 11000) {

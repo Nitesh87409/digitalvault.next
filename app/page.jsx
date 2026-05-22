@@ -32,6 +32,12 @@ export default function HomePage() {
     bundle_timer_hours: 24,
     bundle_timer_minutes: 0,
     bundle_timer_action: 'hide_timer',
+    bundle_features: ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
+    bundle_badge_text: 'Limited Time Deal',
+    bundle_badge_color: '#f5c842',
+    bundle_cta_text: 'Unlock Bundle →',
+    bundle_show_discount: true,
+    bundle_banner_image: '',
     updatedAt: ''
   });
   const { toast, showToast } = useToast();
@@ -101,6 +107,15 @@ export default function HomePage() {
           bundle_timer_hours: data.settings.bundle_timer_hours ?? 24,
           bundle_timer_minutes: data.settings.bundle_timer_minutes ?? 0,
           bundle_timer_action: data.settings.bundle_timer_action || 'hide_timer',
+          bundle_features: Array.isArray(data.settings.bundle_features) && data.settings.bundle_features.length > 0
+            ? data.settings.bundle_features
+            : ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
+          bundle_badge_text: data.settings.bundle_badge_text || 'Limited Time Deal',
+          bundle_badge_color: data.settings.bundle_badge_color || '#f5c842',
+          bundle_cta_text: data.settings.bundle_cta_text || 'Unlock Bundle →',
+          bundle_show_discount: data.settings.bundle_show_discount ?? true,
+          bundle_banner_image: data.settings.bundle_banner_image || '',
+          app_name: data.settings.app_name || '',
           updatedAt: data.settings.updatedAt || ''
         });
       }
@@ -295,12 +310,17 @@ export default function HomePage() {
                 <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 items-center">
                   {/* Left Column: Title & Highlights */}
                   <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6">
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-2.5 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider text-[#f5c842]">
+                    <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-2.5 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ borderColor: `${settings.bundle_badge_color || '#f5c842'}33`, background: `${settings.bundle_badge_color || '#f5c842'}1a`, color: settings.bundle_badge_color || '#f5c842' }}>
                       <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
-                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c842] opacity-75"></span>
-                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2 bg-[#f5c842]"></span>
+                        <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: settings.bundle_badge_color || '#f5c842' }}></span>
+                        <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2" style={{ background: settings.bundle_badge_color || '#f5c842' }}></span>
                       </span>
-                      Limited Time Deal
+                      {settings.bundle_badge_text || 'Limited Time Deal'}
+                      {settings.bundle_show_discount && settings.bundle_original_price > settings.bundle_price && (
+                        <span className="ml-1 font-extrabold">
+                          — {Math.round(((settings.bundle_original_price - settings.bundle_price) / settings.bundle_original_price) * 100)}% OFF
+                        </span>
+                      )}
                     </div>
                     
                     <div>
@@ -312,8 +332,14 @@ export default function HomePage() {
                       </p>
                     </div>
 
+                    {settings.bundle_banner_image && (
+                      <div className="rounded-xl overflow-hidden border border-[var(--line)] max-h-40 sm:max-h-52">
+                        <img src={settings.bundle_banner_image} alt="Bundle Banner" className="w-full h-full object-cover" />
+                      </div>
+                    )}
+
                     <div className="flex flex-wrap gap-x-3 gap-y-1.5 sm:gap-x-4 sm:gap-y-2 pt-1 sm:pt-1 text-xs sm:text-xs md:text-sm text-[var(--muted)]">
-                      {['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'].map((feat) => (
+                      {(settings.bundle_features || ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee']).map((feat) => (
                         <div key={feat} className="flex items-center gap-1 sm:gap-1.5">
                           <span className="flex h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-[#f5c842]/10 text-[7px] sm:text-[10px] md:text-xs font-bold text-[#f5c842]">
                             ✓
@@ -359,7 +385,7 @@ export default function HomePage() {
                       ) : isOfferEnded ? (
                         <>Offer Ended 😢</>
                       ) : (
-                        <>Unlock Bundle →</>
+                        <>{settings.bundle_cta_text || 'Unlock Bundle →'}</>
                       )}
                     </button>
                   </div>

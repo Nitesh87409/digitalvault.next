@@ -59,7 +59,17 @@ export async function POST(request) {
       'bundle_timer_days',
       'bundle_timer_hours',
       'bundle_timer_minutes',
-      'bundle_timer_action'
+      'bundle_timer_action',
+      'bundle_features',
+      'bundle_badge_text',
+      'bundle_badge_color',
+      'bundle_cta_text',
+      'bundle_show_discount',
+      'bundle_banner_image',
+      'bundle_sales_limit',
+      'bundle_validity_days',
+      'bundle_allow_repurchase',
+      'bundle_send_email'
     ];
 
     fields.forEach((field) => {
