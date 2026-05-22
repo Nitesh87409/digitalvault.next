@@ -34,6 +34,18 @@ export default function AccountPage() {
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
     setPassTab(parsed.has_password ? 'update' : 'reset');
 
+    // Fetch up-to-date customer data (like registration date and active status) from database
+    fetch('/api/customer')
+      .then(res => res.json())
+      .then(data => {
+        if (data.flag && data.customer) {
+          localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+          setCustomer(data.customer);
+          setForm({ name: data.customer.name || '', phone: data.customer.phone || '' });
+        }
+      })
+      .catch(console.error);
+
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');
     if (tab) setActiveTab(tab);
@@ -701,14 +713,20 @@ export default function AccountPage() {
                         <div className="p-2 rounded-xl bg-purple-500/10 text-purple-400"><User size={16} /></div>
                         <span className="text-sm text-[var(--text)]">Member Since</span>
                       </div>
-                      <span className="text-sm font-medium text-[var(--heading)]">12 May 2024</span>
+                      <span className="text-sm font-medium text-[var(--heading)]">
+                        {customer?.createdAt ? new Date(customer.createdAt).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' }) : 'Active Member'}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center py-2">
                       <div className="flex items-center gap-3">
                         <div className="p-2 rounded-xl bg-emerald-500/10 text-emerald-400"><Shield size={16} /></div>
                         <span className="text-sm text-[var(--text)]">Account Status</span>
                       </div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.2)] border border-emerald-500/20">Active</span>
+                      {customer?.is_blocked ? (
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.2)] border border-rose-500/20">Blocked</span>
+                      ) : (
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.2)] border border-emerald-500/20">Active</span>
+                      )}
                     </div>
                   </div>
                 </div>

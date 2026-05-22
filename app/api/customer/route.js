@@ -84,7 +84,15 @@ export async function POST(request) {
       const response = NextResponse.json({
         flag: 1,
         message: "Account created!",
-        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone, has_password: !!customer.password },
+        customer: {
+          id: customer._id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          has_password: !!customer.password,
+          createdAt: customer.createdAt,
+          is_blocked: customer.is_blocked
+        },
       });
 
       response.cookies.set({
@@ -138,7 +146,15 @@ export async function POST(request) {
       const response = NextResponse.json({
         flag: 1,
         message: "Login successful",
-        customer: { id: customer._id, name: customer.name, email: customer.email, phone: customer.phone, has_password: !!customer.password },
+        customer: {
+          id: customer._id,
+          name: customer.name,
+          email: customer.email,
+          phone: customer.phone,
+          has_password: !!customer.password,
+          createdAt: customer.createdAt,
+          is_blocked: customer.is_blocked
+        },
       });
 
       response.cookies.set({
@@ -209,7 +225,15 @@ export async function PUT(request) {
       return NextResponse.json({
         flag: 1,
         message: "Profile updated",
-        customer: { id: account._id, name: account.name, email: account.email, phone: account.phone, has_password: !!account.password },
+        customer: {
+          id: account._id,
+          name: account.name,
+          email: account.email,
+          phone: account.phone,
+          has_password: !!account.password,
+          createdAt: account.createdAt,
+          is_blocked: account.is_blocked
+        },
       });
     }
 
@@ -243,6 +267,34 @@ export async function PUT(request) {
       if (e.keyPattern?.email) return deny("Email already registered", 400);
       if (e.keyPattern?.phone) return deny("Phone number already in use", 400);
     }
-    return deny(e.message || "Server error", 500);
+  }
+}
+
+export async function GET(request) {
+  try {
+    await connectDB();
+
+    const decoded = verifyCustomer(request);
+    if (!decoded) return deny("Unauthorized", 401);
+
+    const account = await Customer.findById(decoded.id);
+    if (!account) return deny("User not found", 404);
+    if (account.is_blocked) return deny("Your account is blocked", 403);
+
+    return NextResponse.json({
+      flag: 1,
+      customer: {
+        id: account._id,
+        name: account.name,
+        email: account.email,
+        phone: account.phone,
+        createdAt: account.createdAt,
+        is_blocked: account.is_blocked,
+        has_password: !!account.password
+      }
+    });
+  } catch (e) {
+    console.error("[Customer] GET error:", e);
+    return deny("Server error", 500);
   }
 }
