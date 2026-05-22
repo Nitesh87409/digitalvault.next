@@ -36,7 +36,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: "Email OTP login is disabled" }, { status: 403 });
     }
 
-    const customer = await Customer.findOne({ email });
+    const customer = await Customer.findOne({ email }).select("is_blocked").lean();
     if (!customer) {
       return NextResponse.json({ flag: 1, message: GENERIC_OTP_MESSAGE, cooldown: settings.otp_resend_cooldown_seconds || 60 });
     }
@@ -45,7 +45,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 1, message: GENERIC_OTP_MESSAGE, cooldown: settings.otp_resend_cooldown_seconds || 60 });
     }
 
-    const existingOtp = await Otp.findOne({ identifier: email, type: "email" });
+    const existingOtp = await Otp.findOne({ identifier: email, type: "email" }).select("resend_after").lean();
     if (existingOtp && new Date() < existingOtp.resend_after) {
       const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
       return NextResponse.json({ flag: 0, message: `Please wait ${waitTime}s before resending.` }, { status: 429 });

@@ -74,40 +74,43 @@ export async function POST(request) {
       query.push({ email: verified.email });
     }
 
-    let customer = await Customer.findOne({ $or: query });
+    let customer = await Customer.findOne({ $or: query }).lean();
 
     if (!customer) {
-      customer = new Customer({
+      const createData = {
         name: verified.name || `${provider.charAt(0).toUpperCase() + provider.slice(1)} User`,
         email: verified.email || undefined,
         auth_provider: provider,
         is_verified: true,
         profile_image: verified.profile_image || undefined,
         last_login: new Date(),
-      });
-
-      customer[socialIdField] = verified.social_id;
-      await customer.save();
+        [socialIdField]: verified.social_id
+      };
+      const newCustomerDoc = await Customer.create(createData);
+      customer = newCustomerDoc.toObject ? newCustomerDoc.toObject() : newCustomerDoc;
     } else {
+      const updateData = {
+        auth_provider: provider,
+        last_login: new Date()
+      };
+
       if (!customer[socialIdField]) {
-        customer[socialIdField] = verified.social_id;
+        updateData[socialIdField] = verified.social_id;
       }
 
       if (verified.email && !customer.email) {
-        customer.email = verified.email;
+        updateData.email = verified.email;
       }
 
       if (verified.profile_image && !customer.profile_image) {
-        customer.profile_image = verified.profile_image;
+        updateData.profile_image = verified.profile_image;
       }
 
       if (verified.name && !customer.name) {
-        customer.name = verified.name;
+        updateData.name = verified.name;
       }
 
-      customer.auth_provider = provider;
-      customer.last_login = new Date();
-      await customer.save();
+      customer = await Customer.findOneAndUpdate({ _id: customer._id }, { $set: updateData }, { new: true }).lean();
     }
 
     if (customer.is_blocked) {

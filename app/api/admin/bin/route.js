@@ -114,7 +114,7 @@ export async function POST(request) {
       const { bin_id } = body;
       if (!bin_id) return json({ flag: 0, message: 'Bin item ID required' }, 400);
 
-      const binItem = await BinItem.findById(bin_id);
+      const binItem = await BinItem.findById(bin_id).lean();
       if (!binItem) return json({ flag: 0, message: 'Bin item not found' }, 404);
 
       const Model = MODEL_MAP[binItem.type];
@@ -152,11 +152,15 @@ export async function POST(request) {
 
       // Update all existing bin items' auto_delete_at
       if (days > 0) {
-        const items = await BinItem.find();
-        for (const item of items) {
-          item.auto_delete_at = new Date(item.deleted_at.getTime() + days * 24 * 60 * 60 * 1000);
-          await item.save();
-        }
+        await BinItem.updateMany({}, [
+          {
+            $set: {
+              auto_delete_at: {
+                $add: ["$deleted_at", days * 24 * 60 * 60 * 1000]
+              }
+            }
+          }
+        ]);
       } else {
         await BinItem.updateMany({}, { $unset: { auto_delete_at: 1 } });
       }

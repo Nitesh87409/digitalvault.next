@@ -14,13 +14,16 @@ export async function POST(request) {
 
     const normalizedPhone = phone.trim();
 
-    let settings = await Setting.findOne();
-    if (!settings) settings = await Setting.create({});
+    let settings = await Setting.findOne().lean();
+    if (!settings) {
+      const newSettings = await Setting.create({});
+      settings = newSettings.toObject ? newSettings.toObject() : newSettings;
+    }
     if (!settings.mobile_otp_enabled) {
       return NextResponse.json({ flag: 0, message: 'Mobile OTP login is disabled' }, { status: 403 });
     }
 
-    const otpRecord = await Otp.findOne({ identifier: normalizedPhone, type: 'mobile' });
+    const otpRecord = await Otp.findOne({ identifier: normalizedPhone, type: 'mobile' }).lean();
     if (!otpRecord) return NextResponse.json({ flag: 0, message: 'OTP not found or expired' });
 
     if (new Date() > otpRecord.expires_at) {
@@ -36,20 +39,18 @@ export async function POST(request) {
 
     const match = await bcrypt.compare(otp.toString(), otpRecord.otp_hash);
     if (!match) {
-      otpRecord.attempts += 1;
-      await otpRecord.save();
+      await Otp.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
       return NextResponse.json({ flag: 0, message: 'Invalid OTP' });
     }
 
     // Success
     await Otp.deleteOne({ _id: otpRecord._id });
 
-    const customer = await Customer.findOne({ phone: normalizedPhone });
+    const customer = await Customer.findOne({ phone: normalizedPhone }).lean();
     if (!customer) return NextResponse.json({ flag: 0, message: 'Customer not found' });
     if (customer.is_blocked) return NextResponse.json({ flag: 0, message: 'Account is blocked' });
 
-    customer.last_login = new Date();
-    await customer.save();
+    await Customer.updateOne({ _id: customer._id }, { last_login: new Date() });
 
     const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: 'customer' });
     const response = NextResponse.json({

@@ -36,7 +36,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: "Mobile OTP login is disabled" }, { status: 403 });
     }
 
-    const customer = await Customer.findOne({ phone });
+    const customer = await Customer.findOne({ phone }).select("is_blocked").lean();
     if (!customer) {
       return NextResponse.json({ flag: 1, message: GENERIC_OTP_MESSAGE, cooldown: settings.otp_resend_cooldown_seconds || 60 });
     }
@@ -45,7 +45,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 1, message: GENERIC_OTP_MESSAGE, cooldown: settings.otp_resend_cooldown_seconds || 60 });
     }
 
-    const existingOtp = await Otp.findOne({ identifier: phone, type: "mobile" });
+    const existingOtp = await Otp.findOne({ identifier: phone, type: "mobile" }).select("resend_after").lean();
     if (existingOtp && new Date() < existingOtp.resend_after) {
       const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
       return NextResponse.json({ flag: 0, message: `Please wait ${waitTime}s before resending.` }, { status: 429 });

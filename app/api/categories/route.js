@@ -6,7 +6,7 @@ import { verifyAdmin } from "@/lib/auth";
 export async function GET() {
   try {
     await connectDB();
-    const categories = await Category.find().sort({ createdAt: -1 });
+    const categories = await Category.find().sort({ createdAt: -1 }).lean();
     return NextResponse.json({ flag: true, categories });
   } catch (error) {
     return NextResponse.json({ flag: false, message: "Server error" }, { status: 500 });
@@ -31,7 +31,7 @@ export async function POST(request) {
 
     const slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
 
-    const existing = await Category.findOne({ slug });
+    const existing = await Category.findOne({ slug }).select('_id').lean();
     if (existing) {
       return NextResponse.json({ flag: false, message: "Category already exists" }, { status: 400 });
     }

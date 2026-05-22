@@ -15,7 +15,7 @@ function parseRating(value) {
 
 async function updateProductRatings(productId) {
   try {
-    const reviews = await Review.find({ product_id: productId, is_approved: true });
+    const reviews = await Review.find({ product_id: productId, is_approved: true }).select('rating').lean();
 
     const totalRating = reviews.reduce((sum, review) => sum + review.rating, 0);
     const average_rating = reviews.length > 0 ? (totalRating / reviews.length).toFixed(1) : 0;
@@ -48,7 +48,8 @@ export async function GET(request) {
     const reviews = await Review.find(query)
       .populate("product_id", "name images")
       .populate("customer_id", "name email")
-      .sort({ createdAt: -1 });
+      .sort({ createdAt: -1 })
+      .lean();
 
     return NextResponse.json({ flag: true, reviews });
   } catch (error) {

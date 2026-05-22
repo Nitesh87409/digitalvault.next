@@ -70,7 +70,7 @@ export async function DELETE(request, { params }) {
 
 async function updateProductRatings(productId) {
   try {
-    const reviews = await Review.find({ product_id: productId, is_approved: true });
+    const reviews = await Review.find({ product_id: productId, is_approved: true }).select('rating').lean();
     
     let totalRating = 0;
     reviews.forEach(r => { totalRating += r.rating; });

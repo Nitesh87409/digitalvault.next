@@ -21,7 +21,7 @@ async function runBundleMigration() {
         { product_name: { $exists: false } },
         { amount: { $gt: 9000 } }
       ]
-    });
+    }).lean();
     if (subscriptions.length > 0) {
       console.log(`[Migration] Running bundle migration for ${subscriptions.length} records...`);
       for (const sub of subscriptions) {
@@ -119,10 +119,16 @@ function toBundleSettings(settings = {}) {
   };
 }
 
-async function getSettingsDoc() {
+async function getSettingsDoc(lean = false) {
+  if (lean) {
+    const settings = await Setting.findOne().lean();
+    if (settings) return settings;
+  }
   let settings = await Setting.findOne();
-  if (!settings) settings = await Setting.create(DEFAULT_SETTINGS);
-  return settings;
+  if (!settings) {
+    settings = await Setting.create(DEFAULT_SETTINGS);
+  }
+  return lean && settings.toObject ? settings.toObject() : settings;
 }
 
 async function getSubscriptions() {
@@ -165,7 +171,7 @@ export async function GET(request) {
     await runBundleMigration();
 
     const [settingsDoc, products, subscriptions, revenueAgg] = await Promise.all([
-      getSettingsDoc(),
+      getSettingsDoc(true),
       Product.find()
         .select('name images sale_price original_price status included_in_bundle category')
         .sort({ createdAt: -1 })
@@ -197,7 +203,7 @@ export async function GET(request) {
 
     return json({
       flag: 1,
-      settings: toBundleSettings(settingsDoc.toObject()),
+      settings: toBundleSettings(settingsDoc),
       stats: {
         activeSubscriptions: stats.activeCount || 0,
         revenue: Math.round(stats.revenue || 0),
@@ -280,7 +286,7 @@ export async function POST(request) {
         product_id,
         { included_in_bundle: !!included_in_bundle },
         { new: true }
-      ).select('name included_in_bundle');
+      ).select('name included_in_bundle').lean();
 
       if (!product) return json({ flag: 0, message: 'Product not found' }, 404);
       return json({ flag: 1, message: 'Product updated', product });

@@ -67,7 +67,8 @@ export async function GET(request) {
 
     const reviews = await Review.find({ product_id: productId, is_approved: true })
       .populate('customer_id', 'name')
-      .sort({ is_featured: -1, createdAt: -1 });
+      .sort({ is_featured: -1, createdAt: -1 })
+      .lean();
 
     return NextResponse.json({ flag: true, reviews });
   } catch (error) {
@@ -130,7 +131,7 @@ export async function POST(request) {
 
 async function updateProductRatings(productId) {
   try {
-    const reviews = await Review.find({ product_id: productId, is_approved: true });
+    const reviews = await Review.find({ product_id: productId, is_approved: true }).select('rating').lean();
     
     let totalRating = 0;
     reviews.forEach(r => { totalRating += r.rating; });

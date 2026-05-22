@@ -39,14 +39,14 @@ export async function POST(request) {
          return NextResponse.json({ flag: 0, message: 'Mobile reset is disabled.' }, { status: 403 });
       }
 
-      const customer = await Customer.findOne(isEmail ? { email: identifier } : { phone: identifier });
+      const customer = await Customer.findOne(isEmail ? { email: identifier } : { phone: identifier }).select("is_blocked").lean();
       if (!customer || customer.is_blocked) {
         return NextResponse.json({ flag: 1, message: GENERIC_MSG, cooldown: settings.otp_resend_cooldown_seconds || 60 });
       }
 
       const type = isEmail ? 'reset-email' : 'reset-mobile';
       
-      const existingOtp = await Otp.findOne({ identifier, type });
+      const existingOtp = await Otp.findOne({ identifier, type }).select("resend_after").lean();
       if (existingOtp && new Date() < existingOtp.resend_after) {
         const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
         return NextResponse.json({ flag: 0, message: `Please wait ${waitTime}s before resending.` }, { status: 429 });
@@ -96,7 +96,7 @@ export async function POST(request) {
       const isEmail = identifier.includes('@');
       const type = isEmail ? 'reset-email' : 'reset-mobile';
 
-      const otpRecord = await Otp.findOne({ identifier, type });
+      const otpRecord = await Otp.findOne({ identifier, type }).lean();
       if (!otpRecord) return NextResponse.json({ flag: 0, message: 'OTP not found or expired' });
 
       if (new Date() > otpRecord.expires_at) {
@@ -104,7 +104,7 @@ export async function POST(request) {
         return NextResponse.json({ flag: 0, message: 'OTP has expired' });
       }
 
-      let settings = await Setting.findOne();
+      let settings = await Setting.findOne().lean();
       const maxAttempts = settings?.otp_max_attempts || 5;
       if (otpRecord.attempts >= maxAttempts) {
         await Otp.deleteOne({ _id: otpRecord._id });
@@ -113,18 +113,17 @@ export async function POST(request) {
 
       const match = await bcrypt.compare(otp, otpRecord.otp_hash);
       if (!match) {
-        otpRecord.attempts += 1;
-        await otpRecord.save();
+        await Otp.updateOne({ _id: otpRecord._id }, { $inc: { attempts: 1 } });
         return NextResponse.json({ flag: 0, message: 'Invalid OTP' });
       }
 
-      const customer = await Customer.findOne(isEmail ? { email: identifier } : { phone: identifier });
+      const customer = await Customer.findOne(isEmail ? { email: identifier } : { phone: identifier }).select("is_blocked").lean();
       if (!customer || customer.is_blocked) {
          return NextResponse.json({ flag: 0, message: 'Account not found or blocked' });
       }
 
-      customer.password = await bcrypt.hash(newPassword, 12);
-      await customer.save();
+      const passwordHash = await bcrypt.hash(newPassword, 12);
+      await Customer.updateOne({ _id: customer._id }, { password: passwordHash });
       await Otp.deleteOne({ _id: otpRecord._id });
 
       return NextResponse.json({ flag: 1, message: 'Password reset successful. You can now login.' });

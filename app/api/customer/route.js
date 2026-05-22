@@ -62,7 +62,7 @@ export async function POST(request) {
       }
 
       if (phone) {
-        const phoneExists = await Customer.findOne({ phone });
+        const phoneExists = await Customer.findOne({ phone }).select('_id').lean();
         if (phoneExists) {
           return deny("Phone number already in use", 400);
         }
@@ -125,7 +125,7 @@ export async function POST(request) {
         return deny("Too many login attempts. Please try again later.", 429);
       }
 
-      const customer = await Customer.findOne({ email });
+      const customer = await Customer.findOne({ email }).lean();
       if (!customer) {
         return deny("Invalid credentials", 401);
       }
@@ -139,8 +139,7 @@ export async function POST(request) {
         return deny("Invalid credentials", 401);
       }
 
-      customer.last_login = new Date();
-      await customer.save();
+      await Customer.updateOne({ _id: customer._id }, { $set: { last_login: new Date() } });
 
       const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: "customer" }, "30d");
       const response = NextResponse.json({
@@ -204,7 +203,7 @@ export async function PUT(request) {
       if (!name) return deny("Name is required", 400);
 
       if (email && email !== account.email) {
-        const emailExists = await Customer.findOne({ email, _id: { $ne: account._id } });
+        const emailExists = await Customer.findOne({ email, _id: { $ne: account._id } }).select('_id').lean();
         if (emailExists) {
           return deny("Email already registered", 400);
         }
@@ -212,7 +211,7 @@ export async function PUT(request) {
       }
 
       if (phone && phone !== account.phone) {
-        const phoneExists = await Customer.findOne({ phone, _id: { $ne: account._id } });
+        const phoneExists = await Customer.findOne({ phone, _id: { $ne: account._id } }).select('_id').lean();
         if (phoneExists) {
           return deny("Phone number already in use", 400);
         }
@@ -277,7 +276,7 @@ export async function GET(request) {
     const decoded = verifyCustomer(request);
     if (!decoded) return deny("Unauthorized", 401);
 
-    const account = await Customer.findById(decoded.id);
+    const account = await Customer.findById(decoded.id).select('_id name email phone createdAt is_blocked password').lean();
     if (!account) return deny("User not found", 404);
     if (account.is_blocked) return deny("Your account is blocked", 403);
 

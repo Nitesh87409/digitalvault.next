@@ -16,7 +16,7 @@ export async function PUT(request, { params }) {
     if (!newName) return NextResponse.json({ flag: false, message: "Category name is required" }, { status: 400 });
 
     const slug = newName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-    const existing = await Category.findOne({ slug, _id: { $ne: id } });
+    const existing = await Category.findOne({ slug, _id: { $ne: id } }).select('_id').lean();
     if (existing) return NextResponse.json({ flag: false, message: "Category already exists" }, { status: 400 });
 
     const oldCategory = await Category.findById(id).lean();

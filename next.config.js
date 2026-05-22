@@ -17,6 +17,8 @@ const nextConfig = {
       },
     ],
   },
+  compress: true,
+  poweredByHeader: false,
   serverExternalPackages: ['mongoose', 'bcryptjs', 'razorpay'],
 }
 

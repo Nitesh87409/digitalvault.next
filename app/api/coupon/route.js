@@ -119,7 +119,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: 'Discount must be greater than zero' });
 
     const normalizedCode = code.toUpperCase().trim();
-    const exists = await Coupon.findOne({ code: normalizedCode });
+    const exists = await Coupon.findOne({ code: normalizedCode }).select('_id').lean();
     if (exists) return NextResponse.json({ flag: 0, message: 'Coupon code already exists' });
 
     const coupon = await Coupon.create({
