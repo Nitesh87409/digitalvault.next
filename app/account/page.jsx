@@ -311,7 +311,7 @@ export default function AccountPage() {
             <div style={{ maxWidth: '1100px', margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
               <Link href="/" style={{ fontFamily: 'Syne,sans-serif', fontSize: '1.2rem', fontWeight: 700, color: '#f5c842', textDecoration: 'none', display: 'flex', alignItems: 'center', gap: '8px' }}>
                 {settings.app_logo ? (
-                  <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} />
+                  <img src={settings.app_logo} alt={settings.app_name} style={{ height: '28px', width: 'auto', objectFit: 'contain' }} loading="eager" />
                 ) : null}
                 {settings.app_name}
               </Link>
@@ -421,7 +421,7 @@ export default function AccountPage() {
                             <div key={i} className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4" style={{ background: 'var(--surface-muted)', border: '1px solid var(--line-soft)', borderRadius: '14px', padding: '18px' }}>
                               <Link href={`/product/${productId}`} className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0 no-underline" style={{ color: 'inherit' }}>
                                 <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', background: 'var(--surface-2)', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
+                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" alt="" /> : '📦'}
                                 </div>
                                 <div style={{ flex: 1, minWidth: 0 }}>
                                   <h3 style={{ fontWeight: 700, color: 'var(--heading)', fontSize: '0.95rem', marginBottom: '2px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{productName}</h3>
@@ -609,7 +609,7 @@ export default function AccountPage() {
           <div className="mb-5 flex items-center justify-between gap-3">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide flex items-center gap-2">
               {settings.app_logo ? (
-                <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" />
+                <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" loading="eager" />
               ) : null}
               {settings.app_name}
             </motion.div>
@@ -753,7 +753,7 @@ export default function AccountPage() {
                          <div key={i} className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
                             <Link href={`/product/${productId}`} className="flex items-center gap-3.5 min-w-0 flex-1 no-underline" style={{ color: 'inherit' }}>
                               <div className="w-[52px] h-[52px] rounded-[14px] overflow-hidden bg-black/50 border border-white/5 flex-shrink-0 flex items-center justify-center text-xl">
-                                 {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" alt="" /> : '📦'}
+                                 {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                               </div>
                               <div className="min-w-0">
                                 <h4 className="text-[13px] font-bold text-[var(--heading)] truncate">{productName}</h4>

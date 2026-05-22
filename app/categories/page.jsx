@@ -374,7 +374,7 @@ export default function CategoriesPage() {
                       {matchedProducts.map(p => (
                         <button key={p.id || p._id} onClick={() => handleSearchProduct(p)} className="flex items-center gap-3 p-3 bg-[var(--surface-muted)] rounded-xl border border-[var(--line)] text-left cursor-pointer hover:bg-[var(--surface)] transition-colors">
                           <div className="w-10 h-10 rounded-lg overflow-hidden bg-[var(--surface-muted)] shrink-0 flex items-center justify-center">
-                            {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" alt="" /> : <Box size={20} className="text-[var(--muted-2)] m-2"/>}
+                            {p.images?.[0] ? <img src={p.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : <Box size={20} className="text-[var(--muted-2)] m-2"/>}
                           </div>
                           <div className="flex-1 min-w-0">
                             <div className="text-[var(--heading)] text-sm font-medium whitespace-nowrap overflow-hidden text-ellipsis">{p.name}</div>

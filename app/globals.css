@@ -58,7 +58,7 @@ body {
 }
 
 body {
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
   background: var(--bg);
   color: var(--text);
   overflow-x: hidden; /* keeps layout from ever forcing horizontal scroll */
@@ -70,7 +70,7 @@ html, body {
 }
 
 h1, h2, h3, h4, h5 {
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-syne), 'Syne', sans-serif;
 }
 
 /* Mobile-first overflow prevention (prevents horizontal scroll & clipping) */
@@ -105,7 +105,7 @@ input, textarea, select, button {
 .gold-btn {
   background: linear-gradient(135deg, var(--gold), var(--gold-strong));
   color: #0a0a0f;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-syne), 'Syne', sans-serif;
   font-weight: 700;
   border: none;
   cursor: pointer;
@@ -144,7 +144,7 @@ input, textarea, select, button {
   padding: 12px 16px;
   border-radius: 12px;
   font-size: 0.875rem;
-  font-family: 'DM Sans', sans-serif;
+  font-family: var(--font-dm-sans), 'DM Sans', sans-serif;
 }
 .inp:focus {
   border-color: rgba(245, 200, 66, 0.5);
@@ -161,7 +161,7 @@ input, textarea, select, button {
   font-weight: 700;
   padding: 3px 10px;
   border-radius: 999px;
-  font-family: 'Syne', sans-serif;
+  font-family: var(--font-syne), 'Syne', sans-serif;
   letter-spacing: 1px;
   text-transform: uppercase;
   display: inline-block;

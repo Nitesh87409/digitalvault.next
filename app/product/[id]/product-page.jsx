@@ -202,7 +202,7 @@ export default function ProductPage({ id }) {
               {/* Main Image */}
               <div className="mb-4">
                 {mainImg ? (
-                  <img src={mainImg} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" />
+                  <img src={mainImg} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
                 ) : (
                   <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#f5c842]/15 bg-[var(--surface)] text-8xl">📦</div>
                 )}
@@ -216,6 +216,7 @@ export default function ProductPage({ id }) {
                       src={img}
                       alt={`${product.name} ${i + 1}`}
                       onClick={() => setMainImg(img)}
+                      loading="lazy"
                       className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] object-cover rounded-xl cursor-pointer shrink-0 transition-colors border-2 ${mainImg === img ? 'border-[#f5c842]' : 'border-transparent'}`}
                     />
                   ))}

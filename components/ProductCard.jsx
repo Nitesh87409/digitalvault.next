@@ -40,6 +40,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
             src={optimizeCloudinary(product.images[0])}
             alt={product.name}
             className="w-full h-full object-cover"
+            loading="lazy"
             onError={() => setImgError(true)}
           />
         ) : null}

@@ -1,5 +1,20 @@
 import './globals.css';
 import MobileBottomNav from '@/components/MobileBottomNav';
+import { Syne, DM_Sans } from 'next/font/google';
+
+const syne = Syne({
+  subsets: ['latin'],
+  weight: ['400', '600', '700', '800'],
+  variable: '--font-syne',
+  display: 'swap',
+});
+
+const dmSans = DM_Sans({
+  subsets: ['latin'],
+  weight: ['300', '400', '500'],
+  variable: '--font-dm-sans',
+  display: 'swap',
+});
 
 export async function generateMetadata() {
   const appName = process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault';
@@ -11,7 +26,7 @@ export async function generateMetadata() {
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="en" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <head suppressHydrationWarning>
         <script
           suppressHydrationWarning
@@ -28,12 +43,6 @@ export default function RootLayout({ children }) {
               })();
             `,
           }}
-        />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link
-          href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
-          rel="stylesheet"
         />
       </head>
       <body>

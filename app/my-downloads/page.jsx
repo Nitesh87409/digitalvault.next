@@ -122,7 +122,7 @@ export default function MyDownloadsPage() {
               {items.map(item => (
                 <div key={item.key} className="theme-card flex flex-col gap-4 rounded-2xl p-4 sm:flex-row sm:items-center">
                   <div className="h-16 w-16 shrink-0 overflow-hidden rounded-xl bg-[var(--surface-muted)] flex items-center justify-center">
-                    {item.image ? <img src={item.image} alt="" className="h-full w-full object-cover" /> : <span className="text-2xl">📦</span>}
+                    {item.image ? <img src={item.image} alt="" className="h-full w-full object-cover" loading="lazy" /> : <span className="text-2xl">📦</span>}
                   </div>
                   <div className="min-w-0 flex-1">
                     <div className="mb-2 flex flex-wrap items-center gap-2">

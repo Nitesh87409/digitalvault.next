@@ -113,7 +113,7 @@ export default function MyOrdersPage() {
                   return (
                     <div key={i} style={{ background: '#12121a', border: '1px solid rgba(245,200,66,0.1)', borderRadius: '14px', padding: '20px', display: 'flex', alignItems: 'center', gap: '16px' }}>
                       <div style={{ width: '64px', height: '64px', borderRadius: '10px', overflow: 'hidden', background: '#1a1a2a', flexShrink: 0, display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '1.5rem' }}>
-                        {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt="" /> : '📦'}
+                        {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} style={{ width: '100%', height: '100%', objectFit: 'cover' }} loading="lazy" alt="" /> : '📦'}
                       </div>
                       <div style={{ flex: 1 }}>
                         <h3 style={{ fontWeight: 700, color: '#fff', marginBottom: '4px' }}>{productName}</h3>
