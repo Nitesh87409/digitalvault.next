@@ -288,9 +288,9 @@ export default function HomePage() {
               <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f5c842]/10 blur-[80px] pointer-events-none" />
               <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#7c3aed]/5 blur-[80px] pointer-events-none" />
               
-              <div className="relative z-10 grid grid-cols-12 gap-3 sm:gap-6 md:gap-8 items-center">
+              <div className="relative z-10 grid grid-cols-12 gap-2.5 sm:gap-6 md:gap-8 items-center">
                 {/* Left Column: Title & Highlights */}
-                <div className="col-span-7 sm:col-span-7 space-y-2 sm:space-y-4 md:space-y-6">
+                <div className="col-span-6 sm:col-span-7 space-y-2 sm:space-y-4 md:space-y-6">
                   <div className="inline-flex items-center gap-1 sm:gap-2 rounded-full border border-[#f5c842]/20 bg-[#f5c842]/10 px-1.5 py-0.5 sm:px-3 sm:py-1 text-[8px] sm:text-xs font-bold uppercase tracking-wider text-[#f5c842]">
                     <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                       <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#f5c842] opacity-75"></span>
@@ -321,7 +321,7 @@ export default function HomePage() {
                 </div>
 
                 {/* Right Column: Countdown, Price & CTA */}
-                <div className="col-span-5 sm:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-2 sm:p-4 md:p-8 flex flex-col gap-2 sm:gap-4 md:gap-6">
+                <div className="col-span-6 sm:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-2 sm:p-4 md:p-8 flex flex-col gap-2 sm:gap-4 md:gap-6">
                   {/* Countdown */}
                   {settings.bundle_timer_enabled && (
                     isTimerExpired && (settings.bundle_timer_action === 'disable_checkout' || settings.bundle_timer_action === 'show_expired') ? (
@@ -338,13 +338,13 @@ export default function HomePage() {
                         <div className="mb-1 sm:mb-2 text-center text-[7px] sm:text-[10px] md:text-xs font-semibold uppercase tracking-wider text-[var(--muted-2)]">
                           Offer Ending Soon:
                         </div>
-                        <div className="flex justify-center gap-1 sm:gap-1.5 md:gap-3">
+                        <div className="flex justify-center gap-0.5 xs:gap-1 sm:gap-1.5 md:gap-3">
                           {[{ val: countdown.d, label: 'Days' }, { val: countdown.h, label: 'Hours' }, { val: countdown.m, label: 'Mins' }, { val: countdown.s, label: 'Secs' }].map(c => (
-                            <div key={c.label} className="flex flex-col items-center min-w-[28px] xs:min-w-[32px] sm:min-w-[50px] md:min-w-[60px] rounded-lg sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-1 px-0.5 sm:py-1.5 sm:px-2 md:py-2 md:px-3">
-                              <span className="font-syne text-[10px] xs:text-xs sm:text-base md:text-2xl font-bold text-[#f5c842] whitespace-nowrap">
+                            <div key={c.label} className="flex flex-col items-center min-w-[24px] xs:min-w-[28px] sm:min-w-[50px] md:min-w-[60px] rounded-md sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-0.5 px-0.5 sm:py-1.5 sm:px-2 md:py-2 md:px-3">
+                              <span className="font-syne text-[9px] xs:text-[10px] sm:text-base md:text-2xl font-bold text-[#f5c842] whitespace-nowrap">
                                 {c.val}
                               </span>
-                              <span className="text-[5px] xs:text-[6px] sm:text-[8px] md:text-[10px] text-[var(--muted-2)] uppercase font-semibold">
+                              <span className="text-[4px] xs:text-[5px] sm:text-[8px] md:text-[10px] text-[var(--muted-2)] uppercase font-semibold">
                                 {c.label}
                               </span>
                             </div>
@@ -358,13 +358,13 @@ export default function HomePage() {
                   <div className="flex items-center justify-between border-t border-b border-[var(--line)] py-1.5 sm:py-3 md:py-4 px-0.5 sm:px-1 md:px-2">
                     <div className="flex flex-col">
                       <span className="text-[7px] sm:text-[10px] md:text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
-                      <span className="text-[10px] sm:text-sm md:text-lg text-[var(--muted-2)] line-through">
+                      <span className="text-[10px] sm:text-sm md:text-lg text-[var(--muted-2)] line-through whitespace-nowrap">
                         ₹{(settings.bundle_original_price || 8497).toLocaleString()}
                       </span>
                     </div>
                     <div className="flex flex-col items-end">
                       <span className="text-[7px] sm:text-[10px] md:text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
-                      <span className="font-syne text-xs xs:text-sm sm:text-xl md:text-3xl font-extrabold text-[var(--heading)]">
+                      <span className="font-syne text-xs xs:text-sm sm:text-xl md:text-3xl font-extrabold text-[var(--heading)] whitespace-nowrap">
                         ₹{(settings.bundle_price || 207).toLocaleString()}
                       </span>
                     </div>
