@@ -167,19 +167,19 @@ export default function CategoriesPage() {
       <main className="theme-page pt-20 pb-[100px]">
         
         {/* TOP SECTION */}
-        <div className="pt-8 md:pt-12 pb-6 md:pb-8 px-6 md:px-8 max-w-[1152px] mx-auto">
-          <h1 className="text-3xl md:text-[2.5rem] font-extrabold text-[var(--heading)] mb-2 md:mb-4 font-['Syne',sans-serif]">
+        <div className="pt-4 md:pt-12 pb-3 md:pb-8 px-5 md:px-8 max-w-[1152px] mx-auto">
+          <h1 className="text-xl md:text-[2.5rem] font-extrabold text-[var(--heading)] mb-1 md:mb-4 font-['Syne',sans-serif]">
             Categories
           </h1>
-          <p className="text-[var(--muted)] text-[0.95rem] md:text-base">
+          <p className="text-[var(--muted)] text-[0.78rem] md:text-base">
             Browse our premium digital products by category
           </p>
         </div>
 
         {/* HORIZONTAL CATEGORY SECTION */}
-        <div className="pb-8 md:pb-12 w-full">
+        <div className="pb-4 md:pb-12 w-full">
           <div className="max-w-[1152px] mx-auto md:px-8">
-            <div className="flex flex-nowrap md:flex-wrap gap-4 md:gap-5 px-6 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible" style={{ WebkitOverflowScrolling: 'touch' }}>
               <style jsx>{`
                 .hide-scrollbar::-webkit-scrollbar { display: none; }
                 .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
@@ -187,10 +187,10 @@ export default function CategoriesPage() {
               
               <button
                 onClick={() => setActiveTab('All')}
-                className={`flex flex-col items-center justify-center gap-2.5 py-4 px-3 md:py-5 md:px-6 md:flex-1 min-w-[88px] shrink-0 rounded-[20px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border ${activeTab === 'All' ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_20px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)] hover:-translate-y-1' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)] hover:-translate-y-1'}`}
+                className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border ${activeTab === 'All' ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
               >
-                <LayoutGridIcon active={activeTab === 'All'} />
-                <span className={`text-[0.8rem] md:text-[0.9rem] font-semibold ${activeTab === 'All' ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>All</span>
+                <div className="scale-75 md:scale-100"><LayoutGridIcon active={activeTab === 'All'} /></div>
+                <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${activeTab === 'All' ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>All</span>
               </button>
 
               {categories.map(cat => {
@@ -199,10 +199,10 @@ export default function CategoriesPage() {
                   <button
                     key={cat.name}
                     onClick={() => router.push(`/categories/${encodeURIComponent(cat.name)}`)}
-                    className={`flex flex-col items-center justify-center gap-2.5 py-4 px-3 md:py-5 md:px-6 md:flex-1 min-w-[88px] shrink-0 rounded-[20px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border group ${isActive ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_20px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)] hover:-translate-y-1' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)] hover:-translate-y-1'}`}
+                    className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border group ${isActive ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
                   >
-                    <div className={`flex items-center justify-center scale-100 md:scale-110 transition-transform ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>{cat.icon}</div>
-                    <span className={`text-[0.8rem] md:text-[0.9rem] font-semibold ${isActive ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>{cat.name}</span>
+                    <div className={`flex items-center justify-center scale-75 md:scale-110 transition-transform ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>{cat.icon}</div>
+                    <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${isActive ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>{cat.name}</span>
                   </button>
                 )
               })}
@@ -219,34 +219,34 @@ export default function CategoriesPage() {
           <div className="max-w-[1152px] mx-auto px-6 md:px-8">
             
             {/* POPULAR CATEGORIES SECTION */}
-            <div className="mb-12 md:mb-16">
-              <h2 className="text-xl md:text-2xl font-bold text-[var(--heading)] mb-5 md:mb-8 font-['Syne',sans-serif]">
+            <div className="mb-6 md:mb-16">
+              <h2 className="text-base md:text-2xl font-bold text-[var(--heading)] mb-3 md:mb-8 font-['Syne',sans-serif]">
                 Popular Categories
               </h2>
-              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8">
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
                 {displayPopular.map(cat => (
                   <Link 
                     key={cat.name} 
                     href={`/categories/${encodeURIComponent(cat.name)}`}
                     className="no-underline group"
                   >
-                    <div className="theme-card p-5 md:p-6 lg:p-8 h-full flex flex-col relative rounded-3xl md:rounded-[2rem] overflow-hidden transition-all duration-300 hover:-translate-y-2 hover:border-[#f5c842]/30 hover:shadow-[0_15px_40px_rgba(245,200,66,0.15)]">
-                      <div className="w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-2xl md:rounded-[1.25rem] bg-[#f5c842]/10 flex items-center justify-center mb-5 md:mb-6 lg:mb-8 border border-[#f5c842]/15 shadow-[inset_0_0_20px_rgba(245,200,66,0.05)]">
-                        <div className="scale-100 md:scale-110 lg:scale-125 transition-transform duration-300 group-hover:scale-110 lg:group-hover:scale-[1.35]">{cat.largeIcon}</div>
+                    <div className="theme-card p-3.5 md:p-6 lg:p-8 h-full flex flex-col relative rounded-2xl md:rounded-[2rem] overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:border-[#f5c842]/30 hover:shadow-[0_10px_30px_rgba(245,200,66,0.12)]">
+                      <div className="w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-xl md:rounded-[1.25rem] bg-[#f5c842]/10 flex items-center justify-center mb-3 md:mb-6 lg:mb-8 border border-[#f5c842]/15">
+                        <div className="scale-75 md:scale-110 lg:scale-125 transition-transform duration-300">{cat.largeIcon}</div>
                       </div>
                       
-                      <h3 className="text-lg md:text-xl font-bold text-[var(--heading)] mb-1.5 md:mb-3">{cat.name}</h3>
-                      <p className="text-[var(--muted)] text-xs md:text-sm leading-relaxed flex-1 mb-6 md:mb-8">
+                      <h3 className="text-sm md:text-xl font-bold text-[var(--heading)] mb-1 md:mb-3">{cat.name}</h3>
+                      <p className="text-[var(--muted)] text-[0.7rem] md:text-sm leading-snug flex-1 mb-3 md:mb-8 line-clamp-2">
                         {cat.desc}
                       </p>
                       
                       <div className="flex items-center justify-between mt-auto">
-                        <span className="bg-[var(--surface-muted)] text-[var(--text)] text-[11px] md:text-xs py-1.5 px-3 rounded-full font-semibold border border-[var(--line)]">
+                        <span className="bg-[var(--surface-muted)] text-[var(--text)] text-[10px] md:text-xs py-1 px-2 md:py-1.5 md:px-3 rounded-full font-semibold border border-[var(--line)]">
                           {cat.count} {cat.count === 1 ? 'Product' : 'Products'}
                         </span>
                         
-                        <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#f5c842]/10 flex items-center justify-center text-[#f5c842] transition-transform duration-300 group-hover:translate-x-1">
-                          <ArrowRight size={14} className="md:w-5 md:h-5" />
+                        <div className="w-6 h-6 md:w-10 md:h-10 rounded-full bg-[#f5c842]/10 flex items-center justify-center text-[#f5c842] transition-transform duration-300 group-hover:translate-x-1">
+                          <ArrowRight size={12} className="md:w-5 md:h-5" />
                         </div>
                       </div>
                     </div>
@@ -257,33 +257,33 @@ export default function CategoriesPage() {
 
             {/* ALL CATEGORIES SECTION */}
             <div>
-              <h2 className="text-xl md:text-2xl font-bold text-[var(--heading)] mb-5 md:mb-8 font-['Syne',sans-serif]">
+              <h2 className="text-base md:text-2xl font-bold text-[var(--heading)] mb-3 md:mb-8 font-['Syne',sans-serif]">
                 All Categories
               </h2>
-              <div className="flex flex-col gap-3 md:gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+              <div className="flex flex-col gap-2 md:gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
                 {displayAll.map(cat => (
                   <Link 
                     key={`all-${cat.name}`} 
                     href={`/categories/${encodeURIComponent(cat.name)}`}
                     className="no-underline group"
                   >
-                    <div className="p-4 px-5 md:p-5 md:px-6 flex items-center gap-4 md:gap-6 bg-[var(--surface-muted)] border border-[var(--line)] rounded-2xl md:rounded-3xl transition-all duration-300 group-hover:bg-[var(--surface)] group-hover:border-[#f5c842]/30 group-hover:-translate-y-1 hover:shadow-[var(--shadow-soft)]">
-                      <div className="w-12 h-12 md:w-16 md:h-16 rounded-xl md:rounded-2xl bg-[#f5c842]/5 flex items-center justify-center shrink-0">
-                        <div className="scale-[0.85] md:scale-100">{cat.largeIcon}</div>
+                    <div className="p-3 px-3.5 md:p-5 md:px-6 flex items-center gap-3 md:gap-6 bg-[var(--surface-muted)] border border-[var(--line)] rounded-xl md:rounded-3xl transition-all duration-300 group-hover:bg-[var(--surface)] group-hover:border-[#f5c842]/30 hover:shadow-[var(--shadow-soft)]">
+                      <div className="w-9 h-9 md:w-16 md:h-16 rounded-lg md:rounded-2xl bg-[#f5c842]/5 flex items-center justify-center shrink-0">
+                        <div className="scale-[0.65] md:scale-100">{cat.largeIcon}</div>
                       </div>
                       
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-base md:text-lg font-semibold text-[var(--heading)] mb-1 md:mb-1.5">{cat.name}</h3>
-                        <p className="text-[var(--muted)] text-xs md:text-sm whitespace-nowrap overflow-hidden text-ellipsis">
+                        <h3 className="text-sm md:text-lg font-semibold text-[var(--heading)] mb-0.5 md:mb-1.5">{cat.name}</h3>
+                        <p className="text-[var(--muted)] text-[0.68rem] md:text-sm whitespace-nowrap overflow-hidden text-ellipsis">
                           {cat.desc}
                         </p>
                       </div>
 
-                      <div className="flex items-center gap-4 shrink-0">
-                        <span className="text-[var(--muted-2)] text-xs md:text-sm font-semibold">
+                      <div className="flex items-center gap-2 md:gap-4 shrink-0">
+                        <span className="text-[var(--muted-2)] text-[10px] md:text-sm font-semibold">
                           {cat.count} {cat.count === 1 ? 'Product' : 'Products'}
                         </span>
-                        <ArrowRight size={18} className="text-gray-500 group-hover:text-gray-300 transition-colors md:w-6 md:h-6 group-hover:translate-x-1 duration-300" />
+                        <ArrowRight size={14} className="text-gray-500 group-hover:text-gray-300 transition-colors group-hover:translate-x-1 duration-300" />
                       </div>
                     </div>
                   </Link>
