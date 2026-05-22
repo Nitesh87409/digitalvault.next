@@ -1,12 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function AdminReviews() {
   const [reviews, setReviews] = useState([]);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
   
   const [filterProduct, setFilterProduct] = useState('');
   const [filterRating, setFilterRating] = useState('');
@@ -117,17 +119,22 @@ export default function AdminReviews() {
     setSaving(false);
   }
 
-  async function deleteReview(id) {
-    if (!confirm('Are you sure you want to delete this review?')) return;
+  async function softDeleteReview(id) {
     try {
-      const res = await fetch(`/api/admin/reviews?id=${id}`, { method: 'DELETE', headers });
+      const res = await fetch('/api/admin/bin', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ action: 'soft-delete', type: 'review', id })
+      });
       const data = await res.json();
       if (data.flag) {
         loadReviews();
       } else {
-        alert(data.message);
+        setError(data.message || 'Error moving to bin');
       }
-    } catch (e) {}
+    } catch (e) {
+      setError('Server error.');
+    }
   }
 
   async function toggleStatus(id, field, currentValue) {
@@ -231,7 +238,7 @@ export default function AdminReviews() {
                       <td className="p-4 text-right">
                         <div className="flex justify-end gap-2">
                           <button onClick={() => openModal(review)} className="px-3 py-1.5 rounded bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 cursor-pointer text-xs transition-colors">Edit</button>
-                          <button onClick={() => deleteReview(review._id)} className="px-3 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
+                          <button onClick={() => setDeleteTarget(review)} className="px-3 py-1.5 rounded bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
                         </div>
                       </td>
                     </tr>
@@ -328,6 +335,12 @@ export default function AdminReviews() {
           </div>
         </div>
       )}
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => softDeleteReview(deleteTarget?._id)}
+        itemName={deleteTarget ? `${deleteTarget.customer_name}'s review` : ''}
+      />
     </>
   );
 }

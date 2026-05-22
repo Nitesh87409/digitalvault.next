@@ -64,6 +64,7 @@ export default function AdminLayout({ children }) {
     { href: '/admin/customers', id: 'customers', icon: '👥', label: 'All Customers' },
     { href: '/admin/reviews', id: 'reviews', icon: '⭐', label: 'Reviews' },
     { href: '/admin/homepage-content', id: 'homepage-content', icon: '🏠', label: 'Homepage Content' },
+    { href: '/admin/bin', id: 'bin', icon: '🗑️', label: 'Recycle Bin' },
     { href: '/admin/settings', id: 'settings', icon: '⚙️', label: 'Settings' },
   ];
 

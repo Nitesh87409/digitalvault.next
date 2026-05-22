@@ -1,12 +1,14 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function AdminHomepageContent() {
   const [activeTab, setActiveTab] = useState('reviews');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   // FAQs State
   const [faqs, setFaqs] = useState([]);
@@ -166,19 +168,22 @@ export default function AdminHomepageContent() {
     setSaving(false);
   }
 
-  async function deleteFaq(id) {
-    if (!confirm('Are you sure you want to delete this FAQ?')) return;
+  async function softDeleteFaq(id) {
     try {
-      const res = await fetch(`/api/admin/faqs?id=${id}`, { method: 'DELETE', headers });
+      const res = await fetch('/api/admin/bin', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ action: 'soft-delete', type: 'faq', id })
+      });
       const data = await res.json();
       if (data.flag) {
-        showFeedback('FAQ deleted successfully! 🗑️');
+        showFeedback('FAQ moved to recycle bin! 🗑️');
         loadData();
       } else {
-        showFeedback(data.message || 'Error deleting FAQ.', false);
+        showFeedback(data.message || 'Error moving FAQ to bin.', false);
       }
     } catch (e) {
-      showFeedback('Server error deleting FAQ.', false);
+      showFeedback('Server error moving FAQ to bin.', false);
     }
   }
 
@@ -265,19 +270,22 @@ export default function AdminHomepageContent() {
     setSaving(false);
   }
 
-  async function deleteReview(id) {
-    if (!confirm('Are you sure you want to delete this testimonial?')) return;
+  async function softDeleteTestimonial(id) {
     try {
-      const res = await fetch(`/api/admin/homepage-reviews?id=${id}`, { method: 'DELETE', headers });
+      const res = await fetch('/api/admin/bin', {
+        method: 'POST',
+        headers,
+        body: JSON.stringify({ action: 'soft-delete', type: 'testimonial', id })
+      });
       const data = await res.json();
       if (data.flag) {
-        showFeedback('Testimonial deleted successfully! 🗑️');
+        showFeedback('Testimonial moved to recycle bin! 🗑️');
         loadData();
       } else {
-        showFeedback(data.message || 'Error deleting testimonial.', false);
+        showFeedback(data.message || 'Error moving testimonial to bin.', false);
       }
     } catch (e) {
-      showFeedback('Server error deleting testimonial.', false);
+      showFeedback('Server error moving testimonial to bin.', false);
     }
   }
 
@@ -403,7 +411,7 @@ export default function AdminHomepageContent() {
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => openReviewModal(review)} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 cursor-pointer text-xs transition-colors">Edit</button>
-                            <button onClick={() => deleteReview(review._id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
+                            <button onClick={() => setDeleteTarget({ type: 'testimonial', item: review })} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -455,7 +463,7 @@ export default function AdminHomepageContent() {
                         <td className="p-4 text-right">
                           <div className="flex justify-end gap-2">
                             <button onClick={() => openFaqModal(faq)} className="px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 text-gray-300 border border-white/10 cursor-pointer text-xs transition-colors">Edit</button>
-                            <button onClick={() => deleteFaq(faq._id)} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
+                            <button onClick={() => setDeleteTarget({ type: 'faq', item: faq })} className="px-3 py-1.5 rounded-lg bg-red-500/10 hover:bg-red-500/20 text-red-500 border border-red-500/20 cursor-pointer text-xs transition-colors">Delete</button>
                           </div>
                         </td>
                       </tr>
@@ -709,7 +717,18 @@ export default function AdminHomepageContent() {
           </div>
         </div>
       )}
-
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => {
+          if (deleteTarget.type === 'faq') {
+            return softDeleteFaq(deleteTarget.item._id);
+          } else {
+            return softDeleteTestimonial(deleteTarget.item._id);
+          }
+        }}
+        itemName={deleteTarget?.type === 'faq' ? deleteTarget.item.q : deleteTarget?.item.name}
+      />
     </>
   );
 }

@@ -298,8 +298,10 @@ export default function CartPage() {
               {settings.app_name}
             </Link>
             <div style={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-              <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
-              <Link href="/account" style={{ fontSize: '0.875rem', color: 'var(--muted)', textDecoration: 'none' }}>My Account</Link>
+              <div className="hidden sm:flex items-center gap-4">
+                <Link href="/" style={{ fontSize: '0.875rem', color: 'var(--muted-2)', textDecoration: 'none' }}>← Continue Shopping</Link>
+                <Link href="/account" style={{ fontSize: '0.875rem', color: 'var(--muted)', textDecoration: 'none' }}>My Account</Link>
+              </div>
               <ThemeToggle />
             </div>
           </div>

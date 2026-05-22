@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function AdminCategories() {
   const [categories, setCategories] = useState([]);
@@ -12,6 +13,7 @@ export default function AdminCategories() {
   const [editName, setEditName] = useState('');
   const [editSaving, setEditSaving] = useState(false);
   const [products, setProducts] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const router = useRouter();
   const headers = { 'Content-Type': 'application/json' };
 
@@ -79,18 +81,17 @@ export default function AdminCategories() {
     setEditSaving(false);
   }
 
-  async function deleteCategory(id) {
-    const count = getProductCount(categories.find(c => c._id === id)?.name);
-    const msg = count > 0
-      ? `This category has ${count} products linked. Are you sure you want to delete it?`
-      : 'Are you sure you want to delete this category?';
-    if (!confirm(msg)) return;
-    const res = await fetch(`/api/categories/${id}`, { method: 'DELETE', headers });
+  async function softDeleteCategory(id) {
+    const res = await fetch('/api/admin/bin', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'soft-delete', type: 'category', id })
+    });
     const data = await res.json();
     if (data.flag) {
       loadCategories();
     } else {
-      alert(data.message);
+      setError(data.message || 'Error moving to bin');
     }
   }
 
@@ -180,7 +181,7 @@ export default function AdminCategories() {
                             ✏️ Rename
                           </button>
                           <button 
-                            onClick={() => deleteCategory(c._id)} 
+                            onClick={() => setDeleteTarget(c)} 
                             className="bg-red-500/10 text-red-500 border-none px-3 py-1.5 rounded-lg cursor-pointer text-xs font-bold hover:bg-red-500/20 transition-colors"
                           >
                             Delete
@@ -195,6 +196,12 @@ export default function AdminCategories() {
           </div>
         </div>
       </div>
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => softDeleteCategory(deleteTarget?._id)}
+        itemName={deleteTarget?.name}
+      />
     </>
   );
 }

@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter, useSearchParams } from 'next/navigation';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function AdminDashboard() {
   const [tab, setTab] = useState('dashboard');
@@ -29,6 +30,7 @@ export default function AdminDashboard() {
   const [orderSearch, setOrderSearch] = useState('');
   const [orderStatusFilter, setOrderStatusFilter] = useState('all');
   const [orderDetail, setOrderDetail] = useState(null);
+  const [deleteTarget, setDeleteTarget] = useState(null);
 
   const headers = { 'Content-Type': 'application/json' };
 
@@ -153,10 +155,14 @@ export default function AdminDashboard() {
     setSaving(false);
   }
 
-  async function deleteProduct(id) {
-    if (!confirm('Delete this product?')) return;
-    await fetch(`/api/product/${id}`, { method: 'DELETE', headers });
-    loadProducts(); loadAll();
+  async function softDeleteProduct(id) {
+    const res = await fetch('/api/admin/bin', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'soft-delete', type: 'product', id })
+    });
+    const data = await res.json();
+    if (data.flag) { loadProducts(); loadAll(); }
   }
 
   async function toggleProductStatus(product) {
@@ -459,7 +465,7 @@ export default function AdminDashboard() {
                     {p.status === false ? '👁️' : '🙈'}
                   </button>
                   <button onClick={() => openModal(p)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-[#f5c842] bg-[#f5c842]/10 border border-[#f5c842]/20 cursor-pointer hover:bg-[#f5c842]/20 transition-colors">Edit</button>
-                  <button onClick={() => deleteProduct(p._id)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-red-500 bg-red-500/10 border border-red-500/20 cursor-pointer hover:bg-red-500/20 transition-colors">Delete</button>
+                  <button onClick={() => setDeleteTarget(p)} className="flex-1 sm:flex-none px-4 py-2 rounded-lg text-sm font-semibold text-red-500 bg-red-500/10 border border-red-500/20 cursor-pointer hover:bg-red-500/20 transition-colors">Delete</button>
                 </div>
               </div>
             ))}
@@ -691,6 +697,13 @@ export default function AdminDashboard() {
           </style>
         </div>
       )}
+      {/* Delete Confirm Modal */}
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => softDeleteProduct(deleteTarget?._id)}
+        itemName={deleteTarget?.name}
+      />
     </>
   );
 }

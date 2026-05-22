@@ -2,9 +2,11 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import DeleteConfirmModal from '@/components/DeleteConfirmModal';
 
 export default function AdminCoupons() {
   const [coupons, setCoupons] = useState([]);
+  const [deleteTarget, setDeleteTarget] = useState(null);
   const [modal, setModal] = useState(false);
   const [editing, setEditing] = useState(null);
   const [saving, setSaving] = useState(false);
@@ -74,10 +76,18 @@ export default function AdminCoupons() {
     setSaving(false);
   }
 
-  async function deleteCoupon(id) {
-    if (!confirm('Delete this coupon?')) return;
-    await fetch(`/api/coupon?id=${id}`, { method: 'DELETE', headers });
-    loadCoupons();
+  async function softDeleteCoupon(id) {
+    const res = await fetch('/api/admin/bin', {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({ action: 'soft-delete', type: 'coupon', id })
+    });
+    const data = await res.json();
+    if (data.flag) {
+      loadCoupons();
+    } else {
+      setError(data.message || 'Error moving to bin');
+    }
   }
 
   async function toggleStatus(coupon) {
@@ -157,7 +167,7 @@ export default function AdminCoupons() {
                     <td className="p-4">
                       <div className="flex gap-2">
                         <button onClick={() => openModal(c)} className="bg-[#f5c842]/10 border border-[#f5c842]/20 text-[#f5c842] cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-[#f5c842]/20 transition-colors">Edit</button>
-                        <button onClick={() => deleteCoupon(c._id)} className="bg-red-500/10 border border-red-500/20 text-red-500 cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-500/20 transition-colors">Delete</button>
+                        <button onClick={() => setDeleteTarget(c)} className="bg-red-500/10 border border-red-500/20 text-red-500 cursor-pointer px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-red-500/20 transition-colors">Delete</button>
                       </div>
                     </td>
                   </tr>
@@ -260,6 +270,12 @@ export default function AdminCoupons() {
           </div>
         </div>
       )}
+      <DeleteConfirmModal
+        open={!!deleteTarget}
+        onClose={() => setDeleteTarget(null)}
+        onConfirm={() => softDeleteCoupon(deleteTarget?._id)}
+        itemName={deleteTarget?.code}
+      />
     </>
   );
 }

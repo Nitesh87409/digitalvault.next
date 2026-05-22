@@ -53,6 +53,9 @@ const SettingSchema = new mongoose.Schema({
 
   // Send purchase confirmation email
   bundle_send_email: { type: Boolean, default: true },
+
+  // Recycle Bin auto-delete (days, 0 = never auto-delete)
+  bin_auto_delete_days: { type: Number, default: 30 },
 }, { timestamps: true });
 
 if (mongoose.models.Setting) {
