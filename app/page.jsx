@@ -243,35 +243,35 @@ export default function HomePage() {
               <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-[var(--surface)] p-3 sm:p-6 md:p-12 shadow-[var(--shadow-soft)]">
                 {/* Shimmer background */}
                 <div className="skeleton-shimmer absolute inset-0 opacity-40 pointer-events-none" />
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 items-center">
+                <div className="relative z-10 grid grid-cols-12 gap-2 sm:gap-6 md:gap-8 items-center">
                   
                   {/* Left Column: Title & Highlights Skeleton */}
-                  <div className="md:col-span-7 space-y-3 sm:space-y-5 lg:space-y-7">
+                  <div className="col-span-6 md:col-span-7 space-y-2 sm:space-y-5 lg:space-y-7">
                     {/* Limited Time Badge Skeleton */}
-                    <div className="w-20 sm:w-28 h-4 sm:h-6 rounded-full bg-white/5 border border-white/5 skeleton-shimmer" />
+                    <div className="w-16 sm:w-28 h-3.5 sm:h-6 rounded-full bg-white/5 border border-white/5 skeleton-shimmer" />
                     
                     {/* Title & Description Skeleton */}
-                    <div className="space-y-2">
-                      <div className="w-3/4 h-5 sm:h-9 md:h-12 skeleton-bar skeleton-shimmer" />
-                      <div className="w-5/6 h-3 sm:h-4 md:h-5 skeleton-bar skeleton-shimmer mt-2" />
+                    <div className="space-y-1.5 sm:space-y-2">
+                      <div className="w-3/4 h-3.5 sm:h-9 md:h-12 skeleton-bar skeleton-shimmer" />
+                      <div className="w-5/6 h-2.5 sm:h-4 md:h-5 skeleton-bar skeleton-shimmer mt-1.5 sm:mt-2" />
                     </div>
 
                     {/* Features Skeleton */}
-                    <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-x-4 sm:gap-y-2 pt-1">
+                    <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-x-4 sm:gap-y-2 pt-0.5 sm:pt-1">
                       {[1, 2, 3, 4].map((i) => (
-                        <div key={i} className="flex items-center gap-1.5">
-                          <div className="h-3 w-3 sm:h-4 sm:w-4 rounded-full bg-white/5 skeleton-shimmer" />
-                          <div className="w-16 sm:w-24 h-2.5 sm:h-4 skeleton-bar skeleton-shimmer" />
+                        <div key={i} className="flex items-center gap-1 sm:gap-1.5">
+                          <div className="h-2.5 w-2.5 sm:h-4 sm:w-4 rounded-full bg-white/5 skeleton-shimmer" />
+                          <div className="w-12 sm:w-24 h-2 sm:h-4 skeleton-bar skeleton-shimmer" />
                         </div>
                       ))}
                     </div>
                   </div>
 
                   {/* Right Column: Countdown, Price & CTA Skeleton */}
-                  <div className="md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-4 sm:p-5 lg:p-8 flex flex-col gap-3 lg:gap-6">
+                  <div className="col-span-6 md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-2 sm:p-5 lg:p-8 flex flex-col gap-2 sm:gap-5 lg:gap-6">
                     {/* Countdown Timer Skeleton */}
                     <div>
-                      <div className="mx-auto w-24 h-3 rounded bg-white/5 skeleton-shimmer mb-2" />
+                      <div className="mx-auto w-12 sm:w-24 h-2 sm:h-3 rounded bg-white/5 skeleton-shimmer mb-1.5 sm:mb-2" />
                       <div className="flex justify-center gap-0.5 xs:gap-1 sm:gap-1.5 lg:gap-3">
                         {[1, 2, 3, 4].map(idx => (
                           <div key={idx} className="flex flex-col items-center min-w-[24px] xs:min-w-[28px] sm:min-w-[38px] md:min-w-[42px] lg:min-w-[60px] rounded-md sm:rounded-xl border border-[var(--line)] bg-[var(--surface-2)] py-0.5 px-0.5 sm:py-1 sm:px-1.5 md:py-1.5 md:px-2 lg:py-2 lg:px-3">
@@ -283,19 +283,19 @@ export default function HomePage() {
                     </div>
 
                     {/* Price Skeleton */}
-                    <div className="flex items-center justify-between gap-2 border-t border-b border-[var(--line)] py-1.5 sm:py-3 lg:py-4 px-0.5 sm:px-1 lg:px-2">
-                      <div className="space-y-1">
-                        <div className="w-12 sm:w-16 h-2 lg:h-3 rounded bg-white/5 skeleton-shimmer" />
-                        <div className="w-10 sm:w-14 h-3 lg:h-4 rounded bg-white/5 skeleton-shimmer" />
+                    <div className="flex items-center justify-between gap-2 border-t border-b border-[var(--line)] py-1 sm:py-3 lg:py-4 px-0.5 sm:px-1 lg:px-2">
+                      <div className="space-y-0.5 sm:space-y-1">
+                        <div className="w-8 sm:w-16 h-1.5 lg:h-3 rounded bg-white/5 skeleton-shimmer" />
+                        <div className="w-6 sm:w-14 h-2.5 lg:h-4 rounded bg-white/5 skeleton-shimmer" />
                       </div>
-                      <div className="space-y-1 flex flex-col items-end">
-                        <div className="w-14 sm:w-20 h-2 lg:h-3 rounded bg-white/5 skeleton-shimmer" />
-                        <div className="w-16 sm:w-24 h-4 lg:h-6 rounded bg-white/5 skeleton-shimmer" />
+                      <div className="space-y-0.5 sm:space-y-1 flex flex-col items-end">
+                        <div className="w-10 sm:w-20 h-1.5 lg:h-3 rounded bg-white/5 skeleton-shimmer" />
+                        <div className="w-12 sm:w-24 h-3.5 lg:h-6 rounded bg-white/5 skeleton-shimmer" />
                       </div>
                     </div>
 
                     {/* CTA Button Skeleton */}
-                    <div className="h-9 sm:h-12 lg:h-14 rounded-lg sm:rounded-xl bg-white/5 skeleton-shimmer w-full" />
+                    <div className="h-6 sm:h-12 lg:h-14 rounded-md sm:rounded-xl bg-white/5 skeleton-shimmer w-full" />
                   </div>
 
                 </div>
@@ -307,10 +307,10 @@ export default function HomePage() {
                 <div className="absolute -right-20 -top-20 h-64 w-64 rounded-full bg-[#f5c842]/10 blur-[80px] pointer-events-none" />
                 <div className="absolute -left-20 -bottom-20 h-64 w-64 rounded-full bg-[#7c3aed]/5 blur-[80px] pointer-events-none" />
                 
-                <div className="relative z-10 grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 lg:gap-8 items-center">
+                <div className="relative z-10 grid grid-cols-12 gap-2 sm:gap-6 lg:gap-8 items-center">
                   {/* Left Column: Title & Highlights */}
-                  <div className="md:col-span-7 space-y-3 sm:space-y-4 lg:space-y-6">
-                    <div className="inline-flex items-center gap-1.5 sm:gap-2 rounded-full border px-2.5 py-1 sm:px-3 sm:py-1 text-[10px] sm:text-xs font-bold uppercase tracking-wider" style={{ borderColor: `${settings.bundle_badge_color || '#f5c842'}33`, background: `${settings.bundle_badge_color || '#f5c842'}1a`, color: settings.bundle_badge_color || '#f5c842' }}>
+                  <div className="col-span-6 md:col-span-7 space-y-2 sm:space-y-4 lg:space-y-6">
+                    <div className="inline-flex items-center gap-1 sm:gap-2 rounded-full border px-1.5 py-0.5 sm:px-3 sm:py-1 text-[8px] min-[360px]:text-[9px] sm:text-xs font-bold uppercase tracking-wider" style={{ borderColor: `${settings.bundle_badge_color || '#f5c842'}33`, background: `${settings.bundle_badge_color || '#f5c842'}1a`, color: settings.bundle_badge_color || '#f5c842' }}>
                       <span className="relative flex h-1.5 w-1.5 sm:h-2 sm:w-2">
                         <span className="animate-ping absolute inline-flex h-full w-full rounded-full opacity-75" style={{ background: settings.bundle_badge_color || '#f5c842' }}></span>
                         <span className="relative inline-flex rounded-full h-1.5 w-1.5 sm:h-2 sm:w-2" style={{ background: settings.bundle_badge_color || '#f5c842' }}></span>
@@ -324,10 +324,10 @@ export default function HomePage() {
                     </div>
                     
                     <div>
-                      <h1 className="font-syne text-xl sm:text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--heading)] leading-tight">
+                      <h1 className="font-syne text-[11px] min-[360px]:text-[12px] min-[400px]:text-[14px] sm:text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--heading)] leading-tight">
                         {settings.bundle_title || 'Complete Bundle'}
                       </h1>
-                      <p className="mt-1 sm:mt-2 md:mt-3 text-sm sm:text-sm md:text-lg text-[var(--muted)] leading-relaxed max-w-xl">
+                      <p className="mt-1 sm:mt-2 md:mt-3 text-[8px] min-[360px]:text-[9px] min-[400px]:text-[10px] sm:text-sm md:text-lg text-[var(--muted)] leading-relaxed max-w-xl">
                         {settings.bundle_description || 'All products + future updates included'}
                       </p>
                     </div>
@@ -338,7 +338,7 @@ export default function HomePage() {
                       </div>
                     )}
 
-                    <div className="flex flex-wrap gap-x-3 gap-y-1.5 sm:gap-x-4 sm:gap-y-2 pt-1 sm:pt-1 text-xs sm:text-xs md:text-sm text-[var(--muted)]">
+                    <div className="flex flex-wrap gap-x-2 gap-y-1 sm:gap-x-4 sm:gap-y-2 pt-0.5 sm:pt-1 text-[8px] min-[360px]:text-[9px] sm:text-xs md:text-sm text-[var(--muted)]">
                       {(settings.bundle_features || ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee']).map((feat) => (
                         <div key={feat} className="flex items-center gap-1 sm:gap-1.5">
                           <span className="flex h-3 w-3 sm:h-4 sm:w-4 md:h-5 md:w-5 items-center justify-center rounded-full bg-[#f5c842]/10 text-[7px] sm:text-[10px] md:text-xs font-bold text-[#f5c842]">
@@ -351,21 +351,21 @@ export default function HomePage() {
                   </div>
 
                   {/* Right Column: Countdown, Price & CTA */}
-                  <div className="md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-4 sm:p-5 lg:p-8 flex flex-col gap-3 lg:gap-6">
+                  <div className="col-span-6 md:col-span-5 rounded-xl sm:rounded-2xl border border-[var(--line)] bg-[var(--surface-muted)] backdrop-blur-md p-2 sm:p-5 lg:p-8 flex flex-col gap-2 sm:gap-4 lg:gap-6">
                     {/* Isolated Countdown Component to encapsulate ticks */}
                     <CountdownTimer settings={settings} onExpired={setIsTimerExpired} />
 
                     {/* Price Display */}
-                    <div className="flex items-center justify-between gap-2 border-t border-b border-[var(--line)] py-1.5 sm:py-3 lg:py-4 px-0.5 sm:px-1 lg:px-2">
+                    <div className="flex items-center justify-between gap-2 border-t border-b border-[var(--line)] py-1 sm:py-3 lg:py-4 px-0.5 sm:px-1 lg:px-2">
                       <div className="flex flex-col">
-                        <span className="text-[9px] sm:text-[10px] lg:text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
-                        <span className="text-xs sm:text-sm lg:text-lg text-[var(--muted-2)] line-through whitespace-nowrap">
+                        <span className="text-[7px] sm:text-[10px] lg:text-xs font-medium text-[var(--muted-2)] uppercase">Original Value</span>
+                        <span className="text-[9px] sm:text-sm lg:text-lg text-[var(--muted-2)] line-through whitespace-nowrap">
                           ₹{(settings.bundle_original_price || 8497).toLocaleString()}
                         </span>
                       </div>
                       <div className="flex flex-col items-end">
-                        <span className="text-[9px] sm:text-[10px] lg:text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
-                        <span className="font-syne text-base sm:text-xl lg:text-3xl font-extrabold text-[var(--heading)] whitespace-nowrap">
+                        <span className="text-[7px] sm:text-[10px] lg:text-xs font-semibold text-[#f5c842] uppercase tracking-wider">Special Price</span>
+                        <span className="font-syne text-[10px] min-[360px]:text-[11px] min-[400px]:text-xs sm:text-xl lg:text-3xl font-extrabold text-[var(--heading)] whitespace-nowrap">
                           ₹{(settings.bundle_price || 207).toLocaleString()}
                         </span>
                       </div>
@@ -375,7 +375,7 @@ export default function HomePage() {
                     <button
                       onClick={addBundleToCart}
                       disabled={hasBundleAccess || isOfferEnded || bundleStatus === 'inactive'}
-                      className={`gold-btn flex items-center justify-center gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl py-2.5 sm:py-3 md:py-4 px-3 sm:px-4 md:px-6 text-sm sm:text-sm md:text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded || bundleStatus === 'inactive') ? 'pulse-glow' : ''}`}
+                      className={`gold-btn flex items-center justify-center gap-1 sm:gap-2 rounded-lg sm:rounded-xl py-1.5 sm:py-3 md:py-4 px-2 sm:px-4 md:px-6 text-[8px] min-[360px]:text-[9px] xs:text-[10px] sm:text-sm md:text-base font-bold transition-all duration-300 w-full hover:scale-[1.02] ${!(hasBundleAccess || isOfferEnded || bundleStatus === 'inactive') ? 'pulse-glow' : ''}`}
                       style={{ opacity: hasBundleAccess || isOfferEnded || bundleStatus === 'inactive' ? 0.6 : 1 }}
                     >
                       {hasBundleAccess ? (
