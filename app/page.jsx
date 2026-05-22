@@ -281,7 +281,7 @@ export default function HomePage() {
 
       {/* COMPLETE BUNDLE PROMOTIONAL HERO BANNER */}
       {settings.bundle_enabled && (
-        <section id="pricing" className="bg-[var(--bg)] px-3 sm:px-4 md:px-6 pt-6 sm:pt-16 md:pt-24 pb-4 sm:pb-6 md:pb-10 transition-colors duration-300">
+        <section id="pricing" className="bg-[var(--bg)] px-3 sm:px-4 md:px-6 pt-20 sm:pt-24 md:pt-28 pb-4 sm:pb-6 md:pb-10 transition-colors duration-300">
           <div className="mx-auto max-w-[1152px]">
             <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--border)] bg-gradient-to-br from-[var(--surface)] via-[var(--surface-2)] to-[var(--surface)] p-3 sm:p-6 md:p-12 shadow-[var(--shadow-soft)]">
               {/* Glowing radial background effects */}
