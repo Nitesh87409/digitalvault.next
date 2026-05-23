@@ -266,6 +266,7 @@ export async function PUT(request) {
       if (e.keyPattern?.email) return deny("Email already registered", 400);
       if (e.keyPattern?.phone) return deny("Phone number already in use", 400);
     }
+    return deny("Server error", 500);
   }
 }
 

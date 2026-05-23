@@ -2,10 +2,14 @@ import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import Admin from "@/models/Admin";
+import Otp from "@/models/Otp";
 import { generateToken } from "@/lib/auth";
-import { buildRateLimitKey, consumeRateLimit } from "@/lib/security";
+import { buildRateLimitKey, consumeRateLimit, generateSecureOtp } from "@/lib/security";
+import { sendAdmin2faOTP } from "@/lib/mailer";
 
 const ADMIN_LOGIN_LIMIT = { limit: 5, windowMs: 60_000 };
+const ADMIN_2FA_RESEND_COOLDOWN = 60; // seconds
+const ADMIN_2FA_EXPIRY_MINUTES = 5;
 
 function requireAdminEnv(name) {
   const value = process.env[name];
@@ -50,25 +54,47 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: "Invalid credentials" }, { status: 401 });
     }
 
-    const token = generateToken({ id: admin._id, email: admin.email, name: admin.name, role: "admin" }, "7d");
+    // --- 2FA: Send OTP instead of direct login ---
 
-    const response = NextResponse.json({
+    // Check if there's already a valid OTP with resend cooldown
+    const existingOtp = await Otp.findOne({ identifier: email, type: "admin-2fa" }).select("resend_after").lean();
+    if (existingOtp && new Date() < existingOtp.resend_after) {
+      const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
+      return NextResponse.json({
+        flag: 1,
+        requires_2fa: true,
+        message: "OTP already sent. Check your email.",
+        cooldown: waitTime,
+      });
+    }
+
+    // Generate OTP
+    const otp = generateSecureOtp(6);
+    const otp_hash = await bcrypt.hash(otp, 12);
+    const now = Date.now();
+
+    // Delete any existing admin 2FA OTPs
+    await Otp.deleteMany({ identifier: email, type: "admin-2fa" });
+
+    // Create new OTP
+    await Otp.create({
+      identifier: email,
+      type: "admin-2fa",
+      otp_hash,
+      expires_at: new Date(now + ADMIN_2FA_EXPIRY_MINUTES * 60 * 1000),
+      resend_after: new Date(now + ADMIN_2FA_RESEND_COOLDOWN * 1000),
+      attempts: 0,
+    });
+
+    // Send OTP email
+    await sendAdmin2faOTP({ email, otp });
+
+    return NextResponse.json({
       flag: 1,
-      message: "Login successful",
-      admin: { name: admin.name, email: admin.email },
+      requires_2fa: true,
+      message: "Verification code sent to your email",
+      cooldown: ADMIN_2FA_RESEND_COOLDOWN,
     });
-
-    response.cookies.set({
-      name: "admin_token",
-      value: token,
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60,
-      path: "/",
-    });
-
-    return response;
   } catch (e) {
     console.error("[Admin] login error:", e);
     return NextResponse.json({ flag: 0, message: "Server error" }, { status: 500 });

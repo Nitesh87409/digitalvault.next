@@ -9,7 +9,9 @@ import { generateToken } from '@/lib/auth';
 export async function POST(request) {
   try {
     await connectDB();
-    const { email, otp } = await request.json();
+    const body = await request.json();
+    const email = typeof body?.email === 'string' ? body.email : '';
+    const otp = typeof body?.otp === 'string' ? body.otp : (typeof body?.otp === 'number' ? String(body.otp) : '');
     if (!email || !otp) return NextResponse.json({ flag: 0, message: 'Email and OTP required' });
 
     const normalizedEmail = email.toLowerCase().trim();

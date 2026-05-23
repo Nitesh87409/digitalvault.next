@@ -9,7 +9,9 @@ import { generateToken } from '@/lib/auth';
 export async function POST(request) {
   try {
     await connectDB();
-    const { phone, otp } = await request.json();
+    const body = await request.json();
+    const phone = typeof body?.phone === 'string' ? body.phone : '';
+    const otp = typeof body?.otp === 'string' ? body.otp : (typeof body?.otp === 'number' ? String(body.otp) : '');
     if (!phone || !otp) return NextResponse.json({ flag: 0, message: 'Mobile number and OTP required' });
 
     const normalizedPhone = phone.trim();
