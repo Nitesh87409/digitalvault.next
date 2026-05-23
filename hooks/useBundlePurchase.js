@@ -65,7 +65,6 @@ export function useBundlePurchase({ showToast } = {}) {
 
   useEffect(() => {
     refreshBundleAccess();
-    loadRazorpayScript();
   }, [refreshBundleAccess]);
 
   const unlockBundle = useCallback(async (couponCode = '') => {

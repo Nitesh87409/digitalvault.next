@@ -37,8 +37,10 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
       <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden relative flex items-center justify-center shadow-inner" style={{ background: style.bg }}>
         {product.images?.length > 0 && !imgError ? (
           <img
-            src={optimizeCloudinary(product.images[0])}
+            src={optimizeCloudinary(product.images[0], 256)}
             alt={product.name}
+            width={112}
+            height={112}
             className="w-full h-full object-cover"
             loading="lazy"
             onError={() => setImgError(true)}
@@ -83,6 +85,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
                 onClick={(e) => e.stopPropagation()}
                 className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center no-underline"
                 title="Download from bundle"
+                aria-label={`Download ${product.name} from bundle`}
               >
                 Access Now
               </a>
@@ -92,6 +95,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
                   onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
                   className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8"
                   title="Add to Cart"
+                  aria-label={`Add ${product.name} to cart`}
                 >
                   <ShoppingCart size={14} className="sm:w-[16px] sm:h-[16px]" />
                 </button>
@@ -99,6 +103,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
                 <button
                   onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
                   className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center"
+                  aria-label={`Buy ${product.name} now`}
                 >
                   Buy
                 </button>
