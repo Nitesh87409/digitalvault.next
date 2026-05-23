@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { User, Download, ShoppingBag, Shield, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2, Lock } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useSettings } from '@/hooks/useSettings';
+import { optimizeCloudinary } from '@/lib/cloudinary-image';
 
 export default function AccountPage() {
   const [customer, setCustomer] = useState(null);
@@ -428,7 +429,7 @@ export default function AccountPage() {
                             <div key={i} className="flex flex-col sm:flex-row sm:flex-wrap items-start sm:items-center gap-4 bg-[var(--surface-muted)] border border-[var(--line-soft)] rounded-[14px] p-[18px]">
                               <Link href={`/product/${productId}`} className="flex items-center gap-4 w-full sm:w-auto flex-1 min-w-0 no-underline text-inherit">
                                 <div className="w-16 h-16 rounded-[10px] overflow-hidden bg-[var(--surface-2)] shrink-0 flex items-center justify-center text-[1.5rem]">
-                                  {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
+                                  {order.product_id?.images?.[0] ? <img src={optimizeCloudinary(order.product_id.images[0], 128)} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                                 </div>
                                 <div className="flex-1 min-w-0">
                                   <h3 className="font-bold text-[var(--heading)] text-[0.95rem] mb-0.5 truncate">{productName}</h3>
@@ -792,7 +793,7 @@ export default function AccountPage() {
                          <div key={i} className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-2xl p-4 flex flex-wrap items-center justify-between gap-3 shadow-lg">
                             <Link href={`/product/${productId}`} className="flex items-center gap-3.5 min-w-0 flex-1 no-underline text-inherit">
                               <div className="w-[52px] h-[52px] rounded-[14px] overflow-hidden bg-black/50 border border-white/5 flex-shrink-0 flex items-center justify-center text-xl">
-                                 {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
+                                 {order.product_id?.images?.[0] ? <img src={optimizeCloudinary(order.product_id.images[0], 96)} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                               </div>
                               <div className="min-w-0">
                                 <h4 className="text-[13px] font-bold text-[var(--heading)] truncate">{productName}</h4>

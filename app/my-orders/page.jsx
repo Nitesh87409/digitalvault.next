@@ -2,6 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { optimizeCloudinary } from '@/lib/cloudinary-image';
 
 export default function MyOrdersPage() {
   const [email, setEmail] = useState('');
@@ -113,7 +114,7 @@ export default function MyOrdersPage() {
                   return (
                     <div key={i} className="bg-[#12121a] border border-[#f5c842]/10 rounded-2xl p-5 flex items-center gap-4">
                       <div className="w-16 h-16 rounded-xl overflow-hidden bg-[#1a1a2a] shrink-0 flex items-center justify-center text-2xl">
-                        {order.product_id?.images?.[0] ? <img src={order.product_id.images[0]} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
+                        {order.product_id?.images?.[0] ? <img src={optimizeCloudinary(order.product_id.images[0], 128)} className="w-full h-full object-cover" loading="lazy" alt="" /> : '📦'}
                       </div>
                       <div className="flex-1">
                         <h3 className="font-bold text-white mb-1">{productName}</h3>

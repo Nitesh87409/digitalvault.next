@@ -37,7 +37,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
       <div className="w-24 h-24 sm:w-28 sm:h-28 shrink-0 rounded-xl overflow-hidden relative flex items-center justify-center shadow-inner" style={{ background: style.bg }}>
         {product.images?.length > 0 && !imgError ? (
           <img
-            src={optimizeCloudinary(product.images[0], 256)}
+            src={optimizeCloudinary(product.images[0], 160)}
             alt={product.name}
             width={112}
             height={112}
