@@ -71,7 +71,18 @@ export async function POST(request) {
       'bundle_allow_repurchase',
       'bundle_send_email',
       'refund_policy_content',
-      'terms_privacy_content'
+      'terms_privacy_content',
+      'social_instagram_enabled',
+      'social_instagram_url',
+      'social_whatsapp_enabled',
+      'social_whatsapp_url',
+      'social_twitter_enabled',
+      'social_twitter_url',
+      'social_facebook_enabled',
+      'social_facebook_url',
+      'social_telegram_enabled',
+      'social_telegram_url',
+      'custom_social_links'
     ];
 
     fields.forEach((field) => {

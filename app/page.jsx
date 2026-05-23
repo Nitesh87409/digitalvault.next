@@ -43,7 +43,18 @@ export default function HomePage() {
     bundle_cta_text: 'Unlock Bundle →',
     bundle_show_discount: true,
     bundle_banner_image: '',
-    updatedAt: ''
+    updatedAt: '',
+    social_instagram_enabled: false,
+    social_instagram_url: '',
+    social_whatsapp_enabled: false,
+    social_whatsapp_url: '',
+    social_twitter_enabled: false,
+    social_twitter_url: '',
+    social_facebook_enabled: false,
+    social_facebook_url: '',
+    social_telegram_enabled: false,
+    social_telegram_url: '',
+    custom_social_links: []
   });
   const { toast, showToast } = useToast();
   const { hasBundleAccess, bundleStatus } = useBundlePurchase({ showToast });
@@ -121,7 +132,18 @@ export default function HomePage() {
           bundle_show_discount: data.settings.bundle_show_discount ?? true,
           bundle_banner_image: data.settings.bundle_banner_image || '',
           app_name: data.settings.app_name || '',
-          updatedAt: data.settings.updatedAt || ''
+          updatedAt: data.settings.updatedAt || '',
+          social_instagram_enabled: data.settings.social_instagram_enabled ?? false,
+          social_instagram_url: data.settings.social_instagram_url ?? '',
+          social_whatsapp_enabled: data.settings.social_whatsapp_enabled ?? false,
+          social_whatsapp_url: data.settings.social_whatsapp_url ?? '',
+          social_twitter_enabled: data.settings.social_twitter_enabled ?? false,
+          social_twitter_url: data.settings.social_twitter_url ?? '',
+          social_facebook_enabled: data.settings.social_facebook_enabled ?? false,
+          social_facebook_url: data.settings.social_facebook_url ?? '',
+          social_telegram_enabled: data.settings.social_telegram_enabled ?? false,
+          social_telegram_url: data.settings.social_telegram_url ?? '',
+          custom_social_links: Array.isArray(data.settings.custom_social_links) ? data.settings.custom_social_links : []
         });
       }
     } catch(e) {
@@ -589,11 +611,102 @@ export default function HomePage() {
             </div>
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Contact</div>
-              <div className="flex flex-col gap-2 text-sm text-[var(--muted-2)]">
+              <div className="flex flex-col gap-2 text-sm text-[var(--muted-2)] font-syne">
                 <p>📧 {settings.support_email}</p>
                 <p>📱 {settings.support_phone}</p>
                 <p>🕐 {settings.business_hours}</p>
               </div>
+              {(settings.social_instagram_enabled || settings.social_whatsapp_enabled || settings.social_twitter_enabled || settings.social_facebook_enabled || settings.social_telegram_enabled || (settings.custom_social_links && settings.custom_social_links.some(item => item.enabled && item.url))) && (
+                <div className="mt-4 pt-4 border-t border-white/5">
+                  <div className="mb-2.5 text-xs font-semibold text-[var(--heading)] uppercase tracking-wider font-syne">Social Channels</div>
+                  <div className="flex flex-wrap gap-2.5">
+                    {settings.social_instagram_enabled && settings.social_instagram_url && (
+                      <a
+                        href={settings.social_instagram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-[#e1306c] hover:border-[#e1306c] hover:scale-105 no-underline"
+                        title="Instagram"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                          <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.social_whatsapp_enabled && settings.social_whatsapp_url && (
+                      <a
+                        href={settings.social_whatsapp_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-[#25d366] hover:border-[#25d366] hover:scale-105 no-underline"
+                        title="WhatsApp"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                          <path d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.83.496 3.614 1.442 5.176L2 22l4.986-1.307c1.517.82 3.21 1.25 4.966 1.25.04 0 .08 0 .12-.002C17.59 21.94 22 17.48 22 12.004 22 6.48 17.522 2 12.004 2zm5.097 13.52c-.22.613-1.277 1.173-1.826 1.236-.49.056-.975.253-3.13-.6-2.756-1.093-4.532-3.9-4.67-4.084-.136-.184-1.108-1.472-1.108-2.81 0-1.337.702-1.996.95-2.257.25-.262.548-.328.73-.328.18 0 .363.002.52.01.164.007.387-.062.603.46.223.538.762 1.86.828 1.994.066.13.11.285.02.46-.088.175-.132.285-.263.438-.13.15-.276.338-.394.453-.13.13-.267.273-.114.537.153.264.68 1.12 1.46 1.812.996.886 1.834 1.16 2.097 1.293.263.13.417.11.57-.066.154-.175.657-.766.833-1.028.175-.263.35-.22.592-.13.24.088 1.524.72 1.787.852.264.13.439.197.505.306.066.11.066.634-.153 1.246z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.social_twitter_enabled && settings.social_twitter_url && (
+                      <a
+                        href={settings.social_twitter_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-white hover:border-white hover:scale-105 no-underline"
+                        title="Twitter / X"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 fill-current">
+                          <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.social_facebook_enabled && settings.social_facebook_url && (
+                      <a
+                        href={settings.social_facebook_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-[#1877f2] hover:border-[#1877f2] hover:scale-105 no-underline"
+                        title="Facebook"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                          <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.8z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.social_telegram_enabled && settings.social_telegram_url && (
+                      <a
+                        href={settings.social_telegram_url}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-[#229ed9] hover:border-[#229ed9] hover:scale-105 no-underline"
+                        title="Telegram"
+                      >
+                        <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current">
+                          <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.37-.49 1.02-.75 4-1.74 6.67-2.88 8-3.42 3.81-1.56 4.6-1.83 5.12-1.84.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.15-.02.22z"/>
+                        </svg>
+                      </a>
+                    )}
+                    {settings.custom_social_links && settings.custom_social_links.map((item, index) => {
+                      if (!item.enabled || !item.url) return null;
+                      return (
+                        <a
+                          key={index}
+                          href={item.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-all duration-200 hover:bg-white/10 hover:text-[#f5c842] hover:border-[#f5c842] hover:scale-105 no-underline"
+                          title={item.name}
+                        >
+                          {item.logo ? (
+                            <img src={item.logo} alt={item.name} className="w-4 h-4 object-contain rounded-sm" />
+                          ) : (
+                            <span className="text-xs">🔗</span>
+                          )}
+                        </a>
+                      );
+                    })}
+                  </div>
+                </div>
+              )}
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>

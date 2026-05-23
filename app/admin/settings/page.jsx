@@ -22,12 +22,79 @@ export default function AdminSettingsPage() {
     app_name: '',
     app_logo: '',
     refund_policy_content: '',
-    terms_privacy_content: ''
+    terms_privacy_content: '',
+    social_instagram_enabled: false,
+    social_instagram_url: '',
+    social_whatsapp_enabled: false,
+    social_whatsapp_url: '',
+    social_twitter_enabled: false,
+    social_twitter_url: '',
+    social_facebook_enabled: false,
+    social_facebook_url: '',
+    social_telegram_enabled: false,
+    social_telegram_url: '',
+    custom_social_links: []
   });
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(''); // Stores the name of the section being saved
   const [message, setMessage] = useState('');
   const [activeTab, setActiveTab] = useState('branding');
+
+  const [newSocial, setNewSocial] = useState({ name: '', url: '', logo: '', enabled: true });
+
+  const handleCustomLogoUpload = async (e, index = -1) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    
+    setSaving(index === -1 ? 'new_custom_social' : `custom_social_${index}`);
+    setMessage('Uploading logo...');
+    const fd = new FormData();
+    fd.append('file', file);
+    try {
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.flag && data.url) {
+        if (index === -1) {
+          setNewSocial(prev => ({ ...prev, logo: data.url }));
+          setMessage('Logo uploaded!');
+        } else {
+          const updated = [...(settings.custom_social_links || [])];
+          updated[index].logo = data.url;
+          handleChange('custom_social_links', updated);
+          setMessage('Logo uploaded! Please save settings.');
+        }
+      } else {
+        setMessage('Logo upload failed.');
+      }
+    } catch(err) {
+      setMessage('Error uploading logo.');
+    }
+    setSaving('');
+    setTimeout(() => setMessage(''), 3000);
+  };
+
+  const addCustomSocial = () => {
+    if (!newSocial.name || !newSocial.url) {
+      setMessage('Name and URL are required.');
+      setTimeout(() => setMessage(''), 3000);
+      return;
+    }
+    const updated = [...(settings.custom_social_links || []), { ...newSocial }];
+    handleChange('custom_social_links', updated);
+    saveSectionSettingsDirect({ custom_social_links: updated }, 'Custom Social Links');
+    setNewSocial({ name: '', url: '', logo: '', enabled: true });
+  };
+
+  const deleteCustomSocial = (index) => {
+    const updated = (settings.custom_social_links || []).filter((_, i) => i !== index);
+    handleChange('custom_social_links', updated);
+    saveSectionSettingsDirect({ custom_social_links: updated }, 'Custom Social Links');
+  };
+
+  const saveCustomSocialItem = (index) => {
+    const updated = [...(settings.custom_social_links || [])];
+    saveSectionSettingsDirect({ custom_social_links: updated }, `Custom Social ${updated[index].name}`);
+  };
 
   useEffect(() => {
     fetchSettings();
@@ -67,7 +134,18 @@ export default function AdminSettingsPage() {
           app_name: data.settings.app_name ?? '',
           app_logo: data.settings.app_logo ?? '',
           refund_policy_content: data.settings.refund_policy_content ?? '',
-          terms_privacy_content: data.settings.terms_privacy_content ?? ''
+          terms_privacy_content: data.settings.terms_privacy_content ?? '',
+          social_instagram_enabled: data.settings.social_instagram_enabled ?? false,
+          social_instagram_url: data.settings.social_instagram_url ?? '',
+          social_whatsapp_enabled: data.settings.social_whatsapp_enabled ?? false,
+          social_whatsapp_url: data.settings.social_whatsapp_url ?? '',
+          social_twitter_enabled: data.settings.social_twitter_enabled ?? false,
+          social_twitter_url: data.settings.social_twitter_url ?? '',
+          social_facebook_enabled: data.settings.social_facebook_enabled ?? false,
+          social_facebook_url: data.settings.social_facebook_url ?? '',
+          social_telegram_enabled: data.settings.social_telegram_enabled ?? false,
+          social_telegram_url: data.settings.social_telegram_url ?? '',
+          custom_social_links: Array.isArray(data.settings.custom_social_links) ? data.settings.custom_social_links : []
         };
         setSettings(fetched);
         if (activeTab === 'pages') {
@@ -94,7 +172,7 @@ export default function AdminSettingsPage() {
         body: JSON.stringify(payload)
       });
       const data = await res.json();
-      if (data.flag) {
+      if (data.flag && data.settings) {
         setMessage(`${sectionName} saved successfully!`);
       } else {
         setMessage(data.message || `Failed to save ${sectionName}`);
@@ -162,7 +240,8 @@ export default function AdminSettingsPage() {
     { id: 'contact', label: 'Contact & Support Settings' },
     { id: 'login', label: 'Login Methods' },
     { id: 'social', label: 'Social Login Methods' },
-    { id: 'pages', label: 'Custom Pages Content' }
+    { id: 'pages', label: 'Custom Pages Content' },
+    { id: 'social_links', label: 'Social Media Links' }
   ];
 
   return (
@@ -237,6 +316,7 @@ export default function AdminSettingsPage() {
                             className="text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f5c842]/10 file:text-[#f5c842] hover:file:bg-[#f5c842]/20"
                           />
                           <p className="text-xs text-[var(--muted-2)] mt-2">Upload a logo to display in the navbar and emails.</p>
+                          <p className="text-xs text-[#f5c842] mt-1.5 font-semibold">Recommended size: 200px width × 50px height (Landscape) or 1:1 Square (min 128px × 128px)</p>
                           {settings.app_logo && (
                             <button type="button" onClick={() => handleChange('app_logo', '')} className="text-xs text-red-500 mt-2 hover:underline">Remove Logo</button>
                           )}
@@ -422,6 +502,306 @@ export default function AdminSettingsPage() {
                       </button>
                       {message && <span className={`font-medium text-sm ${message.includes('success') ? 'text-[#10b981]' : 'text-red-500'}`}>{message}</span>}
                     </div>
+                  </div>
+                </div>
+              )}
+
+              {/* SOCIAL MEDIA LINKS TAB */}
+              {activeTab === 'social_links' && (
+                <div className="bg-[var(--surface-2)] rounded-2xl p-5 sm:p-8 border border-[var(--line)] shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                  <h2 className="text-xl font-syne font-bold text-[var(--heading)] mb-2">🔗 Social Media Links</h2>
+                  <p className="text-sm text-[var(--muted-2)] mb-8">Configure your public social channels displayed in the footer. Toggle visibility ON/OFF and save settings individually for each platform.</p>
+
+                  <div className="flex flex-col gap-6">
+                    {[
+                      {
+                        id: 'instagram',
+                        name: 'Instagram',
+                        placeholder: 'https://instagram.com/yourprofile',
+                        icon: (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-[#e1306c]">
+                            <path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.051.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: 'whatsapp',
+                        name: 'WhatsApp',
+                        placeholder: 'https://wa.me/919876543210',
+                        icon: (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-[#25d366]">
+                            <path d="M12.004 2C6.48 2 2 6.48 2 12.004c0 1.83.496 3.614 1.442 5.176L2 22l4.986-1.307c1.517.82 3.21 1.25 4.966 1.25.04 0 .08 0 .12-.002C17.59 21.94 22 17.48 22 12.004 22 6.48 17.522 2 12.004 2zm5.097 13.52c-.22.613-1.277 1.173-1.826 1.236-.49.056-.975.253-3.13-.6-2.756-1.093-4.532-3.9-4.67-4.084-.136-.184-1.108-1.472-1.108-2.81 0-1.337.702-1.996.95-2.257.25-.262.548-.328.73-.328.18 0 .363.002.52.01.164.007.387-.062.603.46.223.538.762 1.86.828 1.994.066.13.11.285.02.46-.088.175-.132.285-.263.438-.13.15-.276.338-.394.453-.13.13-.267.273-.114.537.153.264.68 1.12 1.46 1.812.996.886 1.834 1.16 2.097 1.293.263.13.417.11.57-.066.154-.175.657-.766.833-1.028.175-.263.35-.22.592-.13.24.088 1.524.72 1.787.852.264.13.439.197.505.306.066.11.066.634-.153 1.246z"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: 'twitter',
+                        name: 'Twitter / X',
+                        placeholder: 'https://x.com/yourhandle',
+                        icon: (
+                          <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current text-white">
+                            <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: 'facebook',
+                        name: 'Facebook',
+                        placeholder: 'https://facebook.com/yourpage',
+                        icon: (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-[#1877f2]">
+                            <path d="M22 12c0-5.52-4.48-10-10-10S2 6.48 2 12c0 4.84 3.44 8.87 8 9.8V15H8v-3h2V9.5C10 7.57 11.57 6 13.5 6H16v3h-2c-.55 0-1 .45-1 1v2h3v3h-3v6.95c4.56-.93 8-4.96 8-9.8z"/>
+                          </svg>
+                        )
+                      },
+                      {
+                        id: 'telegram',
+                        name: 'Telegram',
+                        placeholder: 'https://t.me/yourusername',
+                        icon: (
+                          <svg viewBox="0 0 24 24" className="w-5 h-5 fill-current text-[#229ed9]">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.2-.08-.06-.19-.04-.27-.02-.11.02-1.93 1.23-5.46 3.62-.51.35-.98.53-1.4.51-.46-.01-1.35-.26-2.01-.48-.81-.27-1.46-.42-1.4-.88.03-.24.37-.49 1.02-.75 4-1.74 6.67-2.88 8-3.42 3.81-1.56 4.6-1.83 5.12-1.84.11 0 .37.03.54.17.14.12.18.28.2.45-.02.07-.02.15-.02.22z"/>
+                          </svg>
+                        )
+                      }
+                    ].map((platform) => {
+                      const isEnabled = settings[`social_${platform.id}_enabled`];
+                      const urlVal = settings[`social_${platform.id}_url`];
+                      const currentSavingKey = `${platform.name} Link`;
+
+                      return (
+                        <div
+                          key={platform.id}
+                          className="bg-[#0e0e18]/60 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
+                        >
+                          <div className="flex items-center justify-between gap-4 mb-4">
+                            <div className="flex items-center gap-3">
+                              <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                                {platform.icon}
+                              </div>
+                              <div>
+                                <h3 className="font-syne font-bold text-white text-base">{platform.name}</h3>
+                                <p className="text-xs text-[var(--muted-2)]">Toggle display on website footer</p>
+                              </div>
+                            </div>
+                            
+                            {/* Toggle Switch */}
+                            <label className="relative inline-block w-12 h-6 shrink-0 cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={!!isEnabled}
+                                onChange={(e) => handleChange(`social_${platform.id}_enabled`, e.target.checked)}
+                                className="opacity-0 w-0 h-0"
+                              />
+                              <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${isEnabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${isEnabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                              </span>
+                            </label>
+                          </div>
+
+                          <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 mt-3">
+                            <div className="flex-1">
+                              <input
+                                type="text"
+                                value={urlVal || ''}
+                                onChange={(e) => handleChange(`social_${platform.id}_url`, e.target.value)}
+                                placeholder={platform.placeholder}
+                                className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-2.5 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors text-sm"
+                              />
+                            </div>
+                            
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const payload = {
+                                  [`social_${platform.id}_enabled`]: !!settings[`social_${platform.id}_enabled`],
+                                  [`social_${platform.id}_url`]: settings[`social_${platform.id}_url`] || ''
+                                };
+                                saveSectionSettingsDirect(payload, currentSavingKey);
+                              }}
+                              disabled={saving === currentSavingKey}
+                              className={`bg-white/5 border border-white/10 hover:bg-white/10 text-white font-syne font-bold px-5 py-2.5 rounded-xl cursor-pointer transition-transform text-sm ${saving === currentSavingKey ? 'opacity-70' : 'hover:scale-[1.02]'}`}
+                            >
+                              {saving === currentSavingKey ? 'Saving...' : `Save ${platform.name}`}
+                            </button>
+                          </div>
+                          {message && message.includes(platform.name) && (
+                            <p className="text-xs text-[#10b981] mt-2 font-medium">✓ {message}</p>
+                          )}
+                        </div>
+                      );
+                    })}
+                    
+                    {/* Add Custom Social Links Header */}
+                    <div className="mt-10 pt-8 border-t border-white/5">
+                      <h3 className="font-syne font-bold text-white text-lg mb-2">➕ Add Custom Social Account</h3>
+                      <p className="text-xs text-[var(--muted-2)] mb-6">Need to add another network (like YouTube, Discord, or LinkedIn)? Configure it here dynamically.</p>
+
+                      <div className="bg-[#0e0e18]/40 border border-white/5 rounded-2xl p-5 flex flex-col gap-5">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="text-xs font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Account Name</label>
+                            <input
+                              type="text"
+                              value={newSocial.name}
+                              onChange={(e) => setNewSocial(prev => ({ ...prev, name: e.target.value }))}
+                              placeholder="e.g. YouTube"
+                              className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-2.5 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors text-sm"
+                            />
+                          </div>
+                          <div>
+                            <label className="text-xs font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Account URL</label>
+                            <input
+                              type="text"
+                              value={newSocial.url}
+                              onChange={(e) => setNewSocial(prev => ({ ...prev, url: e.target.value }))}
+                              placeholder="e.g. https://youtube.com/c/yourchannel"
+                              className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-2.5 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors text-sm"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="text-xs font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Account Logo Image</label>
+                          <div className="flex flex-wrap items-center gap-4">
+                            {newSocial.logo ? (
+                              <img src={newSocial.logo} alt="Logo" className="w-10 h-10 object-contain rounded-lg p-1 bg-white/5 border border-white/10" />
+                            ) : (
+                              <div className="w-10 h-10 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-xs text-[var(--muted-2)]">No Logo</div>
+                            )}
+                            <div className="flex-1 min-w-[200px]">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => handleCustomLogoUpload(e, -1)}
+                                className="text-xs text-[var(--muted)] file:mr-4 file:py-1.5 file:px-3 file:rounded-xl file:border-0 file:text-xs file:font-semibold file:bg-[#f5c842]/10 file:text-[#f5c842] hover:file:bg-[#f5c842]/20 cursor-pointer"
+                              />
+                              <p className="text-[10px] text-[var(--muted-2)] mt-1.5">Upload a square PNG or SVG file to use as the logo icon.</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="flex justify-end pt-2">
+                          <button
+                            type="button"
+                            onClick={addCustomSocial}
+                            className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold px-6 py-2.5 rounded-xl cursor-pointer hover:scale-[1.02] transition-transform text-sm shadow-md shadow-[#f5c842]/10"
+                          >
+                            ➕ Add Account
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Manage Dynamic Custom Social Accounts */}
+                    {settings.custom_social_links && settings.custom_social_links.length > 0 && (
+                      <div className="mt-8 pt-8 border-t border-white/5">
+                        <h3 className="font-syne font-bold text-white text-lg mb-6">⚙️ Manage Custom Social Accounts</h3>
+                        <div className="flex flex-col gap-4">
+                          {settings.custom_social_links.map((item, index) => {
+                            const currentSavingKey = `custom_social_${index}`;
+                            return (
+                              <div
+                                key={index}
+                                className="bg-[#0e0e18]/60 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
+                              >
+                                <div className="flex items-center justify-between gap-4 mb-4">
+                                  <div className="flex items-center gap-3">
+                                    <div className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center overflow-hidden p-1">
+                                      {item.logo ? (
+                                        <img src={item.logo} alt={item.name} className="w-full h-full object-contain" />
+                                      ) : (
+                                        <span className="text-xs text-[var(--muted-2)]">🔗</span>
+                                      )}
+                                    </div>
+                                    <div>
+                                      <input
+                                        type="text"
+                                        value={item.name}
+                                        onChange={(e) => {
+                                          const updated = [...settings.custom_social_links];
+                                          updated[index].name = e.target.value;
+                                          handleChange('custom_social_links', updated);
+                                        }}
+                                        className="bg-transparent border-b border-transparent hover:border-white/10 focus:border-[#f5c842]/50 text-white font-syne font-bold text-base outline-none py-0.5"
+                                      />
+                                      <p className="text-[10px] text-[var(--muted-2)]">Edit name directly in the box above</p>
+                                    </div>
+                                  </div>
+
+                                  {/* Toggle Switch */}
+                                  <label className="relative inline-block w-12 h-6 shrink-0 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={!!item.enabled}
+                                      onChange={(e) => {
+                                        const updated = [...settings.custom_social_links];
+                                        updated[index].enabled = e.target.checked;
+                                        handleChange('custom_social_links', updated);
+                                      }}
+                                      className="opacity-0 w-0 h-0"
+                                    />
+                                    <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${item.enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                      <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${item.enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                                    </span>
+                                  </label>
+                                </div>
+
+                                <div className="flex flex-col gap-4 mt-4">
+                                  <div>
+                                    <label className="text-[10px] font-semibold text-[var(--muted)] block mb-1.5 uppercase tracking-wider">Edit URL</label>
+                                    <input
+                                      type="text"
+                                      value={item.url}
+                                      onChange={(e) => {
+                                        const updated = [...settings.custom_social_links];
+                                        updated[index].url = e.target.value;
+                                        handleChange('custom_social_links', updated);
+                                      }}
+                                      className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-2 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors text-sm"
+                                    />
+                                  </div>
+
+                                  <div>
+                                    <label className="text-[10px] font-semibold text-[var(--muted)] block mb-1.5 uppercase tracking-wider">Change Logo</label>
+                                    <div className="flex items-center gap-3">
+                                      <input
+                                        type="file"
+                                        accept="image/*"
+                                        onChange={(e) => handleCustomLogoUpload(e, index)}
+                                        className="text-xs text-[var(--muted)] file:mr-4 file:py-1 file:px-2 file:rounded-lg file:border-0 file:text-xs file:font-semibold file:bg-[#f5c842]/10 file:text-[#f5c842] hover:file:bg-[#f5c842]/20 cursor-pointer"
+                                      />
+                                    </div>
+                                  </div>
+
+                                  <div className="flex items-center justify-between gap-4 mt-2 pt-4 border-t border-white/5">
+                                    <button
+                                      type="button"
+                                      onClick={() => deleteCustomSocial(index)}
+                                      className="text-xs text-red-500 hover:text-red-400 font-syne font-bold cursor-pointer transition-colors"
+                                    >
+                                      🗑️ Delete Account
+                                    </button>
+                                    
+                                    <button
+                                      type="button"
+                                      onClick={() => saveCustomSocialItem(index)}
+                                      disabled={saving === currentSavingKey}
+                                      className={`bg-white/5 border border-white/10 hover:bg-white/10 text-white font-syne font-bold px-4 py-2 rounded-xl cursor-pointer transition-transform text-xs ${saving === currentSavingKey ? 'opacity-70' : 'hover:scale-[1.02]'}`}
+                                    >
+                                      {saving === currentSavingKey ? 'Saving...' : `Save Changes`}
+                                    </button>
+                                  </div>
+                                </div>
+                                {message && message.includes(item.name) && (
+                                  <p className="text-xs text-[#10b981] mt-2 font-medium">✓ {message}</p>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               )}

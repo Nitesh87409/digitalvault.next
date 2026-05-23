@@ -66,6 +66,27 @@ const SettingSchema = new mongoose.Schema({
     type: String, 
     default: `<h1>Terms & Privacy Policy</h1><h2>1. Terms of Service</h2><p>By accessing and using DigitalVault, you agree to comply with and be bound by these terms. Our digital files and products are provided "as is" without warranties of any kind. You are granted a personal or business usage license depending on the product purchased. Reselling, sub-licensing, sharing, or distributing any purchased assets publicly is strictly prohibited.</p><h2>2. Privacy Policy</h2><p>We value your privacy. We collect your name, email address, and phone number solely to manage your orders, deliver instant downloads, and provide support. We do not sell, rent, or share your data with third parties. Payments are securely processed via Razorpay, and we do not store your credit card or financial details on our servers.</p>` 
   },
+
+  // Social Links Configuration
+  social_instagram_enabled: { type: Boolean, default: false },
+  social_instagram_url: { type: String, default: '' },
+  social_whatsapp_enabled: { type: Boolean, default: false },
+  social_whatsapp_url: { type: String, default: '' },
+  social_twitter_enabled: { type: Boolean, default: false },
+  social_twitter_url: { type: String, default: '' },
+  social_facebook_enabled: { type: Boolean, default: false },
+  social_facebook_url: { type: String, default: '' },
+  social_telegram_enabled: { type: Boolean, default: false },
+  social_telegram_url: { type: String, default: '' },
+  custom_social_links: {
+    type: [{
+      name: { type: String, required: true },
+      url: { type: String, required: true },
+      logo: { type: String, default: '' },
+      enabled: { type: Boolean, default: true }
+    }],
+    default: []
+  }
 }, { timestamps: true });
 
 if (mongoose.models.Setting) {
