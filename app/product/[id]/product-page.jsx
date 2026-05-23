@@ -186,14 +186,14 @@ export default function ProductPage({ id }) {
           </div>
         </nav>
 
-        <div className="mx-auto max-w-[1152px] px-6 py-10">
+        <div className="mx-auto max-w-[1152px] px-4 py-6 md:px-6 md:py-10">
           {/* Breadcrumb */}
-          <div className="mb-8 flex items-center gap-2 text-sm text-[var(--muted-2)]">
+          <div className="mb-5 md:mb-8 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-[var(--muted-2)] leading-relaxed">
             <Link href="/" className="theme-link no-underline">Home</Link>
-            <span>›</span>
+            <span className="opacity-40">›</span>
             <Link href="/#products" className="theme-link no-underline">Products</Link>
-            <span>›</span>
-            <span className="text-[var(--heading)]">{product.name}</span>
+            <span className="opacity-40">›</span>
+            <span className="text-[var(--heading)] truncate max-w-[160px] xs:max-w-[220px] sm:max-w-none">{product.name}</span>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
@@ -290,10 +290,10 @@ export default function ProductPage({ id }) {
                 {orig > 0 && <span className="text-lg text-[var(--muted-2)] line-through sm:text-xl">₹{orig.toLocaleString()}</span>}
                 {discount > 0 && <span className="text-xs sm:text-sm font-bold text-[#10b981] bg-[#10b981]/10 px-2 sm:px-3 py-1 rounded-lg shrink-0">{discount}% OFF</span>}
               </div>
-              <p className="text-[#10b981] text-xs sm:text-sm mb-6">✓ Inclusive of all taxes</p>
+              <p className="text-[#10b981] text-xs sm:text-sm mb-4 sm:mb-6">✓ Inclusive of all taxes</p>
 
               {/* Highlights */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 sm:mb-7">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 sm:mb-7">
                 {[['⚡', 'Instant Download'], ['♾️', 'Lifetime Access'], ['💰', '7-Day Refund'], ['🔒', 'Secure Payment']].map(([icon, text]) => (
                   <div key={text} className="flex items-center gap-2 text-xs text-[var(--text)] sm:text-sm">
                     <span className="text-[#f5c842]">{icon}</span> {text}
@@ -302,7 +302,7 @@ export default function ProductPage({ id }) {
               </div>
 
               {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-8">
+              <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
                 {hasBundleAccess ? (
                   <a
                     href={`/api/bundle/download/${product.id || product._id}`}

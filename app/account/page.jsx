@@ -334,8 +334,15 @@ export default function AccountPage() {
                 {initials}
               </div>
               <div className="flex-1 min-w-0">
-                <h1 className="font-['Syne',sans-serif] text-[1.4rem] font-bold text-[var(--heading)] truncate">{customer.name}</h1>
-                <p className="text-[var(--muted-2)] text-[0.875rem] mt-0.5 break-all">{customer.email}</p>
+                <div className="flex flex-wrap items-center gap-3">
+                  <h1 className="font-['Syne',sans-serif] text-[1.4rem] font-bold text-[var(--heading)] truncate">{customer.name}</h1>
+                  {customer.is_premium && (
+                    <span className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[10px] font-extrabold px-3 py-1 rounded-full uppercase tracking-wider shadow-[0_0_15px_rgba(245,200,66,0.3)] flex items-center gap-1.5 shrink-0">
+                      <span>✨</span> PREMIUM MEMBER
+                    </span>
+                  )}
+                </div>
+                <p className="text-[var(--muted-2)] text-[0.875rem] mt-1 break-all">{customer.email}</p>
               </div>
             </div>
 
@@ -672,7 +679,14 @@ export default function AccountPage() {
                 {initials}
               </div>
               <div>
-                <h2 className="text-lg font-['Syne'] font-bold text-[var(--heading)] leading-tight">{customer.name}</h2>
+                <div className="flex items-center gap-2">
+                  <h2 className="text-lg font-['Syne'] font-bold text-[var(--heading)] leading-tight">{customer.name}</h2>
+                  {customer.is_premium && (
+                    <span className="bg-[#f5c842]/10 border border-[#f5c842]/30 text-[#f5c842] text-[8px] font-extrabold px-1.5 py-0.5 rounded uppercase tracking-wider shrink-0 flex items-center gap-0.5 shadow-[0_0_10px_rgba(245,200,66,0.15)]">
+                      <span>★</span> PRO
+                    </span>
+                  )}
+                </div>
                 <p className="text-[11px] text-[var(--muted)] mt-1">{customer.email}</p>
               </div>
             </div>
@@ -764,6 +778,8 @@ export default function AccountPage() {
                       </div>
                       {customer?.is_blocked ? (
                         <span className="text-[10px] font-bold uppercase tracking-wider bg-rose-500/20 text-rose-400 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(244,63,94,0.2)] border border-rose-500/20">Blocked</span>
+                      ) : customer?.is_premium ? (
+                        <span className="text-[10px] font-bold uppercase tracking-wider bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1 rounded-full shadow-[0_0_10px_rgba(245,200,66,0.3)]">Premium</span>
                       ) : (
                         <span className="text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 px-3 py-1 rounded-full shadow-[0_0_10px_rgba(16,185,129,0.2)] border border-emerald-500/20">Active</span>
                       )}

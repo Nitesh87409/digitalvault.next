@@ -141,6 +141,19 @@ export function useBundlePurchase({ showToast } = {}) {
           const verifyData = await verifyRes.json();
           if (verifyData.success) {
             showToast?.('Bundle Activated! 🎁', '#10b981', '#fff');
+            
+            // Update customer local storage instantly so all UI parts show premium status immediately
+            try {
+              const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
+              if (customer) {
+                customer.is_premium = true;
+                localStorage.setItem('dv_customer', JSON.stringify(customer));
+                window.dispatchEvent(new CustomEvent('auth-updated'));
+              }
+            } catch (e) {
+              console.error('Error updating premium status in local storage:', e);
+            }
+
             await refreshBundleAccess();
             window.dispatchEvent(new CustomEvent('bundle-access-updated'));
           } else {

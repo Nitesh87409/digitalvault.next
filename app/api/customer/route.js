@@ -5,6 +5,7 @@ import Customer from "@/models/Customer";
 import Setting from "@/models/Setting";
 import { generateToken, verifyCustomer } from "@/lib/auth";
 import { buildRateLimitKey, consumeRateLimit } from "@/lib/security";
+import { hasActiveBundleAccess } from "@/lib/bundle-access";
 
 const CUSTOMER_AUTH_LIMIT = { limit: 5, windowMs: 60_000 };
 
@@ -141,6 +142,8 @@ export async function POST(request) {
 
       await Customer.updateOne({ _id: customer._id }, { $set: { last_login: new Date() } });
 
+      const isPremium = await hasActiveBundleAccess(customer._id);
+
       const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: "customer" }, "30d");
       const response = NextResponse.json({
         flag: 1,
@@ -152,7 +155,8 @@ export async function POST(request) {
           phone: customer.phone,
           has_password: !!customer.password,
           createdAt: customer.createdAt,
-          is_blocked: customer.is_blocked
+          is_blocked: customer.is_blocked,
+          is_premium: isPremium
         },
       });
 
@@ -281,6 +285,8 @@ export async function GET(request) {
     if (!account) return deny("User not found", 404);
     if (account.is_blocked) return deny("Your account is blocked", 403);
 
+    const isPremium = await hasActiveBundleAccess(account._id);
+
     return NextResponse.json({
       flag: 1,
       customer: {
@@ -290,7 +296,8 @@ export async function GET(request) {
         phone: account.phone,
         createdAt: account.createdAt,
         is_blocked: account.is_blocked,
-        has_password: !!account.password
+        has_password: !!account.password,
+        is_premium: isPremium
       }
     });
   } catch (e) {

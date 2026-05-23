@@ -206,8 +206,8 @@ export default function Navbar({ onSearchClick }) {
                 </svg>
               </button>
 
-              {/* Cart Button (always visible!) */}
-              <Link href="/cart" className="theme-icon-btn relative h-11 w-11 rounded-xl" aria-label="Shopping Cart">
+              {/* Cart Button (hidden on mobile, visible on desktop/tablet) */}
+              <Link href="/cart" className="hidden md:flex theme-icon-btn relative h-11 w-11 rounded-xl items-center justify-center" aria-label="Shopping Cart">
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                   <path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z" />
                   <line x1="3" y1="6" x2="21" y2="6" />
@@ -227,6 +227,11 @@ export default function Navbar({ onSearchClick }) {
                     <span className="max-w-[100px] truncate whitespace-nowrap text-[0.8rem] font-semibold text-[#f5c842]">
                       Hi, {customer.name?.split(' ')[0]}!
                     </span>
+                    {customer.is_premium && (
+                      <span className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[9px] font-extrabold px-2 py-0.5 rounded uppercase tracking-wider shadow-[0_0_10px_rgba(245,200,66,0.3)] animate-pulse shrink-0">
+                        ★ Premium
+                      </span>
+                    )}
                     <Link href="/account" className="theme-card-soft whitespace-nowrap rounded-lg px-2.5 py-1 text-xs no-underline">
                       My Account
                     </Link>
@@ -326,12 +331,22 @@ export default function Navbar({ onSearchClick }) {
             <div className="flex flex-col gap-5 border-t border-white/5 pt-6">
               {customer ? (
                 <div className="flex flex-col gap-3">
-                  <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 p-3 rounded-xl">
-                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-black flex items-center justify-center font-bold text-sm font-syne">
+                  <div className="flex items-center gap-3 bg-white/[0.03] border border-white/5 p-3 rounded-xl relative overflow-hidden">
+                    {customer.is_premium && (
+                      <div className="absolute top-0 right-0 bg-gradient-to-l from-[#f5c842]/10 to-transparent w-full h-full pointer-events-none" />
+                    )}
+                    <div className="w-10 h-10 rounded-full bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-black flex items-center justify-center font-bold text-sm font-syne shadow-[0_0_15px_rgba(245,200,66,0.15)]">
                       {customer.name ? customer.name.split(' ').map(n => n[0]).join('').slice(0,2).toUpperCase() : 'U'}
                     </div>
                     <div className="flex-1 min-w-0">
-                      <p className="text-sm font-semibold text-white truncate">Hi, {customer.name}!</p>
+                      <div className="flex items-center gap-1.5">
+                        <p className="text-sm font-semibold text-white truncate">Hi, {customer.name}!</p>
+                        {customer.is_premium && (
+                          <span className="bg-[#f5c842]/10 border border-[#f5c842]/30 text-[#f5c842] text-[8px] font-extrabold px-1.5 py-0.2 rounded uppercase tracking-widest shrink-0">
+                            PRO
+                          </span>
+                        )}
+                      </div>
                       <p className="text-[11px] text-gray-500 truncate">{customer.email}</p>
                     </div>
                   </div>
