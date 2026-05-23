@@ -572,7 +572,15 @@ export default function HomePage() {
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Quick Links</div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                {[['/#products', 'Products'], ['/#pricing', 'Pricing'], ['/#faq', 'FAQ'], ['/account', 'My Account']]
+                {[
+                  ['/#products', 'Products'],
+                  ['/#pricing', 'Pricing'],
+                  ['/#faq', 'FAQ'],
+                  ['/testimonials', 'Real Testimonials'],
+                  ['/refund-policy', 'Refund Policy'],
+                  ['/terms-privacy', 'Terms & Privacy'],
+                  ['/account', 'My Account']
+                ]
                   .filter(([_, label]) => label !== 'Pricing' || settings.bundle_enabled !== false)
                   .map(([href, label]) => (
                     <Link key={href} href={href} className="theme-link text-sm no-underline">{label}</Link>

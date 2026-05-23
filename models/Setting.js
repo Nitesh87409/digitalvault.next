@@ -56,6 +56,16 @@ const SettingSchema = new mongoose.Schema({
 
   // Recycle Bin auto-delete (days, 0 = never auto-delete)
   bin_auto_delete_days: { type: Number, default: 30 },
+
+  // Custom Pages HTML Content
+  refund_policy_content: { 
+    type: String, 
+    default: `<h1>Refund Policy</h1><p>At DigitalVault, we want to ensure your complete satisfaction with our premium digital items. Since our products are downloadable and digitally delivered, they are generally non-refundable once download links are accessed. However, we proudly offer a <strong>7-Day Refund Guarantee</strong> under the following conditions:</p><ul><li>The digital product is defective or does not function as described on its description page.</li><li>You have contacted our technical support team and we were unable to resolve your download or setup issue within 3 business days.</li></ul><p>To submit a refund request, please email us at support with your complete purchase order details. Approved refunds will be processed back to your original payment method within 5-7 working days.</p>` 
+  },
+  terms_privacy_content: { 
+    type: String, 
+    default: `<h1>Terms & Privacy Policy</h1><h2>1. Terms of Service</h2><p>By accessing and using DigitalVault, you agree to comply with and be bound by these terms. Our digital files and products are provided "as is" without warranties of any kind. You are granted a personal or business usage license depending on the product purchased. Reselling, sub-licensing, sharing, or distributing any purchased assets publicly is strictly prohibited.</p><h2>2. Privacy Policy</h2><p>We value your privacy. We collect your name, email address, and phone number solely to manage your orders, deliver instant downloads, and provide support. We do not sell, rent, or share your data with third parties. Payments are securely processed via Razorpay, and we do not store your credit card or financial details on our servers.</p>` 
+  },
 }, { timestamps: true });
 
 if (mongoose.models.Setting) {

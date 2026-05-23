@@ -69,7 +69,9 @@ export async function POST(request) {
       'bundle_sales_limit',
       'bundle_validity_days',
       'bundle_allow_repurchase',
-      'bundle_send_email'
+      'bundle_send_email',
+      'refund_policy_content',
+      'terms_privacy_content'
     ];
 
     fields.forEach((field) => {
