@@ -1,6 +1,8 @@
 import './globals.css';
-import MobileBottomNav from '@/components/MobileBottomNav';
 import { Syne, DM_Sans } from 'next/font/google';
+import dynamic from 'next/dynamic';
+
+const MobileBottomNav = dynamic(() => import('@/components/MobileBottomNav'));
 
 const syne = Syne({
   subsets: ['latin'],

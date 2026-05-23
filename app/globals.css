@@ -429,36 +429,50 @@ input, textarea, select, button {
   }
 }
 
-/* Premium Shimmering skeleton styles for zero-CLS loading */
+/* Premium Shimmering skeleton styles for zero-CLS loading (GPU composited transform) */
 @keyframes shimmer {
-  0% {
-    background-position: -200% 0;
-  }
   100% {
-    background-position: 200% 0;
+    transform: translateX(100%);
   }
 }
 
 .skeleton-shimmer {
+  position: relative;
+  overflow: hidden;
+  background-color: rgba(255, 255, 255, 0.03) !important;
+  background-image: none !important;
+}
+
+.skeleton-shimmer::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 200%;
+  height: 100%;
   background: linear-gradient(
     90deg,
-    rgba(255, 255, 255, 0.02) 25%,
-    rgba(255, 255, 255, 0.08) 37%,
-    rgba(255, 255, 255, 0.02) 63%
+    transparent,
+    rgba(255, 255, 255, 0.06),
+    transparent
   );
-  background-size: 200% 100%;
+  transform: translateX(-100%);
   animation: shimmer 1.6s infinite linear;
+  will-change: transform;
 }
 
 [data-theme='light'] .skeleton-shimmer {
+  background-color: rgba(15, 23, 42, 0.03) !important;
+  background-image: none !important;
+}
+
+[data-theme='light'] .skeleton-shimmer::after {
   background: linear-gradient(
     90deg,
-    rgba(15, 23, 42, 0.02) 25%,
-    rgba(15, 23, 42, 0.08) 37%,
-    rgba(15, 23, 42, 0.02) 63%
+    transparent,
+    rgba(15, 23, 42, 0.06),
+    transparent
   );
-  background-size: 200% 100%;
-  animation: shimmer 1.6s infinite linear;
 }
 
 .skeleton-bar {

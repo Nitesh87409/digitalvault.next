@@ -3,9 +3,12 @@ import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
-import Toast, { useToast } from '@/components/Toast';
+import { useToast } from '@/components/Toast';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
-import CountdownTimer from '@/components/CountdownTimer';
+import dynamic from 'next/dynamic';
+
+const Toast = dynamic(() => import('@/components/Toast'), { ssr: false });
+const CountdownTimer = dynamic(() => import('@/components/CountdownTimer'), { ssr: false });
 
 const API = process.env.NEXT_PUBLIC_APP_URL || '';
 const BUNDLE_CART_ID = '__bundle_subscription__';
