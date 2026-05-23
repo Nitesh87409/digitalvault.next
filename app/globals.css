@@ -15,8 +15,8 @@
   --surface-muted: rgba(255, 255, 255, 0.05);
   --text: #e8e8f0;
   --heading: #ffffff;
-  --muted: #9ca3af;
-  --muted-2: #6b7280;
+  --muted: #d1d5db;
+  --muted-2: #9ca3af;
   --line: rgba(255, 255, 255, 0.1);
   --line-soft: rgba(255, 255, 255, 0.06);
   --nav-bg: rgba(10, 10, 15, 0.85);
@@ -482,6 +482,12 @@ input, textarea, select, button {
 
 [data-theme='light'] .skeleton-bar {
   background-color: rgba(15, 23, 42, 0.05);
+}
+
+/* GPU Offscreen Layout Lazy-Loading for extreme performance */
+.content-lazy {
+  content-visibility: auto;
+  contain-intrinsic-size: 500px;
 }
 
 /* Smooth premium fade-in animation for loaded items */

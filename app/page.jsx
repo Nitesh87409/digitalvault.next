@@ -9,6 +9,8 @@ import dynamic from 'next/dynamic';
 
 const Toast = dynamic(() => import('@/components/Toast'), { ssr: false });
 const CountdownTimer = dynamic(() => import('@/components/CountdownTimer'), { ssr: false });
+const FaqSection = dynamic(() => import('@/components/FaqSection'), { ssr: false });
+const TestimonialsSection = dynamic(() => import('@/components/TestimonialsSection'), { ssr: false });
 
 const API = process.env.NEXT_PUBLIC_APP_URL || '';
 const BUNDLE_CART_ID = '__bundle_subscription__';
@@ -528,7 +530,7 @@ export default function HomePage() {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="bg-[#f5c842]/[0.03] px-6 py-20">
+      <section id="features" className="content-lazy bg-[#f5c842]/[0.03] px-6 py-20">
         <div className="mx-auto max-w-[1152px]">
           <div className="mb-14 text-center">
             <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">Why Choose Us?</h2>
@@ -553,47 +555,11 @@ export default function HomePage() {
         </div>
       </section>
 
-
-
       {/* TESTIMONIALS */}
-      <section className="bg-[#f5c842]/[0.03] px-6 py-20">
-        <div className="mx-auto max-w-[1152px]">
-          <div className="mb-14 text-center">
-            <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">What Customers Say</h2>
-          </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(280px, 1fr))', gap: '24px' }}>
-            {homepageReviews.map(t => (
-              <div key={t._id || t.name} className="theme-card rounded-2xl p-6">
-                <div className="stars text-[#f5c842]" style={{ marginBottom: '12px', fontSize: '1.1rem' }}>
-                  {'★'.repeat(t.rating || 5) + '☆'.repeat(5 - (t.rating || 5))}
-                </div>
-                <p className="mb-5 text-sm text-[var(--text)]">{t.review}</p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                  <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.color, color: t.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem', fontFamily: 'Syne,sans-serif' }}>{t.initials}</div>
-                  <div>
-                    <div className="text-sm font-semibold text-[var(--heading)]">{t.name}</div>
-                    <div className="text-xs text-[var(--muted-2)]">{t.role}</div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      <TestimonialsSection homepageReviews={homepageReviews} />
 
       {/* FAQ */}
-      <section id="faq" className="bg-[var(--bg)] px-6 py-20">
-        <div className="mx-auto max-w-3xl">
-          <div className="mb-14 text-center">
-            <h2 className="font-syne text-4xl font-bold text-[var(--heading)]">Frequently Asked Questions</h2>
-          </div>
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-            {faqs.map((faq, i) => (
-              <FaqItem key={faq._id || i} q={faq.q} a={faq.a} />
-            ))}
-          </div>
-        </div>
-      </section>
+      <FaqSection faqs={faqs} />
 
       {/* FOOTER */}
       <footer className="border-t border-[#f5c842]/15 bg-[var(--bg)] px-6 py-12">
@@ -623,8 +589,8 @@ export default function HomePage() {
             </div>
           </div>
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.06)', paddingTop: '24px', display: 'flex', justifyContent: 'space-between', flexWrap: 'wrap', gap: '8px' }}>
-            <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>© {new Date().getFullYear()} {settings.app_name}. All rights reserved.</p>
-            <p style={{ color: '#4b5563', fontSize: '0.75rem' }}>Payments secured by Razorpay 🔒</p>
+            <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>© {new Date().getFullYear()} {settings.app_name}. All rights reserved.</p>
+            <p style={{ color: 'var(--muted-2)', fontSize: '0.75rem' }}>Payments secured by Razorpay 🔒</p>
           </div>
         </div>
       </footer>
@@ -632,15 +598,4 @@ export default function HomePage() {
   );
 }
 
-function FaqItem({ q, a }) {
-  const [open, setOpen] = useState(false);
-  return (
-    <div className="theme-card cursor-pointer rounded-2xl p-6" onClick={() => setOpen(!open)}>
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-        <span className="text-[0.95rem] font-semibold text-[var(--heading)]">{q}</span>
-        <span style={{ color: '#f5c842', fontSize: '1.2rem', transition: 'transform 0.3s', transform: open ? 'rotate(180deg)' : 'none' }}>↓</span>
-      </div>
-      {open && <p className="mt-4 text-sm leading-7 text-[var(--muted)]">{a}</p>}
-    </div>
-  );
-}
+

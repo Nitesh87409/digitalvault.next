@@ -44,6 +44,14 @@ export function useBundlePurchase({ showToast } = {}) {
   const [bundleLoading, setBundleLoading] = useState(false);
 
   const refreshBundleAccess = useCallback(async () => {
+    // Prevent console 401 network errors for anonymous/unlogged visitors
+    const hasLocalCustomer = typeof window !== 'undefined' && !!localStorage.getItem('dv_customer');
+    if (!hasLocalCustomer) {
+      setHasBundleAccess(false);
+      setBundleStatus('none');
+      return false;
+    }
+
     try {
       const res = await fetch('/api/bundle/access', { cache: 'no-store' });
       if (res.status === 401) {
