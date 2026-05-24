@@ -37,6 +37,52 @@ export default function AdminBundlePage() {
   const [subscriptionQuery, setSubscriptionQuery] = useState('');
   const [newFeature, setNewFeature] = useState('');
   const [exporting, setExporting] = useState(false);
+  const [uploadingBanner, setUploadingBanner] = useState(false);
+
+  async function handleBannerUpload(files) {
+    if (!files || files.length === 0) return;
+    const file = files[0];
+
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+    const MIN_SIZE_BYTES = 5 * 1024; // 5KB
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+
+    if (!ALLOWED_TYPES.includes(file.type)) {
+      alert('Invalid format! Only JPG, PNG, WEBP, and GIF are allowed.');
+      return;
+    }
+    if (file.size < MIN_SIZE_BYTES) {
+      alert('File is too small! Minimum size is 5 KB.');
+      return;
+    }
+    if (file.size > MAX_SIZE_BYTES) {
+      alert('File is too large! Maximum size is 5 MB.');
+      return;
+    }
+
+    setUploadingBanner(true);
+    const fd = new FormData();
+    fd.append('file', file);
+
+    try {
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: fd
+      });
+      const data = await res.json();
+      if (data.flag && data.url) {
+        setSettings(prev => ({ ...prev, bundle_banner_image: data.url }));
+        setMessage('Banner uploaded successfully! Click Save to apply changes.');
+        setTimeout(() => setMessage(''), 3000);
+      } else {
+        alert(data.message || 'Upload failed');
+      }
+    } catch (e) {
+      alert('Upload failed due to connection error');
+    } finally {
+      setUploadingBanner(false);
+    }
+  }
 
   useEffect(() => {
     loadBundleAdmin();
@@ -343,13 +389,48 @@ export default function AdminBundlePage() {
                         <input type="checkbox" checked={!!settings.bundle_show_discount} onChange={e => setSettings({ ...settings, bundle_show_discount: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
                       </label>
                       <div>
-                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Banner Image URL</label>
-                        <input className={inputClass} value={settings.bundle_banner_image} onChange={e => setSettings({ ...settings, bundle_banner_image: e.target.value })} placeholder="https://... (Cloudinary URL or leave empty)" />
+                        <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">🖼️ Banner Image (Direct Upload)</label>
+                        
+                        <div 
+                          onClick={() => document.getElementById('banner-upload-input').click()} 
+                          onDragOver={e => e.preventDefault()} 
+                          onDrop={e => { e.preventDefault(); handleBannerUpload(e.dataTransfer.files); }}
+                          className="border-2 border-dashed border-[#f5c842]/20 rounded-xl p-4 text-center cursor-pointer hover:border-[#f5c842]/50 hover:bg-[#f5c842]/5 transition-all bg-[#12121a] mb-4"
+                        >
+                          {uploadingBanner ? (
+                            <div className="flex flex-col items-center justify-center gap-2 py-4">
+                              <div className="h-8 w-8 animate-spin rounded-full border-4 border-[#f5c842] border-t-transparent"></div>
+                              <p className="text-xs text-gray-400 font-semibold font-syne animate-pulse">Uploading banner to CDN...</p>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="text-2xl mb-1">📁</div>
+                              <p className="text-[#f5c842] text-xs font-bold font-syne">Click or Drag & Drop to Upload Banner</p>
+                              <div className="mt-2 flex flex-col gap-0.5 text-[9px] text-gray-400 font-sans tracking-wide uppercase">
+                                <span>📏 Recommended Size: Wide Landscape (e.g. 1200px × 400px or 3:1 ratio)</span>
+                                <span>⚖️ File Size: Min 5 KB — Max 5 MB</span>
+                                <span>🎨 Formats: JPG, PNG, WEBP, GIF</span>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                        <input id="banner-upload-input" type="file" accept="image/*" className="hidden" onChange={e => handleBannerUpload(e.target.files)} />
+
                         {settings.bundle_banner_image && (
-                          <div className="mt-4 rounded-xl border border-white/10 overflow-hidden max-h-32">
+                          <div className="relative group rounded-xl border border-white/10 overflow-hidden max-h-48 mb-6">
                             <img src={settings.bundle_banner_image} alt="Banner Preview" className="w-full h-full object-cover" />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity duration-200">
+                              <button 
+                                type="button" 
+                                onClick={() => setSettings(prev => ({ ...prev, bundle_banner_image: '' }))} 
+                                className="bg-red-500 hover:bg-red-600 text-white font-syne font-bold px-4 py-2 rounded-lg border-none cursor-pointer text-xs transition-colors"
+                              >
+                                Remove Banner ✕
+                              </button>
+                            </div>
                           </div>
                         )}
+
                       </div>
                     </div>
 
