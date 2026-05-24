@@ -4,12 +4,24 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import path from 'path';
 import fs from 'fs';
+import { buildRateLimitKey, consumeRateLimit } from '@/lib/security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
+    const rateLimitKey = buildRateLimitKey(request, 'single-download');
+    const rate = consumeRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
+    if (!rate.allowed) {
+      return new NextResponse('Too many download requests. Please try again in a minute.', {
+        status: 429,
+        headers: {
+          'Retry-After': String(rate.retryAfterSeconds),
+        },
+      });
+    }
+
     await connectDB();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
@@ -36,7 +48,48 @@ export async function GET(request) {
     await Order.updateOne({ _id: order._id }, { $inc: { download_count: 1 } });
 
     if (product.file_url.startsWith('http')) {
-      return NextResponse.redirect(product.file_url);
+      const upstream = await fetch(product.file_url, { cache: 'no-store' });
+      if (!upstream.ok || !upstream.body) {
+        return new NextResponse('File not found.', { status: 404 });
+      }
+
+      let filename = 'download';
+      try {
+        const parsed = new URL(product.file_url);
+        const base = path.basename(parsed.pathname || '');
+        if (base && base.includes('.')) {
+          filename = decodeURIComponent(base);
+        } else {
+          filename = `${(product.name || 'download').replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'download'}.zip`;
+        }
+      } catch {
+        filename = `${(product.name || 'download').replace(/[^\w.-]+/g, '-').replace(/^-+|-+$/g, '') || 'download'}.zip`;
+      }
+
+      const MIME_TYPES = {
+        '.pdf': 'application/pdf',
+        '.zip': 'application/zip',
+        '.rar': 'application/vnd.rar',
+        '.7z': 'application/x-7z-compressed',
+        '.png': 'image/png',
+        '.jpg': 'image/jpeg',
+        '.jpeg': 'image/jpeg',
+        '.webp': 'image/webp',
+        '.mp4': 'video/mp4',
+        '.mp3': 'audio/mpeg',
+        '.csv': 'text/csv',
+        '.txt': 'text/plain',
+      };
+      const ext = path.extname(filename).toLowerCase();
+      const contentType = upstream.headers.get('content-type') || MIME_TYPES[ext] || 'application/octet-stream';
+
+      return new NextResponse(upstream.body, {
+        headers: {
+          'Content-Disposition': `attachment; filename="${filename.replace(/"/g, '')}"`,
+          'Content-Type': contentType,
+          'Cache-Control': 'no-store',
+        },
+      });
     }
 
     const publicDir = path.join(process.cwd(), 'public');

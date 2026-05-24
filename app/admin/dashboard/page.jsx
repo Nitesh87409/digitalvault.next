@@ -123,9 +123,47 @@ export default function AdminDashboard() {
   }
 
   function handleFiles(files) {
-    const remaining = 10 - images.length - newFiles.length;
-    if (remaining <= 0) { alert('Max 10 images!'); return; }
-    setNewFiles(prev => [...prev, ...Array.from(files).slice(0, remaining)]);
+    const MAX_IMAGES = 10;
+    const MIN_SIZE_BYTES = 5 * 1024; // 5KB
+    const MAX_SIZE_BYTES = 5 * 1024 * 1024; // 5MB
+    const ALLOWED_TYPES = ['image/jpeg', 'image/png', 'image/webp', 'image/gif'];
+
+    const remaining = MAX_IMAGES - images.length - newFiles.length;
+    if (remaining <= 0) {
+      alert('Max 10 images are allowed. You have reached the limit!');
+      return;
+    }
+
+    const validFiles = [];
+    const errors = [];
+
+    Array.from(files).forEach(file => {
+      if (!ALLOWED_TYPES.includes(file.type)) {
+        errors.push(`"${file.name}" has an invalid format (Only JPG, PNG, WEBP, and GIF are allowed).`);
+        return;
+      }
+      if (file.size < MIN_SIZE_BYTES) {
+        errors.push(`"${file.name}" is too small (Min size is 5 KB).`);
+        return;
+      }
+      if (file.size > MAX_SIZE_BYTES) {
+        errors.push(`"${file.name}" is too large (Max size is 5 MB).`);
+        return;
+      }
+      validFiles.push(file);
+    });
+
+    if (errors.length > 0) {
+      alert(errors.join('\n'));
+    }
+
+    if (validFiles.length > 0) {
+      const toAdd = validFiles.slice(0, remaining);
+      if (validFiles.length > remaining) {
+        alert(`Only ${remaining} images could be added. Max limit is 10.`);
+      }
+      setNewFiles(prev => [...prev, ...toAdd]);
+    }
   }
 
   async function saveProduct() {
@@ -632,10 +670,14 @@ export default function AdminDashboard() {
                 <div>
                   <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">🖼️ Images (Max 10)</label>
                   <div onClick={() => document.getElementById('img-upload').click()} onDragOver={e => e.preventDefault()} onDrop={e => { e.preventDefault(); handleFiles(e.dataTransfer.files); }}
-                    className="border-2 border-dashed border-[#f5c842]/20 rounded-xl p-5 text-center cursor-pointer hover:border-[#f5c842]/50 hover:bg-[#f5c842]/5 transition-all">
-                    <div className="text-2xl mb-1.5">📁</div>
-                    <p className="text-[#f5c842] text-xs font-semibold">Click or Drag & Drop</p>
-                    <p className="text-gray-500 text-[10px] mt-1 uppercase tracking-widest">JPG, PNG, WEBP</p>
+                    className="border-2 border-dashed border-[#f5c842]/20 rounded-xl p-4 text-center cursor-pointer hover:border-[#f5c842]/50 hover:bg-[#f5c842]/5 transition-all bg-[#12121a]">
+                    <div className="text-2xl mb-1">📁</div>
+                    <p className="text-[#f5c842] text-xs font-bold font-syne">Click or Drag & Drop</p>
+                    <div className="mt-2 flex flex-col gap-0.5 text-[9px] text-gray-400 font-sans tracking-wide uppercase">
+                      <span>📏 Ideal Size: 1:1 Square (e.g. 800px × 800px)</span>
+                      <span>⚖️ File Size: Min 5 KB — Max 5 MB</span>
+                      <span>🎨 Formats: JPG, PNG, WEBP, GIF</span>
+                    </div>
                   </div>
                   <input id="img-upload" type="file" multiple accept="image/*" className="hidden" onChange={e => handleFiles(e.target.files)} />
                   {(images.length > 0 || newFiles.length > 0) && (

@@ -78,7 +78,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
               <span className="text-[10px] font-medium leading-none text-[var(--heading)]">{rating}</span>
             </div>
             
-            {hasBundleAccess ? (
+            {hasBundleAccess && isBundleProduct ? (
               <a
                 href={`/api/bundle/download/${productId}`}
                 download

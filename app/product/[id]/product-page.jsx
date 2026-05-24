@@ -303,7 +303,7 @@ export default function ProductPage({ id }) {
 
               {/* Buttons */}
               <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
-                {hasBundleAccess ? (
+                {hasBundleAccess && product.included_in_bundle ? (
                   <a
                     href={`/api/bundle/download/${product.id || product._id}`}
                     className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all text-center no-underline flex items-center justify-center shadow-lg hover:scale-[1.01]"

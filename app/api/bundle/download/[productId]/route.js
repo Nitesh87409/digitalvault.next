@@ -6,6 +6,7 @@ import { verifyCustomer } from '@/lib/auth';
 import { hasActiveBundleAccess } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
 import Product from '@/models/Product';
+import { buildRateLimitKey, consumeRateLimit } from '@/lib/security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -47,6 +48,17 @@ function getContentType(filename, fallback = 'application/octet-stream') {
 
 export async function GET(request, { params }) {
   try {
+    const rateLimitKey = buildRateLimitKey(request, 'bundle-download');
+    const rate = consumeRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
+    if (!rate.allowed) {
+      return new NextResponse('Too many download requests. Please try again in a minute.', {
+        status: 429,
+        headers: {
+          'Retry-After': String(rate.retryAfterSeconds),
+        },
+      });
+    }
+
     await connectDB();
 
     const decoded = verifyCustomer(request);
@@ -72,6 +84,9 @@ export async function GET(request, { params }) {
     if (!product) return new NextResponse('Product not found', { status: 404 });
     if (!product.status) {
       return new NextResponse('Bundle download not allowed for this product', { status: 403 });
+    }
+    if (!product.included_in_bundle) {
+      return new NextResponse('This product is not included in the bundle', { status: 403 });
     }
     if (!product.file_url) {
       return new NextResponse('File not found', { status: 404 });
