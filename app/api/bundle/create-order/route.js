@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
-import { buildRateLimitKey, consumeRateLimit, normalizeBundlePrices } from '@/lib/security';
+import { buildRateLimitKey, consumePersistentRateLimit, normalizeBundlePrices } from '@/lib/security';
 import { getBundleAccessStatus } from '@/lib/bundle-access';
 import Coupon from '@/models/Coupon';
 import Customer from '@/models/Customer';
@@ -113,7 +113,7 @@ export async function POST(request) {
     if (!customer) return json({ message: 'User not logged in' }, 401);
 
     const rateKey = buildRateLimitKey(request, 'bundle-create-order', customer._id.toString());
-    const rate = consumeRateLimit(rateKey, { limit: 5, windowMs: 60_000 });
+    const rate = await consumePersistentRateLimit(rateKey, { limit: 5, windowMs: 60_000 });
     if (!rate.allowed) {
       return json(
         { message: 'Too many bundle order requests. Try again shortly.' },

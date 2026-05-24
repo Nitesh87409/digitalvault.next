@@ -4,15 +4,18 @@ import Order from '@/models/Order';
 import Product from '@/models/Product';
 import path from 'path';
 import fs from 'fs';
-import { buildRateLimitKey, consumeRateLimit } from '@/lib/security';
+import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
+import { fetchSafeRemoteFile } from '@/lib/safe-download-source';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 export async function GET(request) {
   try {
+    await connectDB();
+
     const rateLimitKey = buildRateLimitKey(request, 'single-download');
-    const rate = consumeRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
+    const rate = await consumePersistentRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
     if (!rate.allowed) {
       return new NextResponse('Too many download requests. Please try again in a minute.', {
         status: 429,
@@ -22,7 +25,6 @@ export async function GET(request) {
       });
     }
 
-    await connectDB();
     const { searchParams } = new URL(request.url);
     const token = searchParams.get('token');
     const pid = searchParams.get('pid');
@@ -48,14 +50,14 @@ export async function GET(request) {
     await Order.updateOne({ _id: order._id }, { $inc: { download_count: 1 } });
 
     if (product.file_url.startsWith('http')) {
-      const upstream = await fetch(product.file_url, { cache: 'no-store' });
+      const { response: upstream, url: resolvedUrl } = await fetchSafeRemoteFile(product.file_url);
       if (!upstream.ok || !upstream.body) {
         return new NextResponse('File not found.', { status: 404 });
       }
 
       let filename = 'download';
       try {
-        const parsed = new URL(product.file_url);
+        const parsed = new URL(resolvedUrl);
         const base = path.basename(parsed.pathname || '');
         if (base && base.includes('.')) {
           filename = decodeURIComponent(base);
@@ -112,6 +114,9 @@ export async function GET(request) {
     return new NextResponse('File not found on server.', { status: 404 });
   } catch (e) {
     console.error(e.message);
+    if (e.message?.toLowerCase().includes('remote download') || e.message?.toLowerCase().includes('blocked download host')) {
+      return new NextResponse('File source is not allowed.', { status: 400 });
+    }
     return new NextResponse('Server error.', { status: 500 });
   }
 }

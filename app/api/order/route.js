@@ -15,8 +15,8 @@ export const dynamic = 'force-dynamic';
 
 const DOWNLOAD_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
 
-function json(flag, message, extra = {}) {
-  return NextResponse.json({ flag, message, ...extra });
+function json(flag, message, extra = {}, status = 200) {
+  return NextResponse.json({ flag, message, ...extra }, { status });
 }
 
 function money(value) {
@@ -41,13 +41,13 @@ function getRazorpayKey() {
 
 async function getActiveCustomer(request) {
   const decoded = verifyCustomer(request);
-  if (!decoded) return { error: json(0, 'Unauthorized') };
+  if (!decoded) return { error: json(0, 'Unauthorized', {}, 401) };
 
   const customer = await Customer.findById(decoded.id)
     .select('name email phone is_blocked')
     .lean();
   if (!customer || customer.is_blocked) {
-    return { error: json(0, 'Unauthorized') };
+    return { error: json(0, 'Unauthorized', {}, 401) };
   }
   return { customer };
 }
@@ -231,7 +231,7 @@ export async function GET(request) {
     const type = searchParams.get('type');
 
     const admin = verifyAdmin(request);
-    if (!admin) return json(0, 'Unauthorized');
+    if (!admin) return json(0, 'Unauthorized', {}, 401);
 
     if (type === 'stats') {
       const totalSales = await Order.countDocuments({ payment_status: 1 });
@@ -508,7 +508,7 @@ export async function POST(request) {
 
     if (action === 'update-status') {
       const admin = verifyAdmin(request);
-      if (!admin) return json(0, 'Unauthorized');
+      if (!admin) return json(0, 'Unauthorized', {}, 401);
       const { order_id, payment_status } = body;
       if (!mongoose.Types.ObjectId.isValid(order_id) || ![0, 1, 2].includes(payment_status)) {
         return json(0, 'Invalid order or status');
@@ -520,7 +520,7 @@ export async function POST(request) {
 
     if (action === 'export-csv') {
       const admin = verifyAdmin(request);
-      if (!admin) return json(0, 'Unauthorized');
+      if (!admin) return json(0, 'Unauthorized', {}, 401);
       const orders = await Order.find().populate('product_id', 'name').sort({ createdAt: -1 }).lean();
       const headers = ['Customer', 'Email', 'Phone', 'Product', 'Amount (₹)', 'Original (₹)', 'Discount (₹)', 'Coupon', 'Payment ID', 'Status', 'Date'];
       const rows = orders.map(o => [

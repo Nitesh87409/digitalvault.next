@@ -10,7 +10,7 @@ import { verifyAdmin } from '@/lib/auth';
 export async function GET(request) {
   try {
     const admin = verifyAdmin(request);
-    if (!admin) return NextResponse.json({ flag: 0, message: 'Unauthorized' });
+    if (!admin) return NextResponse.json({ flag: 0, message: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
 
@@ -98,4 +98,3 @@ export async function GET(request) {
     return NextResponse.json({ flag: 0, message: 'Server error' });
   }
 }
-

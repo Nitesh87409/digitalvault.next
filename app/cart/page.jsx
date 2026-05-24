@@ -122,7 +122,7 @@ export default function CartPage() {
     setCouponData(null);
     try {
       const product_id = cart.length === 1 && cart[0]?.type !== 'bundle' ? cart[0].id : '';
-      const res = await fetch(`/api/coupon?action=validate&code=${couponCode}&email=${customer?.email}&amount=${subtotal}&product_id=${product_id}&is_bundle=${isBundleCart}`);
+      const res = await fetch(`/api/coupon?action=validate&code=${couponCode}&amount=${subtotal}&product_id=${product_id}&is_bundle=${isBundleCart}`);
       const data = await res.json();
       if (data.flag) {
         setCouponData(data.coupon);
@@ -485,4 +485,3 @@ export default function CartPage() {
     </>
   );
 }
-

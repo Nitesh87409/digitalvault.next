@@ -4,7 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Customer from "@/models/Customer";
 import Setting from "@/models/Setting";
 import { generateToken, verifyCustomer } from "@/lib/auth";
-import { buildRateLimitKey, consumeRateLimit } from "@/lib/security";
+import { buildRateLimitKey, consumePersistentRateLimit } from "@/lib/security";
 import { hasActiveBundleAccess } from "@/lib/bundle-access";
 
 const CUSTOMER_AUTH_LIMIT = { limit: 5, windowMs: 60_000 };
@@ -51,7 +51,7 @@ export async function POST(request) {
         return deny("Password must be at least 6 characters", 400);
       }
 
-      const rateLimit = consumeRateLimit(buildRateLimitKey(request, "customer-register", email), CUSTOMER_AUTH_LIMIT);
+      const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, "customer-register", email), CUSTOMER_AUTH_LIMIT);
       if (!rateLimit.allowed) {
         return deny("Too many requests. Please try again later.", 429);
       }
@@ -121,7 +121,7 @@ export async function POST(request) {
         return deny("Email and password required", 400);
       }
 
-      const rateLimit = consumeRateLimit(buildRateLimitKey(request, "customer-login", email), CUSTOMER_AUTH_LIMIT);
+      const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, "customer-login", email), CUSTOMER_AUTH_LIMIT);
       if (!rateLimit.allowed) {
         return deny("Too many login attempts. Please try again later.", 429);
       }

@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
 import { getBundleProducts, hasActiveBundleAccess } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
+import { sanitizeRichText } from '@/lib/sanitize-content';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -12,7 +13,7 @@ function toPublicProduct(product) {
     id: product._id?.toString(),
     _id: product._id,
     name: product.name,
-    description: product.description || '',
+    description: sanitizeRichText(product.description || ''),
     category: product.category || 'Uncategorized',
     images: product.images || [],
     original_price: product.original_price,

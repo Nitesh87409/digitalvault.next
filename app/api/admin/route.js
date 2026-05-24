@@ -3,8 +3,7 @@ import bcrypt from "bcryptjs";
 import connectDB from "@/lib/mongodb";
 import Admin from "@/models/Admin";
 import Otp from "@/models/Otp";
-import { generateToken } from "@/lib/auth";
-import { buildRateLimitKey, consumeRateLimit, generateSecureOtp } from "@/lib/security";
+import { buildRateLimitKey, consumePersistentRateLimit, generateSecureOtp } from "@/lib/security";
 import { sendAdmin2faOTP } from "@/lib/mailer";
 
 const ADMIN_LOGIN_LIMIT = { limit: 5, windowMs: 60_000 };
@@ -31,7 +30,7 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: "Email and password required" }, { status: 400 });
     }
 
-    const rateLimit = consumeRateLimit(buildRateLimitKey(request, "admin-login", email), ADMIN_LOGIN_LIMIT);
+    const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, "admin-login", email), ADMIN_LOGIN_LIMIT);
     if (!rateLimit.allowed) {
       return NextResponse.json({ flag: 0, message: "Too many login attempts. Please try again later." }, { status: 429 });
     }

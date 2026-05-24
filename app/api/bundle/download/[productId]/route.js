@@ -6,7 +6,8 @@ import { verifyCustomer } from '@/lib/auth';
 import { hasActiveBundleAccess } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
 import Product from '@/models/Product';
-import { buildRateLimitKey, consumeRateLimit } from '@/lib/security';
+import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
+import { fetchSafeRemoteFile } from '@/lib/safe-download-source';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
@@ -48,8 +49,10 @@ function getContentType(filename, fallback = 'application/octet-stream') {
 
 export async function GET(request, { params }) {
   try {
+    await connectDB();
+
     const rateLimitKey = buildRateLimitKey(request, 'bundle-download');
-    const rate = consumeRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
+    const rate = await consumePersistentRateLimit(rateLimitKey, { limit: 15, windowMs: 60_000 });
     if (!rate.allowed) {
       return new NextResponse('Too many download requests. Please try again in a minute.', {
         status: 429,
@@ -58,8 +61,6 @@ export async function GET(request, { params }) {
         },
       });
     }
-
-    await connectDB();
 
     const decoded = verifyCustomer(request);
     if (!decoded?.id) {
@@ -95,7 +96,7 @@ export async function GET(request, { params }) {
     const filename = getFileName(product, product.file_url);
 
     if (product.file_url.startsWith('http')) {
-      const upstream = await fetch(product.file_url, { cache: 'no-store' });
+      const { response: upstream } = await fetchSafeRemoteFile(product.file_url);
       if (!upstream.ok || !upstream.body) {
         return new NextResponse('File not found', { status: 404 });
       }
@@ -129,6 +130,9 @@ export async function GET(request, { params }) {
     });
   } catch (error) {
     console.error('[Bundle] download error:', error);
+    if (error.message?.toLowerCase().includes('remote download') || error.message?.toLowerCase().includes('blocked download host')) {
+      return new NextResponse('File source is not allowed', { status: 400 });
+    }
     return new NextResponse('Server error', { status: 500 });
   }
 }

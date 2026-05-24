@@ -3,6 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Setting from '@/models/Setting';
 import { verifyAdmin } from '@/lib/auth';
 import { getAdminSettings, getPublicSettings } from '@/lib/security';
+import { sanitizeRichText } from '@/lib/sanitize-content';
 
 export const dynamic = 'force-dynamic';
 
@@ -87,7 +88,11 @@ export async function POST(request) {
 
     fields.forEach((field) => {
       if (payload[field] !== undefined) {
-        settings[field] = payload[field];
+        if (field === 'refund_policy_content' || field === 'terms_privacy_content') {
+          settings[field] = sanitizeRichText(payload[field]);
+        } else {
+          settings[field] = payload[field];
+        }
       }
     });
 

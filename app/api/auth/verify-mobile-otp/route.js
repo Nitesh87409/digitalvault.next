@@ -5,6 +5,7 @@ import Otp from '@/models/Otp';
 import Customer from '@/models/Customer';
 import Setting from '@/models/Setting';
 import { generateToken } from '@/lib/auth';
+import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
 
 export async function POST(request) {
   try {
@@ -15,6 +16,10 @@ export async function POST(request) {
     if (!phone || !otp) return NextResponse.json({ flag: 0, message: 'Mobile number and OTP required' });
 
     const normalizedPhone = phone.trim();
+    const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, 'otp-verify-mobile', normalizedPhone), { limit: 10, windowMs: 60_000 });
+    if (!rateLimit.allowed) {
+      return NextResponse.json({ flag: 0, message: 'Too many verification attempts. Please try again later.' }, { status: 429 });
+    }
 
     let settings = await Setting.findOne().lean();
     if (!settings) {

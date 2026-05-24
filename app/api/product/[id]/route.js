@@ -2,6 +2,8 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import Product from '@/models/Product';
 import { verifyAdmin } from '@/lib/auth';
+import { sanitizePlainText, sanitizeRichText } from '@/lib/sanitize-content';
+import { normalizeStoredDownloadSource } from '@/lib/safe-download-source';
 
 // PUT /api/product/[id] — update product
 export async function PUT(request, { params }) {
@@ -18,16 +20,18 @@ export async function PUT(request, { params }) {
     if (Number(sale_price) <= 0 || Number(original_price) <= 0)
       return NextResponse.json({ flag: 0, message: 'Prices must be greater than zero' });
 
+    const safeFileUrl = await normalizeStoredDownloadSource(file_url);
+
     const product = await Product.findByIdAndUpdate(
       id,
       {
-        name: name.trim(),
-        description,
-        category: category || 'Uncategorized',
+        name: sanitizePlainText(name, 200),
+        description: sanitizeRichText(description),
+        category: sanitizePlainText(category || 'Uncategorized', 120) || 'Uncategorized',
         images: images || [],
         original_price: Number(original_price),
         sale_price: Number(sale_price),
-        file_url,
+        file_url: safeFileUrl,
         included_in_bundle: !!included_in_bundle,
       },
       { new: true }
@@ -35,6 +39,9 @@ export async function PUT(request, { params }) {
     if (!product) return NextResponse.json({ flag: 0, message: 'Product not found' });
     return NextResponse.json({ flag: 1, message: 'Product updated', product });
   } catch (e) {
+    if (e.message?.toLowerCase().includes('download')) {
+      return NextResponse.json({ flag: 0, message: e.message }, { status: 400 });
+    }
     return NextResponse.json({ flag: 0, message: 'Server error' });
   }
 }

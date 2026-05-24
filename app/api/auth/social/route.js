@@ -3,7 +3,7 @@ import connectDB from '@/lib/mongodb';
 import Customer from '@/models/Customer';
 import Setting from '@/models/Setting';
 import { generateToken } from '@/lib/auth';
-import { buildRateLimitKey, consumeRateLimit } from '@/lib/security';
+import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
 import { isSupportedSocialProvider, verifyGoogleLoginToken, verifyAppleLoginToken } from '@/lib/social-auth';
 
 const SOCIAL_AUTH_LIMIT = { limit: 5, windowMs: 60_000 };
@@ -41,7 +41,7 @@ export async function POST(request) {
     }
 
     const rateLimitKey = buildRateLimitKey(request, 'social-auth', provider);
-    const rateLimit = consumeRateLimit(rateLimitKey, SOCIAL_AUTH_LIMIT);
+    const rateLimit = await consumePersistentRateLimit(rateLimitKey, SOCIAL_AUTH_LIMIT);
     if (!rateLimit.allowed) {
       return deny('Too many authentication attempts. Please try again later.', 429);
     }

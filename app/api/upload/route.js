@@ -11,7 +11,7 @@ const ALLOWED_TYPES = new Set(['image/jpeg', 'image/png', 'image/webp', 'image/g
 export async function POST(request) {
   try {
     const admin = verifyAdmin(request);
-    if (!admin) return NextResponse.json({ flag: 0, message: 'Unauthorized' });
+    if (!admin) return NextResponse.json({ flag: 0, message: 'Unauthorized' }, { status: 401 });
 
     const formData = await request.formData();
     const file = formData.get('file');

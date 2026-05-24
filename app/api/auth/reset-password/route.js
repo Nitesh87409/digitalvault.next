@@ -6,7 +6,7 @@ import Otp from '@/models/Otp';
 import Setting from '@/models/Setting';
 import { sendResetEmailOTP } from '@/lib/mailer';
 import { sendSMS } from '@/lib/sms';
-import { buildRateLimitKey, consumeRateLimit, generateSecureOtp } from '@/lib/security';
+import { buildRateLimitKey, consumePersistentRateLimit, generateSecureOtp } from '@/lib/security';
 
 const LIMIT = { limit: 5, windowMs: 60_000 };
 const GENERIC_MSG = 'If the account exists, an OTP has been sent.';
@@ -24,7 +24,7 @@ export async function POST(request) {
       }
 
       const rateLimitKey = buildRateLimitKey(request, 'reset-send-otp', identifier);
-      const limitRes = consumeRateLimit(rateLimitKey, LIMIT);
+      const limitRes = await consumePersistentRateLimit(rateLimitKey, LIMIT);
       if (!limitRes.allowed) {
         return NextResponse.json({ flag: 0, message: 'Too many requests. Please try again later.' }, { status: 429 });
       }
@@ -46,17 +46,16 @@ export async function POST(request) {
 
       const type = isEmail ? 'reset-email' : 'reset-mobile';
       
+      const cooldownSeconds = settings.otp_resend_cooldown_seconds || 60;
       const existingOtp = await Otp.findOne({ identifier, type }).select("resend_after").lean();
       if (existingOtp && new Date() < existingOtp.resend_after) {
-        const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
-        return NextResponse.json({ flag: 0, message: `Please wait ${waitTime}s before resending.` }, { status: 429 });
+        return NextResponse.json({ flag: 1, message: GENERIC_MSG, cooldown: cooldownSeconds });
       }
 
       const otpLength = settings.otp_length || 6;
       const otp = generateSecureOtp(otpLength);
       const otp_hash = await bcrypt.hash(otp, 12);
       const expiryMinutes = settings.otp_expiry_minutes || 5;
-      const cooldownSeconds = settings.otp_resend_cooldown_seconds || 60;
       const now = Date.now();
 
       await Otp.deleteMany({ identifier, type });

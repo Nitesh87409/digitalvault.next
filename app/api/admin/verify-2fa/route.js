@@ -4,7 +4,7 @@ import connectDB from "@/lib/mongodb";
 import Admin from "@/models/Admin";
 import Otp from "@/models/Otp";
 import { generateToken } from "@/lib/auth";
-import { buildRateLimitKey, consumeRateLimit } from "@/lib/security";
+import { buildRateLimitKey, consumePersistentRateLimit } from "@/lib/security";
 
 const VERIFY_2FA_LIMIT = { limit: 10, windowMs: 60_000 };
 const MAX_OTP_ATTEMPTS = 5;
@@ -22,7 +22,7 @@ export async function POST(request) {
     }
 
     // Rate limit
-    const rateLimit = consumeRateLimit(buildRateLimitKey(request, "admin-2fa-verify", email), VERIFY_2FA_LIMIT);
+    const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, "admin-2fa-verify", email), VERIFY_2FA_LIMIT);
     if (!rateLimit.allowed) {
       return NextResponse.json({ flag: 0, message: "Too many attempts. Please try again later." }, { status: 429 });
     }
