@@ -9,6 +9,7 @@ export default function AdminLayout({ children }) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [admin, setAdmin] = useState(null);
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [settings, setSettings] = useState({ app_name: 'DigitalVault', app_logo: '' });
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -24,6 +25,21 @@ export default function AdminLayout({ children }) {
     if (typeof window !== 'undefined' && window.innerWidth >= 768) {
       setSidebarOpen(true);
     }
+
+    // Fetch settings dynamically
+    async function fetchSettings() {
+      try {
+        const res = await fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' });
+        const data = await res.json();
+        if (data.flag && data.settings) {
+          setSettings({
+            app_name: data.settings.app_name || 'DigitalVault',
+            app_logo: data.settings.app_logo || ''
+          });
+        }
+      } catch (e) {}
+    }
+    fetchSettings();
   }, []);
 
   useEffect(() => {
@@ -125,7 +141,12 @@ export default function AdminLayout({ children }) {
         style={{ WebkitOverflowScrolling: 'touch' }}
       >
         <div className="flex justify-between items-center mb-8 px-2 shrink-0">
-          <Link href="/admin/dashboard" className="font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+          <Link href="/admin/dashboard" className="font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
+            {settings.app_logo && (
+              <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" />
+            )}
+            <span>{settings.app_name}</span>
+          </Link>
           <button className="md:hidden text-gray-400 hover:text-white text-xl border-none bg-transparent cursor-pointer" onClick={() => setSidebarOpen(false)}>✕</button>
         </div>
         <nav className="flex-1 flex flex-col gap-4">

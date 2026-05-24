@@ -559,7 +559,7 @@ export default function AdminSettingsPage() {
                       return (
                         <div
                           key={platform.id}
-                          className="bg-[#0e0e18]/60 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
+                          className="bg-[#0e0e18] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
                         >
                           <div className="flex items-center justify-between gap-4 mb-4">
                             <div className="flex items-center gap-3">
@@ -624,7 +624,7 @@ export default function AdminSettingsPage() {
                       <h3 className="font-syne font-bold text-white text-lg mb-2">➕ Add Custom Social Account</h3>
                       <p className="text-xs text-[var(--muted-2)] mb-6">Need to add another network (like YouTube, Discord, or LinkedIn)? Configure it here dynamically.</p>
 
-                      <div className="bg-[#0e0e18]/40 border border-white/5 rounded-2xl p-5 flex flex-col gap-5">
+                      <div className="bg-[#0e0e18] border border-white/5 rounded-2xl p-5 flex flex-col gap-5">
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                           <div>
                             <label className="text-xs font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Account Name</label>
@@ -690,7 +690,7 @@ export default function AdminSettingsPage() {
                             return (
                               <div
                                 key={index}
-                                className="bg-[#0e0e18]/60 border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
+                                className="bg-[#0e0e18] border border-white/5 rounded-2xl p-5 hover:border-white/10 transition-colors"
                               >
                                 <div className="flex items-center justify-between gap-4 mb-4">
                                   <div className="flex items-center gap-3">

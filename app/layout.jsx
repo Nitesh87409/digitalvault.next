@@ -19,7 +19,20 @@ const dmSans = DM_Sans({
 });
 
 export async function generateMetadata() {
-  const appName = process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault';
+  let appName = 'DigitalVault';
+  try {
+    const Setting = (await import('@/models/Setting')).default;
+    const connectDB = (await import('@/lib/mongodb')).default;
+    await connectDB();
+    const settings = await Setting.findOne().lean();
+    if (settings && settings.app_name) {
+      appName = settings.app_name;
+    } else if (process.env.NEXT_PUBLIC_APP_NAME) {
+      appName = process.env.NEXT_PUBLIC_APP_NAME;
+    }
+  } catch (e) {
+    console.error('Metadata generation error:', e);
+  }
   return {
     title: `${appName} – Premium Digital Products`,
     description: 'Everything you need to launch, grow, and scale your online business.',

@@ -181,7 +181,7 @@ export default function AdminTermsPrivacyPage() {
               {/* Editor body */}
               <div
                 ref={termsRef}
-                className="w-full min-h-[400px] max-h-[600px] p-6 sm:p-8 text-sm leading-[1.8] text-gray-200 bg-[#07070d] outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words focus:ring-1 focus:ring-[#f5c842]/20"
+                className="w-full min-h-[400px] max-h-[600px] p-6 sm:p-8 text-sm leading-[1.8] text-gray-200 bg-[#0a0a0f] outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words focus:ring-1 focus:ring-[#f5c842]/20"
                 contentEditable
                 suppressContentEditableWarning
               />

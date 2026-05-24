@@ -11,12 +11,17 @@ export default function MyOrdersPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
+  const [settings, setSettings] = useState({ app_name: 'DigitalVault', app_logo: '' });
   const router = useRouter();
 
   useEffect(() => {
     fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' }).then(res => res.json()).then(data => {
-      if (data.flag && data.settings?.support_email) {
-        setSupportEmail(data.settings.support_email);
+      if (data.flag && data.settings) {
+        if (data.settings.support_email) setSupportEmail(data.settings.support_email);
+        setSettings({
+          app_name: data.settings.app_name || 'DigitalVault',
+          app_logo: data.settings.app_logo || ''
+        });
       }
     }).catch(() => {});
     
@@ -53,8 +58,13 @@ export default function MyOrdersPage() {
     <div className="font-['DM_Sans',sans-serif] bg-[#0a0a0f] min-h-screen text-[#e8e8f0]">
       <nav className="bg-[#0a0a0f]/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] px-6 py-4 sticky top-0 z-10">
         <div className="max-w-[768px] mx-auto flex items-center justify-between">
-          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
-          <Link href="/" className="text-[#6b7280] text-sm no-underline">â†  Back to Store</Link>
+          <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
+            {settings.app_logo && (
+              <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" />
+            )}
+            <span>{settings.app_name}</span>
+          </Link>
+          <Link href="/" className="text-[#6b7280] text-sm no-underline">← Back to Store</Link>
         </div>
       </nav>
 

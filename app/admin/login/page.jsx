@@ -11,6 +11,7 @@ export default function AdminLoginPage() {
   const [step, setStep] = useState('credentials'); // 'credentials' | 'otp'
   const [otp, setOtp] = useState(['', '', '', '', '', '']);
   const [cooldown, setCooldown] = useState(0);
+  const [settings, setSettings] = useState({ app_name: 'DigitalVault', app_logo: '' });
   const inputRefs = useRef([]);
   const router = useRouter();
 
@@ -25,6 +26,18 @@ export default function AdminLoginPage() {
     }, 1000);
     return () => clearInterval(timer);
   }, [cooldown]);
+
+  // Load settings
+  useEffect(() => {
+    fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' }).then(res => res.json()).then(data => {
+      if (data.flag && data.settings) {
+        setSettings({
+          app_name: data.settings.app_name || 'DigitalVault',
+          app_logo: data.settings.app_logo || ''
+        });
+      }
+    }).catch(() => {});
+  }, []);
 
   // Auto-focus first OTP input when step changes
   useEffect(() => {
@@ -150,7 +163,12 @@ export default function AdminLoginPage() {
     <div className="font-dm bg-dark min-h-screen flex flex-col text-[#e8e8f0]">
       <nav className="bg-dark/90 border-b border-[#f5c842]/10 backdrop-blur-[20px] py-4 px-6">
         <div className="max-w-[1152px] mx-auto flex items-center justify-between">
-          <Link href="/" className="font-syne text-xl font-bold text-gold no-underline">DigitalVault</Link>
+          <Link href="/" className="font-syne text-xl font-bold text-gold no-underline flex items-center gap-2">
+            {settings.app_logo && (
+              <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" />
+            )}
+            <span>{settings.app_name}</span>
+          </Link>
           <span className="text-sm text-[#6b7280]">Admin Panel</span>
         </div>
       </nav>
@@ -164,7 +182,7 @@ export default function AdminLoginPage() {
               <div className="text-center mb-[28px]">
                 <div className="text-[2.5rem] mb-3">🔐</div>
                 <h2 className="font-syne text-2xl font-bold text-white mb-1.5">Admin Login</h2>
-                <p className="text-[#6b7280] text-sm">DigitalVault Admin Panel</p>
+                <p className="text-[#6b7280] text-sm">{settings.app_name} Admin Panel</p>
               </div>
 
               <div className="flex flex-col gap-4">
