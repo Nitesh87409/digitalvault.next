@@ -1,10 +1,10 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
+import { useSearchParams } from 'next/navigation';
 
 export default function AdminSettingsPage() {
-  const refundRef = useRef(null);
-  const termsRef = useRef(null);
+  const searchParams = useSearchParams();
 
   const [settings, setSettings] = useState({
     password_login_enabled: true,
@@ -100,18 +100,12 @@ export default function AdminSettingsPage() {
     fetchSettings();
   }, []);
 
-  const loadRichEditors = (currentSettings = settings) => {
-    setTimeout(() => {
-      if (refundRef.current) refundRef.current.innerHTML = currentSettings.refund_policy_content || '';
-      if (termsRef.current) termsRef.current.innerHTML = currentSettings.terms_privacy_content || '';
-    }, 50);
-  };
-
-  const fmt = (cmd, val = null, activeRef = 'refund') => {
-    const ref = activeRef === 'refund' ? refundRef : termsRef;
-    ref.current?.focus();
-    document.execCommand(cmd, false, val);
-  };
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['branding', 'contact', 'login', 'social', 'social_links'].includes(tabParam)) {
+      setActiveTab(tabParam);
+    }
+  }, [searchParams]);
 
   async function fetchSettings() {
     try {
@@ -148,9 +142,6 @@ export default function AdminSettingsPage() {
           custom_social_links: Array.isArray(data.settings.custom_social_links) ? data.settings.custom_social_links : []
         };
         setSettings(fetched);
-        if (activeTab === 'pages') {
-          loadRichEditors(fetched);
-        }
       }
     } catch (e) {
       console.error(e);
@@ -240,7 +231,6 @@ export default function AdminSettingsPage() {
     { id: 'contact', label: 'Contact & Support Settings' },
     { id: 'login', label: 'Login Methods' },
     { id: 'social', label: 'Social Login Methods' },
-    { id: 'pages', label: 'Custom Pages Content' },
     { id: 'social_links', label: 'Social Media Links' }
   ];
 
@@ -261,9 +251,6 @@ export default function AdminSettingsPage() {
                 onClick={() => { 
                   setActiveTab(tab.id); 
                   setMessage(''); 
-                  if (tab.id === 'pages') {
-                    loadRichEditors();
-                  }
                 }}
                 className={`text-left whitespace-nowrap px-4 py-3 rounded-xl font-syne font-bold transition-all ${
                   activeTab === tab.id
@@ -850,108 +837,7 @@ export default function AdminSettingsPage() {
                 </div>
               )}
 
-              {/* PAGES TAB */}
-              {activeTab === 'pages' && (
-                <div className="bg-[var(--surface-2)] rounded-2xl p-5 sm:p-8 border border-[var(--line)] shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <h2 className="text-xl font-syne font-bold text-[var(--heading)] mb-6">📝 Custom Pages Content Settings</h2>
-                  
-                  <div className="flex flex-col gap-8">
-                    
-                    {/* REFUND POLICY SECTION */}
-                    <div className="mb-2 border-b border-white/5 pb-8">
-                      <label className="text-sm font-semibold text-[#f5c842] block mb-3 uppercase tracking-wider">Refund Policy Content</label>
-                      <div className="flex flex-col border border-white/10 rounded-2xl overflow-hidden bg-[#0e0e18] mb-4">
-                        {/* Editor Toolbar */}
-                        <div className="bg-[#12121a] border-b border-white/10 p-2 flex flex-wrap gap-1.5 items-center w-full overflow-x-auto custom-scrollbar shrink-0">
-                          {[['bold','B','font-extrabold'],['italic','I','italic'],['underline','U','underline'],['strikeThrough','S','line-through']].map(([cmd,label,className]) => (
-                            <button key={cmd} type="button" onClick={() => fmt(cmd, null, 'refund')} className={`bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0 ${className}`}>{label}</button>
-                          ))}
-                          <div className="w-[1px] h-6 bg-white/10 mx-1 shrink-0"></div>
-                          <button type="button" onClick={() => fmt('insertUnorderedList', null, 'refund')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">• List</button>
-                          <button type="button" onClick={() => fmt('insertOrderedList', null, 'refund')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">1. List</button>
-                          <select onChange={e => { fmt('fontSize', e.target.value, 'refund'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Size</option>
-                            {[['1','Small'],['3','Normal'],['5','Large'],['7','Huge']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <select onChange={e => { fmt('foreColor', e.target.value, 'refund'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Color</option>
-                            {[['#f5c842','Gold'],['#ffffff','White'],['#10b981','Green'],['#ef4444','Red'],['#3b82f6','Blue']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <select onChange={e => { fmt('formatBlock', e.target.value, 'refund'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Heading</option>
-                            {[['h1','H1'],['h2','H2'],['h3','H3'],['p','Normal']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <button type="button" onClick={() => fmt('removeFormat', null, 'refund')} className="bg-white/5 border border-white/10 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-red-500/20 transition-colors ml-auto shrink-0">✕ Clear</button>
-                        </div>
-                        {/* Editor body */}
-                        <div ref={refundRef} className="w-full min-h-[220px] p-5 text-sm leading-[1.8] text-gray-200 bg-[#0a0a0f] outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words focus:ring-2 focus:ring-[#f5c842]/20" contentEditable suppressContentEditableWarning />
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const content = refundRef.current?.innerHTML || '';
-                            setSettings(prev => ({ ...prev, refund_policy_content: content }));
-                            saveSectionSettingsDirect({ refund_policy_content: content }, 'Refund Policy');
-                          }}
-                          disabled={saving === 'Refund Policy'}
-                          className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-6 py-2.5 rounded-xl shadow-lg cursor-pointer transition-transform ${saving === 'Refund Policy' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
-                        >
-                          {saving === 'Refund Policy' ? 'Saving...' : '💾 Save Refund Policy'}
-                        </button>
-                        {message && saving === 'Refund Policy' && <span className="font-medium text-sm text-[#10b981] animate-pulse">{message}</span>}
-                      </div>
-                    </div>
 
-                    {/* TERMS & PRIVACY SECTION */}
-                    <div>
-                      <label className="text-sm font-semibold text-[#f5c842] block mb-3 uppercase tracking-wider">Terms & Privacy Content</label>
-                      <div className="flex flex-col border border-white/10 rounded-2xl overflow-hidden bg-[#0e0e18] mb-4">
-                        {/* Editor Toolbar */}
-                        <div className="bg-[#12121a] border-b border-white/10 p-2 flex flex-wrap gap-1.5 items-center w-full overflow-x-auto custom-scrollbar shrink-0">
-                          {[['bold','B','font-extrabold'],['italic','I','italic'],['underline','U','underline'],['strikeThrough','S','line-through']].map(([cmd,label,className]) => (
-                            <button key={cmd} type="button" onClick={() => fmt(cmd, null, 'terms')} className={`bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0 ${className}`}>{label}</button>
-                          ))}
-                          <div className="w-[1px] h-6 bg-white/10 mx-1 shrink-0"></div>
-                          <button type="button" onClick={() => fmt('insertUnorderedList', null, 'terms')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">• List</button>
-                          <button type="button" onClick={() => fmt('insertOrderedList', null, 'terms')} className="bg-white/5 border border-white/10 text-gray-200 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors shrink-0">1. List</button>
-                          <select onChange={e => { fmt('fontSize', e.target.value, 'terms'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Size</option>
-                            {[['1','Small'],['3','Normal'],['5','Large'],['7','Huge']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <select onChange={e => { fmt('foreColor', e.target.value, 'terms'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Color</option>
-                            {[['#f5c842','Gold'],['#ffffff','White'],['#10b981','Green'],['#ef4444','Red'],['#3b82f6','Blue']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <select onChange={e => { fmt('formatBlock', e.target.value, 'terms'); e.target.value=''; }} className="bg-white/5 border border-white/10 text-gray-200 px-2.5 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-white/10 transition-colors outline-none appearance-none shrink-0">
-                            <option value="" className="bg-[#12121a]">Heading</option>
-                            {[['h1','H1'],['h2','H2'],['h3','H3'],['p','Normal']].map(([v,l]) => <option key={v} value={v} className="bg-[#12121a]">{l}</option>)}
-                          </select>
-                          <button type="button" onClick={() => fmt('removeFormat', null, 'terms')} className="bg-white/5 border border-white/10 text-red-400 px-3 py-1.5 rounded-lg text-xs cursor-pointer hover:bg-red-500/20 transition-colors ml-auto shrink-0">✕ Clear</button>
-                        </div>
-                        {/* Editor body */}
-                        <div ref={termsRef} className="w-full min-h-[220px] p-5 text-sm leading-[1.8] text-gray-200 bg-[#0a0a0f] outline-none overflow-y-auto custom-scrollbar whitespace-pre-wrap break-words focus:ring-2 focus:ring-[#f5c842]/20" contentEditable suppressContentEditableWarning />
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <button
-                          type="button"
-                          onClick={() => {
-                            const content = termsRef.current?.innerHTML || '';
-                            setSettings(prev => ({ ...prev, terms_privacy_content: content }));
-                            saveSectionSettingsDirect({ terms_privacy_content: content }, 'Terms & Privacy Policy');
-                          }}
-                          disabled={saving === 'Terms & Privacy Policy'}
-                          className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-6 py-2.5 rounded-xl shadow-lg cursor-pointer transition-transform ${saving === 'Terms & Privacy Policy' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
-                        >
-                          {saving === 'Terms & Privacy Policy' ? 'Saving...' : '💾 Save Terms & Privacy'}
-                        </button>
-                        {message && saving === 'Terms & Privacy Policy' && <span className="font-medium text-sm text-[#10b981] animate-pulse">{message}</span>}
-                      </div>
-                    </div>
-
-                  </div>
-                </div>
-              )}
 
             </div>
           )}

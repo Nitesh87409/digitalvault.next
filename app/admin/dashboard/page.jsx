@@ -409,7 +409,7 @@ export default function AdminDashboard() {
                           <td className="p-4 text-[#f5c842] font-bold">₹{o.amount?.toLocaleString()}</td>
                           <td className="p-4">
                             <span className={`px-2.5 py-1 rounded-full text-[10px] uppercase tracking-wider font-bold ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : o.payment_status === 2 ? 'bg-red-500/15 text-red-500' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}>
-                              {o.payment_status === 1 ? '✓ Paid' : o.payment_status === 2 ? '↩ Refunded' : '⏳ Pending'}
+                              {o.payment_status === 1 ? '✓ Completed' : o.payment_status === 2 ? '↩ Refunded' : '⏳ Pending'}
                             </span>
                           </td>
                           <td className="p-4 text-gray-500 text-xs">{new Date(o.createdAt).toLocaleDateString('en-IN')}</td>
@@ -476,21 +476,44 @@ export default function AdminDashboard() {
 
         {/* ORDERS TAB */}
         {tab === 'orders' && (
-          <div className="flex flex-col gap-4">
-            {/* Search + Filter */}
-            <div className="flex flex-col sm:flex-row gap-3">
+          <div className="flex flex-col gap-5">
+            {/* Search + Filter Tab Row */}
+            <div className="flex flex-col xl:flex-row gap-4 items-stretch xl:items-center justify-between">
               <input
                 value={orderSearch}
                 onChange={e => setOrderSearch(e.target.value)}
                 placeholder="🔍 Search by name, email, payment ID, or product..."
                 className="flex-1 bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors"
               />
-              <select value={orderStatusFilter} onChange={e => setOrderStatusFilter(e.target.value)} className="bg-[#12121a] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm font-sans cursor-pointer focus:border-[#f5c842]/50 transition-colors appearance-none sm:w-40">
-                <option value="all">All Status</option>
-                <option value="paid">✓ Paid</option>
-                <option value="pending">⏳ Pending</option>
-                <option value="refunded">↩ Refunded</option>
-              </select>
+              
+              {/* Dynamic Status Filter Pills */}
+              <div className="flex bg-[#12121a] p-1 rounded-xl border border-white/5 overflow-x-auto scrollbar-hide max-w-full shrink-0">
+                {[
+                  { id: 'all', label: 'All Orders', count: orders.length },
+                  { id: 'pending', label: '⏳ Pending', count: orders.filter(o => o.payment_status === 0).length },
+                  { id: 'paid', label: '✓ Completed', count: orders.filter(o => o.payment_status === 1).length },
+                  { id: 'refunded', label: '↩ Refunded', count: orders.filter(o => o.payment_status === 2).length }
+                ].map(filter => (
+                  <button
+                    key={filter.id}
+                    onClick={() => setOrderStatusFilter(filter.id)}
+                    className={`px-4 py-2 rounded-lg text-xs font-semibold font-syne cursor-pointer border-none transition-all flex items-center gap-1.5 whitespace-nowrap ${
+                      orderStatusFilter === filter.id
+                        ? 'bg-[#f5c842]/10 text-[#f5c842] shadow'
+                        : 'bg-transparent text-gray-400 hover:text-white'
+                    }`}
+                  >
+                    {filter.label}
+                    <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-bold ${
+                      orderStatusFilter === filter.id
+                        ? 'bg-[#f5c842]/20 text-[#f5c842]'
+                        : 'bg-white/5 text-gray-500'
+                    }`}>
+                      {filter.count}
+                    </span>
+                  </button>
+                ))}
+              </div>
             </div>
 
             <p className="text-gray-500 text-xs">{filteredOrders.length} of {orders.length} orders</p>
@@ -523,7 +546,7 @@ export default function AdminDashboard() {
                             className={`border-none cursor-pointer px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider outline-none ${o.payment_status === 1 ? 'bg-[#10b981]/15 text-[#10b981]' : o.payment_status === 2 ? 'bg-red-500/15 text-red-500' : 'bg-[#f5c842]/15 text-[#f5c842]'}`}
                           >
                             <option value={0}>⏳ Pending</option>
-                            <option value={1}>✓ Paid</option>
+                            <option value={1}>✓ Completed</option>
                             <option value={2}>↩ Refunded</option>
                           </select>
                         </td>
@@ -561,7 +584,7 @@ export default function AdminDashboard() {
                 { label: 'Payment ID', value: orderDetail.razorpay_payment_id || '-' },
                 { label: 'Order ID', value: orderDetail.razorpay_order_id || '-' },
                 { label: 'Downloads', value: orderDetail.download_count || 0 },
-                { label: 'Status', value: orderDetail.payment_status === 1 ? '✓ Paid' : orderDetail.payment_status === 2 ? '↩ Refunded' : '⏳ Pending' },
+                { label: 'Status', value: orderDetail.payment_status === 1 ? '✓ Completed' : orderDetail.payment_status === 2 ? '↩ Refunded' : '⏳ Pending' },
                 { label: 'Date', value: new Date(orderDetail.createdAt).toLocaleString('en-IN') },
               ].map(item => (
                 <div key={item.label} className="flex justify-between items-center py-2 border-b border-white/5 last:border-0">

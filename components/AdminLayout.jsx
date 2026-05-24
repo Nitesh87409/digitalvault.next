@@ -54,18 +54,50 @@ export default function AdminLayout({ children }) {
     router.push('/admin/login');
   }
 
-  const menuItems = [
-    { href: '/admin/dashboard', id: 'dashboard', icon: '📊', label: 'Dashboard' },
-    { href: '/admin/dashboard?tab=products', id: 'products', icon: '📦', label: 'Products' },
-    { href: '/admin/dashboard?tab=orders', id: 'orders', icon: '🛒', label: 'Orders' },
-    { href: '/admin/categories', id: 'categories', icon: '📂', label: 'Categories' },
-    { href: '/admin/coupons', id: 'coupons', icon: '🎟️', label: 'Coupons' },
-    { href: '/admin/bundle', id: 'bundle', icon: '🎁', label: 'Bundle' },
-    { href: '/admin/customers', id: 'customers', icon: '👥', label: 'All Customers' },
-    { href: '/admin/reviews', id: 'reviews', icon: '⭐', label: 'Reviews' },
-    { href: '/admin/homepage-content', id: 'homepage-content', icon: '🏠', label: 'Homepage Content' },
-    { href: '/admin/bin', id: 'bin', icon: '🗑️', label: 'Recycle Bin' },
-    { href: '/admin/settings', id: 'settings', icon: '⚙️', label: 'Settings' },
+  const menuGroups = [
+    {
+      group: '',
+      items: [
+        { href: '/admin/dashboard', id: 'dashboard', icon: '📊', label: 'Dashboard' }
+      ]
+    },
+    {
+      group: 'STORE',
+      items: [
+        { href: '/admin/dashboard?tab=products', id: 'products', icon: '📦', label: 'Products' },
+        { href: '/admin/categories', id: 'categories', icon: '📂', label: 'Categories' },
+        { href: '/admin/bundle', id: 'bundle', icon: '🎁', label: 'Bundle' },
+        { href: '/admin/coupons', id: 'coupons', icon: '🎟️', label: 'Coupons' }
+      ]
+    },
+    {
+      group: 'SALES',
+      items: [
+        { href: '/admin/dashboard?tab=orders', id: 'orders', icon: '🛒', label: 'Orders' },
+        { href: '/admin/customers', id: 'customers', icon: '👥', label: 'Customers' }
+      ]
+    },
+    {
+      group: 'WEBSITE',
+      items: [
+        { href: '/admin/homepage-content', id: 'homepage-content', icon: '🏠', label: 'Homepage Content' },
+        { href: '/admin/reviews', id: 'reviews', icon: '⭐', label: 'Testimonials' }
+      ]
+    },
+    {
+      group: 'LEGAL',
+      items: [
+        { href: '/admin/terms-privacy', id: 'terms-privacy', icon: '📜', label: 'Terms & Privacy' },
+        { href: '/admin/refund-policy', id: 'refund-policy', icon: '💸', label: 'Refund Policy' }
+      ]
+    },
+    {
+      group: 'SYSTEM',
+      items: [
+        { href: '/admin/settings', id: 'settings', icon: '⚙️', label: 'Settings' },
+        { href: '/admin/bin', id: 'bin', icon: '🗑️', label: 'Recycle Bin' }
+      ]
+    }
   ];
 
   return (
@@ -96,29 +128,42 @@ export default function AdminLayout({ children }) {
           <Link href="/admin/dashboard" className="font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
           <button className="md:hidden text-gray-400 hover:text-white text-xl border-none bg-transparent cursor-pointer" onClick={() => setSidebarOpen(false)}>✕</button>
         </div>
-        <nav className="flex-1 flex flex-col gap-1">
-          {menuItems.map(item => {
-            let isItemActive = false;
-            if (item.id === 'dashboard') {
-              isItemActive = pathname === '/admin/dashboard' && activeTab === 'dashboard';
-            } else if (item.id === 'products') {
-              isItemActive = pathname === '/admin/dashboard' && activeTab === 'products';
-            } else if (item.id === 'orders') {
-              isItemActive = pathname === '/admin/dashboard' && activeTab === 'orders';
-            } else {
-              isItemActive = pathname.startsWith(item.href);
-            }
+        <nav className="flex-1 flex flex-col gap-4">
+          {menuGroups.map((group, groupIdx) => (
+            <div key={groupIdx} className="flex flex-col gap-1">
+              {group.group && (
+                <div className="text-[11px] font-syne font-bold tracking-[0.25em] text-[#f5c842]/75 mb-2 mt-4 px-4 uppercase select-none">
+                  {group.group}
+                </div>
+              )}
+              {group.items.map(item => {
+                let isItemActive = false;
+                const currentTab = searchParams.get('tab');
 
-            return (
-              <Link 
-                key={item.href} 
-                href={item.href}
-                className={`flex items-center gap-3 px-4 py-3 rounded-xl font-sans text-sm no-underline transition-all duration-200 ${isItemActive ? 'bg-[#f5c842]/10 text-[#f5c842] font-semibold' : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'}`}
-              >
-                <span className="text-lg">{item.icon}</span> {item.label}
-              </Link>
-            );
-          })}
+                if (item.id === 'dashboard') {
+                  isItemActive = pathname === '/admin/dashboard' && activeTab === 'dashboard';
+                } else if (item.id === 'products') {
+                  isItemActive = pathname === '/admin/dashboard' && activeTab === 'products';
+                } else if (item.id === 'orders') {
+                  isItemActive = pathname === '/admin/dashboard' && activeTab === 'orders';
+                } else if (item.id === 'settings') {
+                  isItemActive = pathname === '/admin/settings';
+                } else {
+                  isItemActive = pathname === item.href || (item.href !== '/admin/settings' && pathname.startsWith(item.href.split('?')[0]));
+                }
+
+                return (
+                  <Link 
+                    key={item.href} 
+                    href={item.href}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl font-sans text-sm no-underline transition-all duration-200 ${isItemActive ? 'bg-[#f5c842]/10 text-[#f5c842] font-semibold' : 'bg-transparent text-gray-400 hover:bg-white/5 hover:text-white'}`}
+                  >
+                    <span className="text-lg">{item.icon}</span> {item.label}
+                  </Link>
+                );
+              })}
+            </div>
+          ))}
         </nav>
         <div className="border-t border-white/5 pt-3 mt-4 shrink-0 font-sans">
           <Link href="/" target="_blank" className="flex items-center gap-3 px-4 py-3 rounded-xl text-gray-400 hover:bg-white/5 hover:text-white transition-all text-sm no-underline mb-1">
