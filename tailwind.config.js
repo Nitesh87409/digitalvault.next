@@ -13,8 +13,8 @@ module.exports = {
         card: '#12121a',
       },
       fontFamily: {
-        syne: ['Syne', 'sans-serif'],
-        dm: ['DM Sans', 'sans-serif'],
+        syne: ['var(--font-syne)', 'sans-serif'],
+        dm: ['var(--font-dm-sans)', 'sans-serif'],
       },
     },
   },

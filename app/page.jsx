@@ -18,43 +18,55 @@ const BUNDLE_CART_ID = '__bundle_subscription__';
 export default function HomePage() {
   const [products, setProducts] = useState([]);
   const [totalSales, setTotalSales] = useState(1247);
-  const [settingsLoaded, setSettingsLoaded] = useState(false);
+  const [settingsLoaded, setSettingsLoaded] = useState(() => {
+    if (typeof window !== 'undefined' && window.__initial_settings__) return true;
+    if (typeof global !== 'undefined' && global.__server_settings__) return true;
+    return false;
+  });
   const [isTimerExpired, setIsTimerExpired] = useState(false);
   const [payModal, setPayModal] = useState(false);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
-  const [settings, setSettings] = useState({
-    support_email: 'support@digitalvault.in',
-    support_phone: '+91 98765 43210',
-    bundle_enabled: true,
-    bundle_title: 'Complete Bundle',
-    bundle_description: 'All products + future updates included',
-    bundle_price: 207,
-    bundle_original_price: 8497,
-    business_hours: 'Mon–Sat, 10am–6pm IST',
-    bundle_timer_enabled: true,
-    bundle_timer_days: 0,
-    bundle_timer_hours: 24,
-    bundle_timer_minutes: 0,
-    bundle_timer_action: 'hide_timer',
-    bundle_features: ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
-    bundle_badge_text: 'Limited Time Deal',
-    bundle_badge_color: '#f5c842',
-    bundle_cta_text: 'Unlock Bundle →',
-    bundle_show_discount: true,
-    bundle_banner_image: '',
-    updatedAt: '',
-    social_instagram_enabled: false,
-    social_instagram_url: '',
-    social_whatsapp_enabled: false,
-    social_whatsapp_url: '',
-    social_twitter_enabled: false,
-    social_twitter_url: '',
-    social_facebook_enabled: false,
-    social_facebook_url: '',
-    social_telegram_enabled: false,
-    social_telegram_url: '',
-    custom_social_links: []
+  const [settings, setSettings] = useState(() => {
+    if (typeof window !== 'undefined' && window.__initial_settings__) {
+      return window.__initial_settings__;
+    }
+    if (typeof global !== 'undefined' && global.__server_settings__) {
+      return global.__server_settings__;
+    }
+    return {
+      support_email: 'support@digitalvault.in',
+      support_phone: '+91 98765 43210',
+      bundle_enabled: true,
+      bundle_title: 'Complete Bundle',
+      bundle_description: 'All products + future updates included',
+      bundle_price: 207,
+      bundle_original_price: 8497,
+      business_hours: 'Mon–Sat, 10am–6pm IST',
+      bundle_timer_enabled: true,
+      bundle_timer_days: 0,
+      bundle_timer_hours: 24,
+      bundle_timer_minutes: 0,
+      bundle_timer_action: 'hide_timer',
+      bundle_features: ['Instant Download', 'Lifetime Access', 'Free Future Updates', '7-Day Guarantee'],
+      bundle_badge_text: 'Limited Time Deal',
+      bundle_badge_color: '#f5c842',
+      bundle_cta_text: 'Unlock Bundle →',
+      bundle_show_discount: true,
+      bundle_banner_image: '',
+      updatedAt: '',
+      social_instagram_enabled: false,
+      social_instagram_url: '',
+      social_whatsapp_enabled: false,
+      social_whatsapp_url: '',
+      social_twitter_enabled: false,
+      social_twitter_url: '',
+      social_facebook_enabled: false,
+      social_facebook_url: '',
+      social_telegram_enabled: false,
+      social_telegram_url: '',
+      custom_social_links: []
+    };
   });
   const { toast, showToast } = useToast();
   const { hasBundleAccess, bundleStatus } = useBundlePurchase({ showToast });

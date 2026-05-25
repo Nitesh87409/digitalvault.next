@@ -153,7 +153,13 @@ export default function Navbar({ onSearchClick }) {
               className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
             >
               {settings.app_logo ? (
-                <img src={settings.app_logo} alt={settings.app_name} className="h-8 w-auto object-contain" />
+                <img
+                  src={settings.app_logo}
+                  alt={settings.app_name}
+                  className="h-8 w-8 object-contain shrink-0"
+                  loading="eager"
+                  fetchPriority="high"
+                />
               ) : null}
               {settings.app_name}
             </Link>

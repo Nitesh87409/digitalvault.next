@@ -1,29 +1,61 @@
 import { useState, useEffect } from 'react';
 
+const defaultSettings = {
+  app_name: 'DigitalVault',
+  app_logo: '',
+  support_email: 'support@digitalvault.in',
+  support_phone: '+91 98765 43210',
+  business_hours: 'Mon–Sat, 10am–6pm IST',
+  bundle_enabled: true,
+  bundle_title: 'Complete Bundle',
+  bundle_description: 'All products + future updates included',
+  bundle_price: 207,
+  bundle_original_price: 8497,
+};
+
+function getSynchronousSettings() {
+  if (typeof window !== 'undefined' && window.__initial_settings__) {
+    return window.__initial_settings__;
+  }
+  if (typeof global !== 'undefined' && global.__server_settings__) {
+    return global.__server_settings__;
+  }
+  if (typeof window !== 'undefined') {
+    try {
+      const saved = localStorage.getItem('dv_settings');
+      if (saved) return JSON.parse(saved);
+    } catch (e) {}
+  }
+  return defaultSettings;
+}
+
 export function useSettings() {
-  const [settings, setSettings] = useState({
-    app_name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
-    app_logo: '',
-    support_email: 'support@digitalvault.in',
-    support_phone: '+91 98765 43210',
-    business_hours: 'Mon–Sat, 10am–6pm IST',
-    bundle_enabled: true,
-    bundle_title: 'Complete Bundle',
-    bundle_description: 'All products + future updates included',
-    bundle_price: 207,
-    bundle_original_price: 8497,
+  const [settings, setSettings] = useState(getSynchronousSettings);
+  const [loading, setLoading] = useState(() => {
+    // If we already have the initial settings loaded from the global/window context, we are not loading.
+    const isLoaded = (typeof window !== 'undefined' && !!window.__initial_settings__) || 
+                     (typeof global !== 'undefined' && !!global.__server_settings__);
+    return !isLoaded;
   });
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // Run a background silent refresh to fetch the latest settings from the server
     fetch('/api/settings?t=' + Date.now(), { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.flag && data.settings) {
-          setSettings({
+          const updatedSettings = {
             ...data.settings,
-            app_name: data.settings.app_name || process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault'
-          });
+            app_name: data.settings.app_name || 'DigitalVault'
+          };
+          setSettings(updatedSettings);
+          
+          if (typeof window !== 'undefined') {
+            window.__initial_settings__ = updatedSettings;
+            try {
+              localStorage.setItem('dv_settings', JSON.stringify(updatedSettings));
+            } catch (e) {}
+          }
         }
         setLoading(false);
       })
