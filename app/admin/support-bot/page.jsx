@@ -1,7 +1,6 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import AdminLayout from '@/components/AdminLayout';
 
 export default function AdminSupportBotPage() {
   const [settings, setSettings] = useState({
@@ -207,8 +206,7 @@ export default function AdminSupportBotPage() {
   paidModels.sort((a, b) => a.name.localeCompare(b.name));
 
   return (
-    <AdminLayout>
-      <div className="flex flex-col gap-6 font-sans">
+    <div className="flex flex-col gap-6 font-sans">
         {/* Page Header */}
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-2 shrink-0">
           <div>
@@ -510,6 +508,5 @@ export default function AdminSupportBotPage() {
           </div>
         )}
       </div>
-    </AdminLayout>
   );
 }
