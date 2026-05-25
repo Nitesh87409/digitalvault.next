@@ -78,6 +78,24 @@ const SettingSchema = new mongoose.Schema({
   social_facebook_url: { type: String, default: '' },
   social_telegram_enabled: { type: Boolean, default: false },
   social_telegram_url: { type: String, default: '' },
+  
+  // Floating support widget options
+  floating_support_enabled: { type: Boolean, default: true },
+  floating_whatsapp_enabled: { type: Boolean, default: true },
+  floating_telegram_enabled: { type: Boolean, default: true },
+  floating_phone_enabled: { type: Boolean, default: true },
+  floating_email_enabled: { type: Boolean, default: true },
+
+  // AI Support Bot options
+  support_bot_enabled: { type: Boolean, default: false },
+  openrouter_api_key: { type: String, default: '' },
+  support_bot_model_mode: { type: String, default: 'auto' }, // 'auto' or 'manual'
+  openrouter_model: { type: String, default: 'openrouter/free' },
+  support_bot_prompt: { 
+    type: String, 
+    default: 'You are a helpful, friendly, and expert customer support AI assistant for DigitalVault, a premium digital products platform. Your goal is to answer user queries accurately, concisely, and politely.\n\nKey Policies:\n1. Refund Policy: Since our products are digitally delivered, they are generally non-refundable once accessed. However, we offer a 7-Day Refund Guarantee if the product is defective or doesn\'t work as described.\n2. Orders & Delivery: All products are delivered instantly via email and can also be downloaded from the "My Downloads" section.\n\nBehavioral Guidelines:\n- Answer in the user\'s language (e.g. if they ask in Hindi/Hinglish, reply in Hindi/Hinglish).\n- Be polite and clear.\n- Do not hallucinate. If a query is highly complex or requires admin actions, guide them to contact support via direct Call/Email or WhatsApp Helpline.'
+  },
+
   custom_social_links: {
     type: [{
       name: { type: String, required: true },

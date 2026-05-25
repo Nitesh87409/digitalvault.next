@@ -3,6 +3,8 @@ import { Syne, DM_Sans } from 'next/font/google';
 import dynamic from 'next/dynamic';
 
 const MobileBottomNav = dynamic(() => import('@/components/MobileBottomNav'));
+import FloatingContact from '@/components/FloatingContact';
+
 
 const syne = Syne({
   subsets: ['latin'],
@@ -82,6 +84,14 @@ export default async function RootLayout({ children }) {
         social_facebook_url: settings.social_facebook_url ?? '',
         social_telegram_enabled: settings.social_telegram_enabled ?? false,
         social_telegram_url: settings.social_telegram_url ?? '',
+        floating_support_enabled: settings.floating_support_enabled !== false,
+        floating_whatsapp_enabled: settings.floating_whatsapp_enabled !== false,
+        floating_telegram_enabled: settings.floating_telegram_enabled !== false,
+        floating_email_enabled: settings.floating_email_enabled !== false,
+        support_bot_enabled: !!settings.support_bot_enabled,
+        support_bot_model_mode: settings.support_bot_model_mode || 'auto',
+        openrouter_model: settings.openrouter_model || 'openrouter/free',
+        support_bot_prompt: settings.support_bot_prompt || '',
         custom_social_links: Array.isArray(settings.custom_social_links) ? settings.custom_social_links : []
       };
     }
@@ -123,6 +133,15 @@ export default async function RootLayout({ children }) {
       social_facebook_url: '',
       social_telegram_enabled: false,
       social_telegram_url: '',
+      floating_support_enabled: true,
+      floating_whatsapp_enabled: true,
+      floating_telegram_enabled: true,
+      floating_phone_enabled: true,
+      floating_email_enabled: true,
+      support_bot_enabled: false,
+      support_bot_model_mode: 'auto',
+      openrouter_model: 'openrouter/free',
+      support_bot_prompt: '',
       custom_social_links: []
     };
   }
@@ -156,6 +175,7 @@ export default async function RootLayout({ children }) {
         <main className="min-h-screen">
           {children}
         </main>
+        <FloatingContact />
         <MobileBottomNav />
       </body>
     </html>

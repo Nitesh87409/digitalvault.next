@@ -83,6 +83,16 @@ export async function POST(request) {
       'social_facebook_url',
       'social_telegram_enabled',
       'social_telegram_url',
+      'floating_support_enabled',
+      'floating_whatsapp_enabled',
+      'floating_telegram_enabled',
+      'floating_phone_enabled',
+      'floating_email_enabled',
+      'support_bot_enabled',
+      'openrouter_api_key',
+      'support_bot_model_mode',
+      'openrouter_model',
+      'support_bot_prompt',
       'custom_social_links'
     ];
 

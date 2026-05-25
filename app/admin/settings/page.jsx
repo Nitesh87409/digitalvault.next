@@ -33,6 +33,11 @@ export default function AdminSettingsPage() {
     social_facebook_url: '',
     social_telegram_enabled: false,
     social_telegram_url: '',
+    floating_support_enabled: true,
+    floating_whatsapp_enabled: true,
+    floating_telegram_enabled: true,
+    floating_phone_enabled: true,
+    floating_email_enabled: true,
     custom_social_links: []
   });
   const [loading, setLoading] = useState(true);
@@ -139,6 +144,11 @@ export default function AdminSettingsPage() {
           social_facebook_url: data.settings.social_facebook_url ?? '',
           social_telegram_enabled: data.settings.social_telegram_enabled ?? false,
           social_telegram_url: data.settings.social_telegram_url ?? '',
+          floating_support_enabled: data.settings.floating_support_enabled ?? true,
+          floating_whatsapp_enabled: data.settings.floating_whatsapp_enabled ?? true,
+          floating_telegram_enabled: data.settings.floating_telegram_enabled ?? true,
+          floating_phone_enabled: data.settings.floating_phone_enabled ?? true,
+          floating_email_enabled: data.settings.floating_email_enabled ?? true,
           custom_social_links: Array.isArray(data.settings.custom_social_links) ? data.settings.custom_social_links : []
         };
         setSettings(fetched);
@@ -362,9 +372,121 @@ export default function AdminSettingsPage() {
                     </div>
                   </div>
 
-                  <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)]">
+                  {/* Floating support widget controls */}
+                  <div className="mt-8 pt-8 border-t border-[var(--line)]">
+                    <h3 className="text-lg font-syne font-bold text-[var(--heading)] mb-2 flex items-center gap-2">
+                      💬 Floating Support Widget Controls
+                    </h3>
+                    <p className="text-xs text-[var(--muted-2)] mb-6">
+                      Configure your global "Contact Now" support widget floating at the bottom right. Toggle options to match your helpline status.
+                    </p>
+
+                    <div className="flex flex-col gap-4">
+                      {/* Master Toggle */}
+                      <div className="flex items-center justify-between p-4 rounded-xl bg-[var(--surface)] border border-[var(--line)]">
+                        <div>
+                          <div className="font-semibold text-sm text-[var(--heading)] mb-1">Enable Floating Support Button</div>
+                          <div className="text-xs text-[var(--muted-2)]">Show the floating bubble globally on all pages (except Admin panel).</div>
+                        </div>
+                        <label className="relative inline-block w-12 h-6 shrink-0 cursor-pointer">
+                          <input 
+                            type="checkbox" 
+                            checked={!!settings.floating_support_enabled} 
+                            onChange={(e) => handleChange('floating_support_enabled', e.target.checked)} 
+                            className="opacity-0 w-0 h-0" 
+                          />
+                          <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.floating_support_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                            <span className={`absolute h-4 w-4 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.floating_support_enabled ? 'translate-x-6' : 'translate-x-0'}`}></span>
+                          </span>
+                        </label>
+                      </div>
+
+                      {/* Option Toggles */}
+                      {settings.floating_support_enabled && (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 p-4 rounded-xl border border-[var(--line)] bg-[var(--surface)]/50 animate-in fade-in slide-in-from-top-2 duration-300">
+                          {/* WhatsApp Toggle */}
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface)] border border-[var(--line-soft)]">
+                            <div>
+                              <div className="font-medium text-xs text-[var(--heading)]">Show WhatsApp Link</div>
+                              <div className="text-[10px] text-[var(--muted-2)]">Direct WhatsApp chat option</div>
+                            </div>
+                            <label className="relative inline-block w-10 h-5 shrink-0 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={!!settings.floating_whatsapp_enabled} 
+                                onChange={(e) => handleChange('floating_whatsapp_enabled', e.target.checked)} 
+                                className="opacity-0 w-0 h-0" 
+                              />
+                              <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.floating_whatsapp_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                <span className={`absolute h-3 w-3 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.floating_whatsapp_enabled ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* Telegram Toggle */}
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface)] border border-[var(--line-soft)]">
+                            <div>
+                              <div className="font-medium text-xs text-[var(--heading)]">Show Telegram Channel</div>
+                              <div className="text-[10px] text-[var(--muted-2)]">Direct Telegram chat option</div>
+                            </div>
+                            <label className="relative inline-block w-10 h-5 shrink-0 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={!!settings.floating_telegram_enabled} 
+                                onChange={(e) => handleChange('floating_telegram_enabled', e.target.checked)} 
+                                className="opacity-0 w-0 h-0" 
+                              />
+                              <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.floating_telegram_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                <span className={`absolute h-3 w-3 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.floating_telegram_enabled ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* Phone Helpline Toggle */}
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface)] border border-[var(--line-soft)]">
+                            <div>
+                              <div className="font-medium text-xs text-[var(--heading)]">Show Call Helpline</div>
+                              <div className="text-[10px] text-[var(--muted-2)]">Direct telephone call option</div>
+                            </div>
+                            <label className="relative inline-block w-10 h-5 shrink-0 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={!!settings.floating_phone_enabled} 
+                                onChange={(e) => handleChange('floating_phone_enabled', e.target.checked)} 
+                                className="opacity-0 w-0 h-0" 
+                              />
+                              <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.floating_phone_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                <span className={`absolute h-3 w-3 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.floating_phone_enabled ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                              </span>
+                            </label>
+                          </div>
+
+                          {/* Email Support Toggle */}
+                          <div className="flex items-center justify-between p-3 rounded-lg bg-[var(--surface)] border border-[var(--line-soft)]">
+                            <div>
+                              <div className="font-medium text-xs text-[var(--heading)]">Show Email Support</div>
+                              <div className="text-[10px] text-[var(--muted-2)]">Direct email mailto link</div>
+                            </div>
+                            <label className="relative inline-block w-10 h-5 shrink-0 cursor-pointer">
+                              <input 
+                                type="checkbox" 
+                                checked={!!settings.floating_email_enabled} 
+                                onChange={(e) => handleChange('floating_email_enabled', e.target.checked)} 
+                                className="opacity-0 w-0 h-0" 
+                              />
+                              <span className={`absolute cursor-pointer top-0 left-0 right-0 bottom-0 transition-colors duration-300 rounded-full ${settings.floating_email_enabled ? 'bg-[#10b981]' : 'bg-gray-600'}`}>
+                                <span className={`absolute h-3 w-3 left-1 bottom-1 bg-white transition-transform duration-300 rounded-full ${settings.floating_email_enabled ? 'translate-x-5' : 'translate-x-0'}`}></span>
+                              </span>
+                            </label>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)] mt-6">
                     <button
-                      onClick={() => saveSectionSettings(['support_email', 'support_phone', 'business_hours'], 'Contact settings')}
+                      onClick={() => saveSectionSettings(['support_email', 'support_phone', 'business_hours', 'floating_support_enabled', 'floating_whatsapp_enabled', 'floating_telegram_enabled', 'floating_phone_enabled', 'floating_email_enabled'], 'Contact settings')}
                       disabled={saving === 'Contact settings'}
                       className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3 rounded-xl shadow-lg shadow-[#f5c842]/20 cursor-pointer transition-transform ${saving === 'Contact settings' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
                     >

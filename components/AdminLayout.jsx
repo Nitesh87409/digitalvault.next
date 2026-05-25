@@ -110,6 +110,7 @@ export default function AdminLayout({ children }) {
     {
       group: 'SYSTEM',
       items: [
+        { href: '/admin/support-bot', id: 'support-bot', icon: '🤖', label: 'AI Support Bot' },
         { href: '/admin/settings', id: 'settings', icon: '⚙️', label: 'Settings' },
         { href: '/admin/bin', id: 'bin', icon: '🗑️', label: 'Recycle Bin' }
       ]
