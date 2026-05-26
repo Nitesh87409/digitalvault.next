@@ -76,6 +76,10 @@ export default function LoginPage() {
       const el = document.getElementById('googleSignInDiv');
       if (window.google && el) {
         try {
+          // Dynamic width calculation for responsive rendering (mobile-friendly)
+          const containerWidth = el.offsetWidth || 348;
+          const safeWidth = Math.max(200, Math.min(400, containerWidth));
+
           window.google.accounts.id.initialize({
             client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy-client-id',
             callback: (response) => {
@@ -90,9 +94,16 @@ export default function LoginPage() {
           });
           window.google.accounts.id.renderButton(
             el,
-            { theme: 'filled_blue', size: 'large', type: 'standard', width: 348 }
+            { 
+              theme: 'outline', 
+              size: 'large', 
+              type: 'standard', 
+              text: 'continue_with',
+              shape: 'rectangular',
+              width: safeWidth 
+            }
           );
-          console.log('Google Sign-In button rendered successfully.');
+          console.log('Google Sign-In button rendered successfully with width:', safeWidth);
         } catch (err) {
           console.error('Google init error:', err);
         }
@@ -436,8 +447,11 @@ export default function LoginPage() {
 
               <div className="flex flex-col gap-3">
                 {settings.google_login_enabled && (
-                  <div className="flex justify-center w-full overflow-hidden">
-                    <div id="googleSignInDiv" className="w-full flex justify-center">
+                  <div className="w-full flex justify-center overflow-hidden rounded-xl bg-white hover:scale-[1.02] transition-transform duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
+                    <div 
+                      id="googleSignInDiv" 
+                      className="w-full flex justify-center overflow-hidden rounded-xl [&>iframe]:!rounded-xl [&>iframe]:!overflow-hidden"
+                    >
                       <button
                         type="button"
                         onClick={() => {
@@ -445,9 +459,9 @@ export default function LoginPage() {
                             setError('Google Sign-In is blocked by your browser privacy shields or failed to load. Please disable adblockers and refresh the page to continue.');
                           }
                         }}
-                        className="flex items-center justify-center gap-2.5 w-full p-3 bg-white text-black border border-gray-300 rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-transform duration-200 hover:scale-[1.02] shadow-[0_2px_4px_rgba(0,0,0,0.1)] font-sans"
+                        className="flex items-center justify-center gap-2.5 w-full p-3 bg-white text-black border-none text-[0.95rem] font-semibold cursor-pointer font-sans"
                       >
-                        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="18" height="18" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg" className="shrink-0">
                           <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
                           <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
                           <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
