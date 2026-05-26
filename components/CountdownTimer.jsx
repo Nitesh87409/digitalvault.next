@@ -1,9 +1,70 @@
 'use client';
 import { useState, useEffect } from 'react';
 
+// Helper: resolve the deadline and compute the diff from it, all synchronously.
+// Returns { parsedDeadline, diff, countdown, isExpired } without any side-effects on localStorage.
+function resolveDeadline(settings) {
+  if (!settings.bundle_timer_enabled) {
+    return { parsedDeadline: 0, diff: 0, countdown: { d: '--', h: '--', m: '--', s: '--' }, isExpired: false };
+  }
+
+  const key = 'dv_deadline';
+  const durationKey = 'dv_deadline_duration';
+  const updatedKey = 'dv_settings_updated';
+
+  const configDays = Math.max(0, Number(settings.bundle_timer_days) || 0);
+  const configHours = Math.max(0, Number(settings.bundle_timer_hours) || 0);
+  const configMinutes = Math.max(0, Number(settings.bundle_timer_minutes) || 0);
+  const totalMs = (configDays * 86400000) + (configHours * 3600000) + (configMinutes * 60000);
+  const durationFingerprint = `${configDays}d${configHours}h${configMinutes}m`;
+  const configUpdated = settings.updatedAt || '';
+
+  let deadline = typeof window !== 'undefined' ? localStorage.getItem(key) : null;
+  let savedDuration = typeof window !== 'undefined' ? localStorage.getItem(durationKey) : null;
+  let savedUpdated = typeof window !== 'undefined' ? localStorage.getItem(updatedKey) : null;
+
+  let parsedDeadline = parseInt(deadline, 10);
+  const isDeadlineInvalid = isNaN(parsedDeadline) || parsedDeadline <= 0;
+  let needsReset = isDeadlineInvalid || savedDuration !== durationFingerprint || (configUpdated && savedUpdated !== configUpdated);
+
+  if (needsReset) {
+    parsedDeadline = Date.now() + (totalMs > 0 ? totalMs : 86400000);
+  }
+
+  const diff = parsedDeadline - Date.now();
+  if (diff <= 0) {
+    return { parsedDeadline, diff: 0, countdown: { d: '00', h: '00', m: '00', s: '00' }, isExpired: true, needsReset };
+  }
+
+  const days = Math.floor(diff / 86400000);
+  const hours = Math.floor((diff % 86400000) / 3600000);
+  const mins = Math.floor((diff % 3600000) / 60000);
+  const secs = Math.floor((diff % 60000) / 1000);
+
+  return {
+    parsedDeadline,
+    diff,
+    countdown: {
+      d: days.toString().padStart(2, '0'),
+      h: hours.toString().padStart(2, '0'),
+      m: mins.toString().padStart(2, '0'),
+      s: secs.toString().padStart(2, '0'),
+    },
+    isExpired: false,
+    needsReset,
+  };
+}
+
 export default function CountdownTimer({ settings, onExpired }) {
-  const [countdown, setCountdown] = useState({ d: '00', h: '00', m: '00', s: '00' });
-  const [isTimerExpired, setIsTimerExpired] = useState(false);
+  // Compute initial state synchronously so the first paint shows the real time (no '00:00' flash)
+  const [countdown, setCountdown] = useState(() => {
+    const resolved = resolveDeadline(settings);
+    return resolved.countdown;
+  });
+  const [isTimerExpired, setIsTimerExpired] = useState(() => {
+    const resolved = resolveDeadline(settings);
+    return resolved.isExpired;
+  });
 
   useEffect(() => {
     if (!settings.bundle_timer_enabled) {
@@ -50,6 +111,21 @@ export default function CountdownTimer({ settings, onExpired }) {
         setIsTimerExpired(false);
         if (onExpired) onExpired(false);
       }
+    }
+
+    // Immediately compute and set the countdown to avoid any gap between mount and first interval tick
+    const immediateDiff = parsedDeadline - Date.now();
+    if (immediateDiff > 0) {
+      const days = Math.floor(immediateDiff / 86400000);
+      const hours = Math.floor((immediateDiff % 86400000) / 3600000);
+      const mins = Math.floor((immediateDiff % 3600000) / 60000);
+      const secs = Math.floor((immediateDiff % 60000) / 1000);
+      setCountdown({
+        d: days.toString().padStart(2, '0'),
+        h: hours.toString().padStart(2, '0'),
+        m: mins.toString().padStart(2, '0'),
+        s: secs.toString().padStart(2, '0'),
+      });
     }
 
     const timer = setInterval(() => {

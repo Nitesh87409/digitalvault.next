@@ -14,18 +14,16 @@ const defaultSettings = {
 };
 
 function getSynchronousSettings() {
+  // 1. Highest priority: server-injected settings via the inline script tag in layout.jsx
+  //    This is guaranteed to be the latest DB value and is available synchronously.
   if (typeof window !== 'undefined' && window.__initial_settings__) {
     return window.__initial_settings__;
   }
+  // 2. Server-side global (for SSR during rendering)
   if (typeof global !== 'undefined' && global.__server_settings__) {
     return global.__server_settings__;
   }
-  if (typeof window !== 'undefined') {
-    try {
-      const saved = localStorage.getItem('dv_settings');
-      if (saved) return JSON.parse(saved);
-    } catch (e) {}
-  }
+  // 3. Fallback to defaults (NOT localStorage — stale localStorage caused logo flicker)
   return defaultSettings;
 }
 

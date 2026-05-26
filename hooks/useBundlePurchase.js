@@ -39,8 +39,25 @@ async function readErrorMessage(response, fallback) {
 }
 
 export function useBundlePurchase({ showToast } = {}) {
-  const [hasBundleAccess, setHasBundleAccess] = useState(false);
-  const [bundleStatus, setBundleStatus] = useState('none');
+  // Synchronously check localStorage for premium status to avoid button text flicker on load
+  const [hasBundleAccess, setHasBundleAccess] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    try {
+      const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
+      return !!(customer && customer.is_premium);
+    } catch {
+      return false;
+    }
+  });
+  const [bundleStatus, setBundleStatus] = useState(() => {
+    if (typeof window === 'undefined') return 'none';
+    try {
+      const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
+      return customer && customer.is_premium ? 'active' : 'none';
+    } catch {
+      return 'none';
+    }
+  });
   const [bundleLoading, setBundleLoading] = useState(false);
 
   const refreshBundleAccess = useCallback(async () => {
