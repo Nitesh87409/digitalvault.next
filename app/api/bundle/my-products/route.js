@@ -1,8 +1,9 @@
 import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
-import { getBundleProducts, hasActiveBundleAccess } from '@/lib/bundle-access';
+import { getBundleProducts, hasActiveBundleAccess, getActiveBundleSubscription, getEffectiveCutoffDate } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
+import Setting from '@/models/Setting';
 import { sanitizeRichText } from '@/lib/sanitize-content';
 
 export const runtime = 'nodejs';
@@ -38,15 +39,23 @@ export async function GET(request) {
       return NextResponse.json({ message: 'User not logged in' }, { status: 401 });
     }
 
-    const hasAccess = await hasActiveBundleAccess(customer._id);
-    if (!hasAccess) {
+    const subscription = await getActiveBundleSubscription(customer._id);
+    if (!subscription) {
       return NextResponse.json({ message: 'Bundle access required' }, { status: 403 });
     }
 
-    const products = await getBundleProducts();
+    // Check if date-based cutoff is enabled
+    let cutoffDate = null;
+    const settings = await Setting.findOne().select('bundle_cutoff_enabled').lean();
+    if (settings?.bundle_cutoff_enabled) {
+      cutoffDate = getEffectiveCutoffDate(subscription);
+    }
+
+    const products = await getBundleProducts(cutoffDate);
     return NextResponse.json({ products: products.map(toPublicProduct) });
   } catch (error) {
     console.error('[Bundle] my-products error:', error);
     return NextResponse.json({ message: 'Server error' }, { status: 500 });
   }
 }
+

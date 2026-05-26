@@ -3,9 +3,10 @@ import fs from 'fs';
 import path from 'path';
 import connectDB from '@/lib/mongodb';
 import { verifyCustomer } from '@/lib/auth';
-import { hasActiveBundleAccess } from '@/lib/bundle-access';
+import { getActiveBundleSubscription, getEffectiveCutoffDate } from '@/lib/bundle-access';
 import Customer from '@/models/Customer';
 import Product from '@/models/Product';
+import Setting from '@/models/Setting';
 import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
 import { fetchSafeRemoteFile } from '@/lib/safe-download-source';
 
@@ -72,14 +73,14 @@ export async function GET(request, { params }) {
       return new NextResponse('User not logged in', { status: 401 });
     }
 
-    const hasAccess = await hasActiveBundleAccess(customer._id);
-    if (!hasAccess) {
+    const subscription = await getActiveBundleSubscription(customer._id);
+    if (!subscription) {
       return new NextResponse('Bundle access required', { status: 403 });
     }
 
     const { productId } = await params;
     const product = await Product.findById(productId)
-      .select('name file_url included_in_bundle status')
+      .select('name file_url included_in_bundle status createdAt')
       .lean();
 
     if (!product) return new NextResponse('Product not found', { status: 404 });
@@ -91,6 +92,15 @@ export async function GET(request, { params }) {
     }
     if (!product.file_url) {
       return new NextResponse('File not found', { status: 404 });
+    }
+
+    // Enforce date-based cutoff at download time
+    const settings = await Setting.findOne().select('bundle_cutoff_enabled').lean();
+    if (settings?.bundle_cutoff_enabled) {
+      const cutoffDate = getEffectiveCutoffDate(subscription);
+      if (cutoffDate && product.createdAt && new Date(product.createdAt) > cutoffDate) {
+        return new NextResponse('This product was added after your bundle purchase date', { status: 403 });
+      }
     }
 
     const filename = getFileName(product, product.file_url);

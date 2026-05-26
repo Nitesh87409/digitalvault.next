@@ -55,6 +55,9 @@ const SettingSchema = new mongoose.Schema({
   // Send purchase confirmation email
   bundle_send_email: { type: Boolean, default: true },
 
+  // Bundle Date-Based Access Cutoff (when ON, customers only get products uploaded up to their purchase date)
+  bundle_cutoff_enabled: { type: Boolean, default: false },
+
   // Recycle Bin auto-delete (days, 0 = never auto-delete)
   bin_auto_delete_days: { type: Number, default: 30 },
 

@@ -84,6 +84,7 @@ const DEFAULT_SETTINGS = {
   bundle_validity_days: 0,
   bundle_allow_repurchase: false,
   bundle_send_email: true,
+  bundle_cutoff_enabled: false,
 };
 
 function json(body, status = 200) {
@@ -115,6 +116,7 @@ function toBundleSettings(settings = {}) {
     bundle_validity_days: settings.bundle_validity_days ?? DEFAULT_SETTINGS.bundle_validity_days,
     bundle_allow_repurchase: settings.bundle_allow_repurchase ?? DEFAULT_SETTINGS.bundle_allow_repurchase,
     bundle_send_email: settings.bundle_send_email ?? DEFAULT_SETTINGS.bundle_send_email,
+    bundle_cutoff_enabled: settings.bundle_cutoff_enabled ?? DEFAULT_SETTINGS.bundle_cutoff_enabled,
     updatedAt: settings.updatedAt,
   };
 }
@@ -157,6 +159,7 @@ async function getSubscriptions() {
       amount: amountInRupees,
       customer_email: sub.customer_email || customer?.email || 'unknown@customer.com',
       product_name: sub.product_name || 'Complete Bundle',
+      access_cutoff_date: sub.access_cutoff_date || null,
       customer,
     };
   });
@@ -270,6 +273,7 @@ export async function POST(request) {
       settings.bundle_validity_days = Math.max(0, Math.floor(Number(body.bundle_validity_days) || 0));
       settings.bundle_allow_repurchase = !!body.bundle_allow_repurchase;
       settings.bundle_send_email = body.bundle_send_email !== false;
+      settings.bundle_cutoff_enabled = !!body.bundle_cutoff_enabled;
 
       await settings.save();
 
@@ -306,6 +310,28 @@ export async function POST(request) {
 
       if (!subscription) return json({ flag: 0, message: 'Subscription not found' }, 404);
       return json({ flag: 1, message: 'Subscription status updated', subscription });
+    }
+
+    if (action === 'update-cutoff-date') {
+      const { subscription_id, access_cutoff_date } = body;
+      if (!mongoose.Types.ObjectId.isValid(subscription_id)) {
+        return json({ flag: 0, message: 'Invalid subscription' }, 400);
+      }
+
+      // null = reset to default (use purchase_date), otherwise set custom date
+      const cutoffValue = access_cutoff_date ? new Date(access_cutoff_date) : null;
+      if (access_cutoff_date && isNaN(cutoffValue?.getTime())) {
+        return json({ flag: 0, message: 'Invalid date format' }, 400);
+      }
+
+      const subscription = await BundleSubscription.findByIdAndUpdate(
+        subscription_id,
+        { access_cutoff_date: cutoffValue },
+        { new: true }
+      ).lean();
+
+      if (!subscription) return json({ flag: 0, message: 'Subscription not found' }, 404);
+      return json({ flag: 1, message: cutoffValue ? 'Custom cutoff date set' : 'Cutoff date reset to purchase date', subscription });
     }
 
     if (action === 'export-csv') {

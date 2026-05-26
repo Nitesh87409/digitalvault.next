@@ -29,6 +29,7 @@ export default function AdminBundlePage() {
     bundle_validity_days: 0,
     bundle_allow_repurchase: false,
     bundle_send_email: true,
+    bundle_cutoff_enabled: false,
   });
   const [stats, setStats] = useState({ activeSubscriptions: 0, revenue: 0, totalProducts: 0, bundleProducts: 0, totalSalesCount: 0 });
   const [products, setProducts] = useState([]);
@@ -171,6 +172,30 @@ export default function AdminBundlePage() {
     } catch {
       setMessage('Connection error');
     }
+  }
+
+  async function updateCutoffDate(subscriptionId, accessCutoffDate) {
+    try {
+      const res = await fetch('/api/admin/bundle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update-cutoff-date',
+          subscription_id: subscriptionId,
+          access_cutoff_date: accessCutoffDate,
+        }),
+      });
+      const data = await res.json();
+      if (data.flag) {
+        setMessage(data.message || 'Cutoff date updated');
+        await loadBundleAdmin();
+      } else {
+        setMessage(data.message || 'Update failed');
+      }
+    } catch {
+      setMessage('Connection error');
+    }
+    setTimeout(() => setMessage(''), 3000);
   }
 
   async function exportCSV() {
@@ -518,6 +543,14 @@ export default function AdminBundlePage() {
                         <input type="checkbox" checked={!!settings.bundle_allow_repurchase} onChange={e => setSettings({ ...settings, bundle_allow_repurchase: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
                       </label>
 
+                      <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 cursor-pointer">
+                        <span>
+                          <span className="block text-sm font-bold text-white">Enable Date-Based Product Cutoff</span>
+                          <span className="text-xs text-gray-500">When enabled, bundle customers will only get access to products uploaded on or before their purchase date. New products uploaded after purchase won't be accessible.</span>
+                        </span>
+                        <input type="checkbox" checked={!!settings.bundle_cutoff_enabled} onChange={e => setSettings({ ...settings, bundle_cutoff_enabled: e.target.checked })} className="h-5 w-5 accent-[#f5c842]" />
+                      </label>
+
                       <div>
                         <label className="mb-2 block text-xs font-bold uppercase tracking-wider text-[#f5c842]">Sales Limit</label>
                         <div className="flex items-center gap-3">
@@ -706,12 +739,13 @@ export default function AdminBundlePage() {
                             <th className="p-3 font-medium">Coupon</th>
                             <th className="p-3 font-medium">Payment ID</th>
                             <th className="p-3 font-medium">Purchased</th>
+                            <th className="p-3 font-medium">Cutoff Date</th>
                             <th className="p-3 font-medium">Status</th>
                           </tr>
                         </thead>
                         <tbody>
                           {filteredSubscriptions.length === 0 ? (
-                            <tr><td colSpan={8} className="p-8 text-center text-gray-500">No bundle subscriptions found.</td></tr>
+                            <tr><td colSpan={9} className="p-8 text-center text-gray-500">No bundle subscriptions found.</td></tr>
                           ) : filteredSubscriptions.map(sub => (
                             <tr key={sub._id} className="border-t border-white/5">
                               <td className="p-3">
@@ -729,6 +763,34 @@ export default function AdminBundlePage() {
                               <td className="p-3 text-gray-400">{sub.coupon_code || '-'}</td>
                               <td className="p-3 text-xs text-gray-500">{sub.payment_id}</td>
                               <td className="p-3 text-gray-400">{new Date(sub.purchase_date || sub.createdAt).toLocaleDateString('en-IN')}</td>
+                              <td className="p-3">
+                                <div className="flex flex-col gap-1.5 min-w-[150px]">
+                                  <div className="flex items-center gap-1">
+                                    <input 
+                                      type="date" 
+                                      className="bg-[#1a1a2a] border border-white/10 text-white rounded-lg px-2 py-1 text-xs outline-none focus:border-[#f5c842]/50 cursor-pointer"
+                                      value={sub.access_cutoff_date ? new Date(sub.access_cutoff_date).toISOString().split('T')[0] : new Date(sub.purchase_date || sub.createdAt).toISOString().split('T')[0]}
+                                      onChange={async (e) => {
+                                        const val = e.target.value;
+                                        if (!val) return;
+                                        await updateCutoffDate(sub._id, val);
+                                      }}
+                                    />
+                                    {sub.access_cutoff_date && (
+                                      <button 
+                                        onClick={async () => await updateCutoffDate(sub._id, null)} 
+                                        title="Reset to default (Purchase Date)"
+                                        className="text-red-400 hover:text-red-300 text-xs px-1.5 py-1 bg-red-500/10 hover:bg-red-500/20 rounded transition-colors"
+                                      >
+                                        ↺
+                                      </button>
+                                    )}
+                                  </div>
+                                  <span className="text-[10px] text-gray-500 font-medium">
+                                    {sub.access_cutoff_date ? 'Custom Override' : 'Default (Purchase Date)'}
+                                  </span>
+                                </div>
+                              </td>
                               <td className="p-3">
                                 <select value={sub.status} onChange={e => updateSubscriptionStatus(sub, e.target.value)} className="rounded-lg border border-white/10 bg-[#1a1a2a] px-3 py-2 text-sm text-white outline-none cursor-pointer">
                                   <option value="active">Active</option>

@@ -42,6 +42,12 @@ const BundleSubscriptionSchema = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  // Admin can override the default cutoff (purchase_date) for specific customers
+  // null = use purchase_date as cutoff when bundle_cutoff_enabled is ON
+  access_cutoff_date: {
+    type: Date,
+    default: null,
+  },
   createdAt: {
     type: Date,
     default: Date.now,
