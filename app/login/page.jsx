@@ -288,15 +288,14 @@ export default function LoginPage() {
       </nav>
 
       {/* Main */}
-      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
-        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <div className="text-center mb-7">
-            <div className="text-[2.5rem] mb-3">👋</div>
-            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Welcome Back</h2>
-            <p className="text-[#6b7280] text-sm">Login to your {settings.app_name} account</p>
+      <div className="flex-1 flex items-center justify-center py-4 md:py-8 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[16px] md:rounded-[20px] p-5 sm:p-7 md:p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="text-center mb-4 md:mb-6">
+            <h2 className="font-['Syne',sans-serif] text-xl md:text-[1.6rem] font-bold text-white mb-1">Welcome Back</h2>
+            <p className="text-[#6b7280] text-xs md:text-sm">Login to your {settings.app_name} account</p>
           </div>
 
-          <div className="flex gap-2 mb-6 bg-[#1a1a2a] p-1 rounded-xl overflow-x-auto [scrollbar-width:none]">
+          <div className="flex gap-2 mb-4 md:mb-6 bg-[#1a1a2a] p-1 rounded-xl overflow-x-auto [scrollbar-width:none]">
             {settings.password_login_enabled && (
               <button
                 onClick={() => changeTab('password')}
@@ -326,20 +325,20 @@ export default function LoginPage() {
           {!activeTab && !hasSocialLogins ? (
             <div className="text-[#9ca3af] text-center p-5">Loading login methods...</div>
           ) : activeTab === 'password' ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 md:gap-4">
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Email Address</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Email Address</label>
                 <input
                   type="email"
                   value={email}
                   onChange={e => setEmail(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && loginPassword()}
                   placeholder="your@email.com"
-                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                 />
               </div>
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Password</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Password</label>
                 <div className="relative">
                   <input
                     type={showPass ? 'text' : 'password'}
@@ -347,19 +346,19 @@ export default function LoginPage() {
                     onChange={e => setPassword(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && loginPassword()}
                     placeholder="••••••••"
-                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full pl-4 pr-12 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full pl-3.5 pr-12 py-2.5 md:pl-4 md:py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
                   <button onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-transparent border-none cursor-pointer text-[#6b7280] text-base">
                     {showPass ? '🙈' : '👁'}
                   </button>
                 </div>
-                <div className="text-right mt-2">
-                  <Link href="/forgot-password" className="text-[#9ca3af] text-xs no-underline">Forgot Password?</Link>
+                <div className="text-right mt-1">
+                  <Link href="/forgot-password" className="text-[#9ca3af] text-xs no-underline font-medium">Forgot Password?</Link>
                 </div>
               </div>
 
               {error && (
-                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
+                <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
@@ -367,16 +366,16 @@ export default function LoginPage() {
               <button
                 onClick={loginPassword}
                 disabled={loading}
-                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 md:py-3.5 rounded-xl text-base mt-0.5 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Logging in...' : 'Login →'}
               </button>
             </div>
           ) : activeTab === 'email' || activeTab === 'mobile' ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3 md:gap-4">
               {otpStep === 1 ? (
                 <div>
-                  <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">
+                  <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">
                     {activeTab === 'email' ? 'Email Address' : 'Mobile Number'}
                   </label>
                   <input
@@ -385,24 +384,24 @@ export default function LoginPage() {
                     onChange={e => setIdentifier(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && sendOtp()}
                     placeholder={getPlaceholder()}
-                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl text-sm font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
                   {error && (
-                    <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-4">
+                    <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-3">
                       {error}
                     </div>
                   )}
                   <button
                     onClick={sendOtp}
                     disabled={loading}
-                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-4 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 md:py-3.5 rounded-xl text-base mt-3 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                   >
                     {loading ? 'Sending...' : 'Send OTP →'}
                   </button>
                 </div>
               ) : (
                 <div>
-                  <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">
+                  <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">
                     Enter {settings.otp_length}-Digit OTP
                   </label>
                   <input
@@ -412,17 +411,17 @@ export default function LoginPage() {
                     onChange={e => setOtpCode(e.target.value)}
                     onKeyDown={e => e.key === 'Enter' && verifyOtp()}
                     placeholder={"0".repeat(settings.otp_length)}
-                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-xl tracking-[4px] text-center font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
+                    className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 md:px-4 md:py-3 rounded-xl text-xl tracking-[4px] text-center font-sans transition-colors duration-200 focus:border-[#f5c842]/50"
                   />
                   {error && (
-                    <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-4">
+                    <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20 mt-3">
                       {error}
                     </div>
                   )}
                   <button
                     onClick={verifyOtp}
                     disabled={loading || otpCode.length < settings.otp_length}
-                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-4 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 md:py-3.5 rounded-xl text-base mt-3 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                   >
                     {loading ? 'Verifying...' : 'Verify & Login →'}
                   </button>
@@ -439,7 +438,7 @@ export default function LoginPage() {
 
           {hasSocialLogins && (
             <>
-              <div className="flex items-center my-6">
+              <div className="flex items-center my-4 md:my-6">
                 <div className="flex-1 border-t border-white/5"></div>
                 <span className="px-3 text-[#6b7280] text-[0.8rem] font-semibold uppercase">or continue with</span>
                 <div className="flex-1 border-t border-white/5"></div>
