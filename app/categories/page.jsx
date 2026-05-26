@@ -180,42 +180,97 @@ export default function CategoriesPage() {
         {/* HORIZONTAL CATEGORY SECTION */}
         <div className="pb-4 md:pb-12 w-full">
           <div className="max-w-[1152px] mx-auto md:px-8">
-            <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible [-webkit-overflow-scrolling:touch]">
-              <style jsx>{`
-                .hide-scrollbar::-webkit-scrollbar { display: none; }
-                .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
-              `}</style>
-              
-              <button
-                onClick={() => setActiveTab('All')}
-                className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border ${activeTab === 'All' ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
-              >
-                <div className="scale-75 md:scale-100"><LayoutGridIcon active={activeTab === 'All'} /></div>
-                <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${activeTab === 'All' ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>All</span>
-              </button>
+            <style jsx>{`
+              .hide-scrollbar::-webkit-scrollbar { display: none; }
+              .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+              @keyframes skeleton-loading {
+                0% { background-position: 100% 50%; }
+                100% { background-position: 0 50%; }
+              }
+              .skeleton {
+                background: linear-gradient(90deg, #12121a 25%, #1c1c27 50%, #12121a 75%);
+                background-size: 200% 100%;
+                animation: skeleton-loading 1.5s infinite ease-in-out;
+              }
+            `}</style>
+            
+            {loading ? (
+              <div className="flex flex-nowrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="skeleton h-[72px] md:h-[110px] w-[68px] md:flex-1 min-w-[68px] rounded-[14px] md:rounded-2xl border border-[var(--line)]" />
+                ))}
+              </div>
+            ) : (
+              <div className="flex flex-nowrap md:flex-wrap gap-2 md:gap-5 px-5 md:px-0 overflow-x-auto hide-scrollbar scroll-smooth md:overflow-visible [-webkit-overflow-scrolling:touch]">
+                <button
+                  onClick={() => setActiveTab('All')}
+                  className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border ${activeTab === 'All' ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
+                >
+                  <div className="scale-75 md:scale-100"><LayoutGridIcon active={activeTab === 'All'} /></div>
+                  <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${activeTab === 'All' ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>All</span>
+                </button>
 
-              {categories.map(cat => {
-                const isActive = activeTab === cat.name;
-                return (
-                  <button
-                    key={cat.name}
-                    onClick={() => router.push(`/categories/${encodeURIComponent(cat.name)}`)}
-                    className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border group ${isActive ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
-                  >
-                    <div className={`flex items-center justify-center scale-75 md:scale-110 transition-transform ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>{cat.icon}</div>
-                    <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${isActive ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>{cat.name}</span>
-                  </button>
-                )
-              })}
-              
-              {/* Spacer for proper right-edge padding on mobile browsers */}
-              <div className="w-2 shrink-0 md:hidden" aria-hidden="true" />
-            </div>
+                {categories.map(cat => {
+                  const isActive = activeTab === cat.name;
+                  return (
+                    <button
+                      key={cat.name}
+                      onClick={() => router.push(`/categories/${encodeURIComponent(cat.name)}`)}
+                      className={`flex flex-col items-center justify-center gap-1.5 py-2.5 px-3 md:py-5 md:px-6 md:flex-1 min-w-[68px] shrink-0 rounded-[14px] md:rounded-2xl whitespace-nowrap transition-all duration-300 cursor-pointer border group ${isActive ? 'border-[#f5c842]/40 bg-[#f5c842]/10 shadow-[0_0_12px_rgba(245,200,66,0.15)] md:shadow-[0_0_30px_rgba(245,200,66,0.15)]' : 'border-[var(--line)] bg-[var(--surface-muted)] hover:bg-[var(--surface)]'}`}
+                    >
+                      <div className={`flex items-center justify-center scale-75 md:scale-110 transition-transform ${isActive ? 'opacity-100' : 'opacity-60 group-hover:opacity-100'}`}>{cat.icon}</div>
+                      <span className={`text-[0.65rem] md:text-[0.9rem] font-semibold ${isActive ? 'text-[#f5c842]' : 'text-[var(--muted)]'}`}>{cat.name}</span>
+                    </button>
+                  )
+                })}
+                
+                {/* Spacer for proper right-edge padding on mobile browsers */}
+                <div className="w-2 shrink-0 md:hidden" aria-hidden="true" />
+              </div>
+            )}
           </div>
         </div>
 
         {loading ? (
-          <div className="text-center py-16 text-[var(--muted-2)]">Loading premium categories...</div>
+          <div className="max-w-[1152px] mx-auto px-6 md:px-8">
+            
+            {/* POPULAR CATEGORIES SKELETON */}
+            <div className="mb-6 md:mb-16">
+              <div className="skeleton h-6 w-48 mb-4 md:mb-8 rounded-lg" />
+              <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3 md:gap-6 lg:gap-8">
+                {[1, 2, 3, 4].map(i => (
+                  <div key={i} className="p-3.5 md:p-6 lg:p-8 h-[180px] md:h-[280px] flex flex-col relative rounded-2xl md:rounded-[2rem] border border-[var(--line)] bg-[var(--surface-muted)] overflow-hidden">
+                    <div className="skeleton w-10 h-10 md:w-16 md:h-16 lg:w-20 lg:h-20 rounded-xl md:rounded-[1.25rem] mb-3 md:mb-6 lg:mb-8 border border-white/5 bg-[#1a1a2a]" />
+                    <div className="skeleton h-5 w-24 md:w-36 mb-2 rounded-lg" />
+                    <div className="skeleton h-3.5 w-full mb-1.5 rounded-lg" />
+                    <div className="skeleton h-3.5 w-4/5 mb-6 rounded-lg" />
+                    <div className="flex items-center justify-between mt-auto">
+                      <div className="skeleton h-6 w-16 md:w-24 rounded-full" />
+                      <div className="skeleton w-6 h-6 md:w-10 md:h-10 rounded-full" />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* ALL CATEGORIES SKELETON */}
+            <div>
+              <div className="skeleton h-6 w-36 mb-4 md:mb-8 rounded-lg" />
+              <div className="flex flex-col gap-2 md:gap-4 lg:grid lg:grid-cols-2 lg:gap-6">
+                {[1, 2, 3, 4, 5, 6].map(i => (
+                  <div key={i} className="p-3 px-3.5 md:p-5 md:px-6 flex items-center gap-3 md:gap-6 bg-[var(--surface-muted)] border border-[var(--line)] rounded-xl md:rounded-3xl">
+                    <div className="skeleton w-9 h-9 md:w-16 md:h-16 rounded-lg md:rounded-2xl shrink-0" />
+                    <div className="flex-1">
+                      <div className="skeleton h-4 w-20 md:w-32 mb-1.5 rounded-lg" />
+                      <div className="skeleton h-3 w-40 md:w-64 rounded-lg" />
+                    </div>
+                    <div className="skeleton h-4 w-12 rounded-lg" />
+                  </div>
+                ))}
+              </div>
+            </div>
+
+          </div>
         ) : (
           <div className="max-w-[1152px] mx-auto px-6 md:px-8">
             
