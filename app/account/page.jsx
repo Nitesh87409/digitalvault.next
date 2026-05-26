@@ -652,8 +652,8 @@ export default function AccountPage() {
         <div className="absolute -top-32 -left-32 w-80 h-80 bg-[#f5c842]/5 rounded-full blur-[100px] pointer-events-none"></div>
 
         {/* Top Branding Section */}
-        <div className="px-5 pt-8 pb-5 relative z-10">
-          <div className="mb-5 flex items-center justify-between gap-3">
+        <div className="px-5 pt-6 pb-4 relative z-10">
+          <div className="mb-4 flex items-center justify-between gap-3">
             <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide flex items-center gap-2">
               {settings.app_logo ? (
                 <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" loading="eager" />
@@ -662,10 +662,10 @@ export default function AccountPage() {
             </motion.div>
             <ThemeToggle />
           </div>
-          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-3xl font-['Syne'] font-bold text-[var(--heading)] mb-2">
+          <motion.h1 initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="text-xl font-['Syne'] font-bold text-[var(--heading)] mb-1">
             My Account
           </motion.h1>
-          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-[var(--muted)] text-[13px]">
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.2 }} className="text-[var(--muted)] text-[12px]">
             Manage your account and preferences
           </motion.p>
         </div>

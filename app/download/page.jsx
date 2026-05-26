@@ -54,47 +54,47 @@ function DownloadContent() {
         </div>
       </nav>
 
-      <div className="flex-1 flex items-center justify-center px-4 py-10">
-        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-3xl p-10 w-full max-w-[520px] text-center">
+      <div className="flex-1 flex items-center justify-center px-4 py-4 sm:py-10">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[24px] sm:rounded-3xl p-5 sm:p-10 w-full max-w-[480px] text-center shadow-2xl">
 
           {/* Loading */}
           {state === 'loading' && (
             <>
-              <div className="w-16 h-16 border-4 border-[#f5c842] border-t-transparent rounded-full mx-auto mb-6 animate-[spin_0.8s_linear_infinite]"></div>
-              <p className="text-[#6b7280]">Verifying your purchase...</p>
+              <div className="w-12 h-12 border-[3.5px] border-[#f5c842] border-t-transparent rounded-full mx-auto mb-4 animate-[spin_0.8s_linear_infinite]"></div>
+              <p className="text-[#6b7280] text-xs sm:text-sm">Verifying your purchase...</p>
             </>
           )}
 
           {/* Success */}
           {state === 'success' && (
             <>
-              <div className="w-20 h-20 rounded-full bg-[#f5c842]/10 flex items-center justify-center text-4xl mx-auto mb-6">🎉</div>
-              <h1 className="font-['Syne',sans-serif] text-[2rem] font-bold text-white mb-2">Payment Successful!</h1>
-              <p className="text-[#f5c842] font-semibold mb-6">Your order is confirmed</p>
-              <p className="text-[#9ca3af] text-sm mb-8">
+              <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#f5c842]/10 flex items-center justify-center text-2xl sm:text-4xl mx-auto mb-4 sm:mb-6">🎉</div>
+              <h1 className="font-['Syne',sans-serif] text-xl sm:text-[2rem] font-bold text-white mb-1.5 sm:mb-2">Payment Successful!</h1>
+              <p className="text-[#f5c842] font-semibold text-xs sm:text-base mb-4 sm:mb-6">Your order is confirmed</p>
+              <p className="text-[#9ca3af] text-xs sm:text-sm mb-5 sm:mb-8 leading-relaxed">
                 Thank you for your purchase! Download your files below. You have <strong className="text-[#f5c842]">lifetime access</strong>.
               </p>
 
-              <div className="flex flex-col gap-3 mb-8">
+              <div className="flex flex-col gap-2.5 mb-5 sm:mb-8">
                 {files.map(file => (
                   <a
                     key={file.id}
                     href={`/api/download?token=${token}&pid=${file.id}`}
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-['Syne',sans-serif] no-underline px-5 py-4 rounded-xl flex items-center justify-center gap-2.5 text-base transition-transform duration-200 hover:scale-[1.02]"
+                    className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-bold font-['Syne',sans-serif] no-underline px-4 py-3 sm:px-5 sm:py-4 rounded-xl flex items-center justify-center gap-2 text-sm sm:text-base transition-transform duration-200 hover:scale-[1.02]"
                   >
                     ⬇️ Download {file.name}
                   </a>
                 ))}
               </div>
 
-              <Link href="/" className="block text-sm text-[#6b7280] no-underline mb-4">← Back to Store</Link>
-              <Link href="/account" className="block text-sm text-[#9ca3af] no-underline">View My Account →</Link>
+              <Link href="/" className="block text-xs sm:text-sm text-[#6b7280] no-underline mb-2.5 sm:mb-4">← Back to Store</Link>
+              <Link href="/account" className="block text-xs sm:text-sm text-[#9ca3af] no-underline">View My Account →</Link>
 
-              <div className="mt-6 p-4 rounded-xl bg-white/3 border border-white/7 text-left">
-                <p className="font-semibold text-white text-sm mb-1">📧 Check your email too!</p>
-                <p className="text-[#6b7280] text-[0.8rem]">We've sent the download links to your registered email address.</p>
+              <div className="mt-5 sm:mt-6 p-3 sm:p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--line-soft)] text-left">
+                <p className="font-semibold text-white text-xs sm:text-sm mb-0.5 sm:mb-1">📧 Check your email too!</p>
+                <p className="text-[#6b7280] text-[0.7rem] sm:text-[0.8rem]">We've sent the download links to your registered email address.</p>
               </div>
             </>
           )}
@@ -102,13 +102,13 @@ function DownloadContent() {
           {/* Error */}
           {state === 'error' && (
             <>
-              <div className="text-[4rem] mb-6">❌</div>
-              <h1 className="font-['Syne',sans-serif] text-2xl font-bold text-white mb-3">Invalid or Expired Link</h1>
-              <p className="text-[#9ca3af] text-sm mb-2">{errorMsg}</p>
-              <p className="text-[#6b7280] text-sm mb-6">Please contact support or check My Account for downloads.</p>
-              <div className="flex gap-3 justify-center">
-                <Link href="/account" className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-6 py-3 rounded-xl no-underline font-bold font-['Syne',sans-serif] text-sm transition-transform duration-200 hover:scale-[1.02]">My Account</Link>
-                <a href={`mailto:${settings.support_email}`} className="bg-white/5 text-white px-6 py-3 rounded-xl no-underline font-['Syne',sans-serif] text-sm border border-white/10 transition-colors duration-200 hover:bg-white/10">Contact Support</a>
+              <div className="text-[3rem] sm:text-[4rem] mb-4 sm:mb-6">❌</div>
+              <h1 className="font-['Syne',sans-serif] text-lg sm:text-2xl font-bold text-white mb-2 sm:mb-3">Invalid or Expired Link</h1>
+              <p className="text-[#9ca3af] text-xs sm:text-sm mb-1.5 sm:mb-2">{errorMsg}</p>
+              <p className="text-[#6b7280] text-xs sm:text-sm mb-5 sm:mb-6">Please contact support or check My Account for downloads.</p>
+              <div className="flex gap-2.5 justify-center">
+                <Link href="/account" className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl no-underline font-bold font-['Syne',sans-serif] text-xs sm:text-sm transition-transform duration-200 hover:scale-[1.02]">My Account</Link>
+                <a href={`mailto:${settings.support_email}`} className="bg-white/5 text-white px-4 py-2.5 sm:px-6 sm:py-3 rounded-xl no-underline font-['Syne',sans-serif] text-xs sm:text-sm border border-white/10 transition-colors duration-200 hover:bg-white/10">Contact Support</a>
               </div>
             </>
           )}
