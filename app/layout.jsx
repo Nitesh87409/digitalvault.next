@@ -52,6 +52,7 @@ export default async function RootLayout({ children }) {
       initialSettings = {
         app_name: settings.app_name || process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
         app_logo: settings.app_logo || '',
+        app_name_size: settings.app_name_size ?? 20,
         support_email: settings.support_email || 'support@digitalvault.in',
         support_phone: settings.support_phone || '+91 98765 43210',
         business_hours: settings.business_hours || 'Mon–Sat, 10am–6pm IST',
@@ -103,6 +104,7 @@ export default async function RootLayout({ children }) {
     initialSettings = {
       app_name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
       app_logo: '',
+      app_name_size: 20,
       support_email: 'support@digitalvault.in',
       support_phone: '+91 98765 43210',
       business_hours: 'Mon–Sat, 10am–6pm IST',

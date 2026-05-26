@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 const defaultSettings = {
   app_name: 'DigitalVault',
   app_logo: '',
+  app_name_size: 20,
   support_email: 'support@digitalvault.in',
   support_phone: '+91 98765 43210',
   business_hours: 'Mon–Sat, 10am–6pm IST',

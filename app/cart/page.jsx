@@ -291,7 +291,11 @@ export default function CartPage() {
         {/* Nav */}
         <nav className="bg-[var(--nav-bg)] border-b border-[var(--line-soft)] backdrop-blur-[20px] px-6 py-4 sticky top-0 z-10">
           <div className="max-w-[1152px] mx-auto flex items-center justify-between">
-            <Link href="/" className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2">
+            <Link
+              href="/"
+              className="font-['Syne',sans-serif] text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
+              style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
+            >
               {settings.app_logo ? (
                 <img src={settings.app_logo} alt={settings.app_name} className="h-7 w-auto object-contain" />
               ) : null}

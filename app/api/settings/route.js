@@ -51,6 +51,7 @@ export async function POST(request) {
       'business_hours',
       'app_name',
       'app_logo',
+      'app_name_size',
       'bundle_enabled',
       'bundle_title',
       'bundle_description',

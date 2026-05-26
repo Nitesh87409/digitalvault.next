@@ -151,6 +151,7 @@ export default function Navbar({ onSearchClick }) {
             <Link
               href="/"
               className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
+              style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
             >
               {settings.app_logo ? (
                 <img

@@ -310,7 +310,11 @@ export default function AccountPage() {
           {/* Nav */}
           <nav className="bg-[var(--nav-bg)] border-b border-[#f5c842]/10 backdrop-blur-[20px] px-6 py-4 sticky top-0 z-[100]">
             <div className="max-w-[1100px] mx-auto flex items-center justify-between">
-              <Link href="/" className="font-['Syne',sans-serif] text-[1.2rem] font-bold text-[#f5c842] no-underline flex items-center gap-2">
+              <Link
+                href="/"
+                className="font-['Syne',sans-serif] text-[1.2rem] font-bold text-[#f5c842] no-underline flex items-center gap-2"
+                style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
+              >
                 {settings.app_logo ? (
                   <img src={settings.app_logo} alt={settings.app_name} className="h-[28px] w-auto object-contain" loading="eager" />
                 ) : null}
@@ -654,7 +658,12 @@ export default function AccountPage() {
         {/* Top Branding Section */}
         <div className="px-5 pt-6 pb-4 relative z-10">
           <div className="mb-4 flex items-center justify-between gap-3">
-            <motion.div initial={{ opacity: 0, y: -20 }} animate={{ opacity: 1, y: 0 }} className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide flex items-center gap-2">
+            <motion.div
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="text-[#f5c842] font-['Syne'] font-bold text-lg tracking-wide flex items-center gap-2"
+              style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
+            >
               {settings.app_logo ? (
                 <img src={settings.app_logo} alt={settings.app_name} className="h-6 w-auto object-contain" loading="eager" />
               ) : null}

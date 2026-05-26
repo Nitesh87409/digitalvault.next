@@ -21,6 +21,7 @@ export default function AdminSettingsPage() {
     business_hours: 'Mon–Sat, 10am–6pm IST',
     app_name: '',
     app_logo: '',
+    app_name_size: 20,
     refund_policy_content: '',
     terms_privacy_content: '',
     social_instagram_enabled: false,
@@ -132,6 +133,7 @@ export default function AdminSettingsPage() {
           business_hours: data.settings.business_hours ?? 'Mon–Sat, 10am–6pm IST',
           app_name: data.settings.app_name ?? '',
           app_logo: data.settings.app_logo ?? '',
+          app_name_size: data.settings.app_name_size ?? 20,
           refund_policy_content: data.settings.refund_policy_content ?? '',
           terms_privacy_content: data.settings.terms_privacy_content ?? '',
           social_instagram_enabled: data.settings.social_instagram_enabled ?? false,
@@ -300,6 +302,25 @@ export default function AdminSettingsPage() {
                     </div>
 
                     <div>
+                      <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Name Font Size</label>
+                      <div className="flex items-center gap-4">
+                        <input
+                          type="range"
+                          min="12"
+                          max="36"
+                          value={settings.app_name_size || 20}
+                          onChange={(e) => handleChange('app_name_size', parseInt(e.target.value))}
+                          className="w-full h-2 bg-[var(--surface)] rounded-lg appearance-none cursor-pointer accent-[#f5c842]"
+                          style={{ accentColor: '#f5c842' }}
+                        />
+                        <span className="font-syne font-bold text-lg text-[#f5c842] shrink-0 min-w-[48px] text-right">
+                          {settings.app_name_size || 20}px
+                        </span>
+                      </div>
+                      <p className="text-xs text-[var(--muted-2)] mt-2">Adjust the font size of the website name displayed next to the logo in headers (Default: 20px).</p>
+                    </div>
+
+                    <div>
                       <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Logo</label>
                       <div className="flex items-center gap-4">
                         {settings.app_logo && (
@@ -324,7 +345,7 @@ export default function AdminSettingsPage() {
 
                   <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)]">
                     <button
-                      onClick={() => saveSectionSettings(['app_name', 'app_logo'], 'Branding settings')}
+                      onClick={() => saveSectionSettings(['app_name', 'app_logo', 'app_name_size'], 'Branding settings')}
                       disabled={saving === 'Branding settings'}
                       className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3 rounded-xl shadow-lg shadow-[#f5c842]/20 cursor-pointer transition-transform ${saving === 'Branding settings' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
                     >

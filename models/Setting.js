@@ -15,6 +15,7 @@ const SettingSchema = new mongoose.Schema({
   business_hours: { type: String, default: 'Mon–Sat, 10am–6pm IST' },
   app_name: { type: String, default: '' },
   app_logo: { type: String, default: '' },
+  app_name_size: { type: Number, default: 20 },
   bundle_enabled: { type: Boolean, default: true },
   bundle_title: { type: String, default: 'Complete Bundle' },
   bundle_description: { type: String, default: 'All products + future updates included' },
