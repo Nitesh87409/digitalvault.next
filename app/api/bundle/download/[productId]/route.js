@@ -103,6 +103,12 @@ export async function GET(request, { params }) {
       }
     }
 
+    // Smart Cloud Detection — redirect cloud storage URLs directly to the user's browser
+    const CLOUD_URL_REGEX = /drive\.google\.com|dropbox\.com|mega\.nz|onedrive\.live\.com|mediafire\.com/i;
+    if (product.file_url.startsWith('http') && CLOUD_URL_REGEX.test(product.file_url)) {
+      return NextResponse.redirect(product.file_url, 302);
+    }
+
     const filename = getFileName(product, product.file_url);
 
     if (product.file_url.startsWith('http')) {
