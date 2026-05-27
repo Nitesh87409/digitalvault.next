@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 import { useSettings } from '@/hooks/useSettings';
+import { optimizeCloudinary } from '@/lib/cloudinary-image';
 
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
@@ -244,7 +245,7 @@ export default function ProductPage({ id }) {
               {/* Main Image */}
               <div className="mb-4">
                 {mainImg ? (
-                  <img src={mainImg} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
+                  <img src={optimizeCloudinary(mainImg, 800)} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
                 ) : (
                   <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#f5c842]/15 bg-[var(--surface)] text-8xl">📦</div>
                 )}
@@ -255,7 +256,7 @@ export default function ProductPage({ id }) {
                   {product.images.map((img, i) => (
                     <img
                       key={i}
-                      src={img}
+                      src={optimizeCloudinary(img, 120)}
                       alt={`${product.name} ${i + 1}`}
                       onClick={() => setMainImg(img)}
                       loading="lazy"
