@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
+import { useSettings } from '@/hooks/useSettings';
 
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
@@ -18,6 +19,7 @@ export default function ProductPage({ id }) {
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [productCoupon, setProductCoupon] = useState(null);
   const { hasBundleAccess } = useBundlePurchase({ showToast });
+  const { settings } = useSettings();
 
   function copyLink() {
     if (typeof window === 'undefined') return;
@@ -194,7 +196,22 @@ export default function ProductPage({ id }) {
         {/* Nav */}
         <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-4 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
-            <Link href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">DigitalVault</Link>
+            <Link
+              href="/"
+              className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
+              style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
+            >
+              {settings.app_logo ? (
+                <img
+                  src={settings.app_logo}
+                  alt={settings.app_name}
+                  className="h-8 w-8 object-contain shrink-0"
+                  loading="eager"
+                  fetchPriority="high"
+                />
+              ) : null}
+              {settings.app_name}
+            </Link>
             <div className="flex items-center gap-3 sm:gap-4">
               <Link href="/" className="theme-link whitespace-nowrap text-sm no-underline">← Store</Link>
               <Link href="/account" className="theme-link hidden whitespace-nowrap text-sm no-underline sm:inline">My Account</Link>
