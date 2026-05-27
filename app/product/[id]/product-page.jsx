@@ -179,10 +179,72 @@ export default function ProductPage({ id }) {
   }
 
   if (loading) return (
-    <div className="theme-page flex items-center justify-center">
-      <div className="text-center">
-        <div className="mx-auto mb-4 h-12 w-12 animate-spin rounded-full border-4 border-[#f5c842] border-t-transparent"></div>
-        <p className="font-dm text-[var(--muted-2)]">Loading product...</p>
+    <div className="theme-page font-dm min-h-screen bg-[var(--bg)] text-[var(--text)]">
+      {/* Nav Skeleton */}
+      <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-4 backdrop-blur-xl">
+        <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
+          <div className="w-32 h-6 rounded-lg skeleton-shimmer" />
+          <div className="flex gap-4 items-center">
+            <div className="w-12 h-4 rounded skeleton-shimmer" />
+            <div className="w-20 h-4 rounded skeleton-shimmer sm:inline hidden" />
+            <div className="w-8 h-8 rounded-xl skeleton-shimmer" />
+          </div>
+        </div>
+      </nav>
+
+      <div className="mx-auto max-w-[1152px] px-4 py-6 md:px-6 md:py-10">
+        {/* Breadcrumb Skeleton */}
+        <div className="mb-5 md:mb-8 flex items-center gap-1.5">
+          <div className="w-12 h-4 rounded skeleton-shimmer" />
+          <span className="text-white/10">›</span>
+          <div className="w-16 h-4 rounded skeleton-shimmer" />
+          <span className="text-white/10">›</span>
+          <div className="w-24 h-4 rounded skeleton-shimmer" />
+        </div>
+
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
+          {/* LEFT — Images Skeleton */}
+          <div className="w-full lg:w-1/2 min-w-0">
+            <div className="mb-4 aspect-square w-full rounded-2xl skeleton-shimmer" />
+            <div className="flex gap-3">
+              {[1, 2, 3].map(i => (
+                <div key={i} className="w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] rounded-xl skeleton-shimmer" />
+              ))}
+            </div>
+          </div>
+
+          {/* RIGHT — Info Skeleton */}
+          <div className="w-full lg:w-1/2 flex flex-col min-w-0 space-y-5">
+            <div className="w-24 h-5 rounded-full skeleton-shimmer" />
+            <div className="w-3/4 h-10 rounded-xl skeleton-shimmer" />
+            <div className="w-1/2 h-5 rounded skeleton-shimmer" />
+            
+            {/* Price block */}
+            <div className="py-2 flex items-center gap-4">
+              <div className="w-32 h-10 rounded-xl skeleton-shimmer" />
+              <div className="w-20 h-6 rounded-lg skeleton-shimmer" />
+            </div>
+
+            {/* Coupon badge skeleton */}
+            <div className="w-72 h-12 rounded-xl skeleton-shimmer" />
+
+            {/* Highlights skeleton */}
+            <div className="grid grid-cols-2 gap-3 py-2">
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex items-center gap-2">
+                  <div className="w-4 h-4 rounded-full skeleton-shimmer" />
+                  <div className="w-24 h-4 rounded skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
+
+            {/* Buttons skeleton */}
+            <div className="flex gap-4 pt-2">
+              <div className="flex-1 h-12 rounded-xl skeleton-shimmer" />
+              <div className="flex-1 h-12 rounded-xl skeleton-shimmer" />
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

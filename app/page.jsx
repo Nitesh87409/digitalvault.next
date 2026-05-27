@@ -5,6 +5,7 @@ import Navbar from '@/components/Navbar';
 import ProductCard from '@/components/ProductCard';
 import { useToast } from '@/components/Toast';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
+import { optimizeCloudinary } from '@/lib/cloudinary-image';
 import dynamic from 'next/dynamic';
 
 const Toast = dynamic(() => import('@/components/Toast'), { ssr: false });
@@ -409,7 +410,7 @@ export default function HomePage() {
 
                     {settings.bundle_banner_image && (
                       <div className="rounded-xl overflow-hidden border border-[var(--line)] max-h-40 sm:max-h-52">
-                        <img src={settings.bundle_banner_image} alt="Bundle Banner" className="w-full h-full object-cover" />
+                        <img src={optimizeCloudinary(settings.bundle_banner_image, 1000)} alt="Bundle Banner" className="w-full h-full object-cover" />
                       </div>
                     )}
 
