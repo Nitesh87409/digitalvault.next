@@ -14,7 +14,7 @@ const cardStyles = [
 ];
 const badges = ['Bestseller', 'Hot', 'New', 'Popular', 'Trending', 'Must Have'];
 
-export default function ProductCard({ product, index, onAddToCart, onBuyNow, hasBundleAccess = false }) {
+export default function ProductCard({ product, index, onAddToCart, onBuyNow, hasBundleAccess = false, couponTag = '' }) {
   const router = useRouter();
   const [imgError, setImgError] = useState(false);
   const style = cardStyles[index % cardStyles.length];
@@ -64,8 +64,14 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
 
         {/* Bottom Row */}
         <div className="flex flex-col items-start gap-2 mt-auto">
+          {couponTag && (
+            <span className="text-[9px] sm:text-[10px] font-bold text-[#7c3aed] bg-[#7c3aed]/10 px-1.5 py-0.5 rounded-full border border-[#7c3aed]/20 whitespace-nowrap">
+              🏷️ {couponTag}
+            </span>
+          )}
+
           {/* Prices */}
-          <div className="flex flex-row items-baseline gap-2 shrink-0">
+          <div className="flex flex-row items-center gap-2 shrink-0 flex-wrap">
             <span className="text-sm font-bold text-[var(--heading)] sm:text-base">₹{sale.toLocaleString()}</span>
             {orig > 0 && <span className="text-[10px] text-[var(--muted-2)] line-through sm:text-xs">₹{orig.toLocaleString()}</span>}
           </div>

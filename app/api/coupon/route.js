@@ -15,6 +15,48 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const action = searchParams.get('action');
 
+    // Public endpoint — no login required, returns active visible coupons
+    if (action === 'public-coupons') {
+      const pubRate = await consumePersistentRateLimit(
+        buildRateLimitKey(request, 'public-coupons'),
+        { limit: 50, windowMs: 60_000 }
+      );
+      if (!pubRate.allowed) {
+        return NextResponse.json({ flag: 0, message: 'Too many requests' }, { status: 429 });
+      }
+
+      const email = searchParams.get('email');
+      const now = new Date();
+
+      const userTypeQuery = [{ user_type: { $in: ['all', 'new'] } }];
+      if (email) {
+        userTypeQuery.push({
+          user_type: 'specific',
+          specific_emails: email.toLowerCase().trim()
+        });
+      }
+
+      const query = {
+        status: true,
+        $or: userTypeQuery
+      };
+
+      const coupons = await Coupon.find(query)
+        .select('code discount_type discount_value min_order start_date end_date user_type show_on_banner banner_text product_ids')
+        .sort({ createdAt: -1 })
+        .limit(20)
+        .lean();
+
+      // Filter out unstarted or expired ones in memory for robust multi-condition handling
+      const activeCoupons = coupons.filter(c => {
+        const isStarted = !c.start_date || new Date(c.start_date) <= now;
+        const isNotExpired = !c.end_date || new Date(c.end_date) >= now;
+        return isStarted && isNotExpired;
+      });
+
+      return NextResponse.json({ flag: 1, coupons: activeCoupons });
+    }
+
     if (action === 'validate') {
       const decoded = verifyCustomer(request);
       if (!decoded?.id) {
@@ -157,6 +199,8 @@ export async function POST(request) {
       user_type: user_type || 'all',
       specific_emails: (specific_emails || []).map((entry) => entry.toLowerCase().trim()).filter(Boolean),
       status: status !== undefined ? status : true,
+      show_on_banner: !!body.show_on_banner,
+      banner_text: body.banner_text || '',
     });
 
     return NextResponse.json({ flag: 1, message: 'Coupon created', coupon });

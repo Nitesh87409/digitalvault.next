@@ -15,7 +15,8 @@ export default function AdminCoupons() {
     code: '', discount_type: 'percentage', discount_value: '',
     min_order: '', max_uses: '', per_user_limit: '1',
     start_date: '', end_date: '', user_type: 'all',
-    specific_emails: '', status: true
+    specific_emails: '', status: true,
+    show_on_banner: false, banner_text: ''
   });
   const router = useRouter();
   const headers = { 'Content-Type': 'application/json' };
@@ -46,9 +47,11 @@ export default function AdminCoupons() {
         user_type: coupon.user_type || 'all',
         specific_emails: coupon.specific_emails?.join(', ') || '',
         status: coupon.status,
+        show_on_banner: coupon.show_on_banner || false,
+        banner_text: coupon.banner_text || '',
       });
     } else {
-      setForm({ code: '', discount_type: 'percentage', discount_value: '', min_order: '', max_uses: '', per_user_limit: '1', start_date: '', end_date: '', user_type: 'all', specific_emails: '', status: true });
+      setForm({ code: '', discount_type: 'percentage', discount_value: '', min_order: '', max_uses: '', per_user_limit: '1', start_date: '', end_date: '', user_type: 'all', specific_emails: '', status: true, show_on_banner: false, banner_text: '' });
     }
     setModal(true);
   }
@@ -63,6 +66,8 @@ export default function AdminCoupons() {
       max_uses: form.max_uses ? Number(form.max_uses) : null,
       per_user_limit: Number(form.per_user_limit) || 1,
       specific_emails: form.specific_emails ? form.specific_emails.split(',').map(e => e.trim()) : [],
+      show_on_banner: !!form.show_on_banner,
+      banner_text: form.banner_text || '',
     };
 
     const res = await fetch('/api/coupon', {
@@ -259,6 +264,22 @@ export default function AdminCoupons() {
                     <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.specific_emails} onChange={e => setForm({ ...form, specific_emails: e.target.value })} placeholder="user1@gmail.com, user2@gmail.com" />
                   </div>
                 )}
+
+                {/* Banner Settings */}
+                <div className="sm:col-span-2 border-t border-white/5 pt-4 mt-2">
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">🎯 Banner & Visibility</p>
+                  <label className="flex items-center gap-3 cursor-pointer mb-3">
+                    <input type="checkbox" checked={form.show_on_banner} onChange={e => setForm({ ...form, show_on_banner: e.target.checked })} className="w-4 h-4 accent-[#f5c842] cursor-pointer" />
+                    <span className="text-sm text-white">Show on Website Banner</span>
+                  </label>
+                  {form.show_on_banner && (
+                    <div>
+                      <label className="text-xs font-semibold text-gray-400 block mb-1 uppercase tracking-wider">Custom Banner Text (optional)</label>
+                      <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.banner_text} onChange={e => setForm({ ...form, banner_text: e.target.value })} placeholder={`Use code ${form.code || 'CODE'} for ${form.discount_type === 'percentage' ? form.discount_value + '% off' : '₹' + form.discount_value + ' off'}!`} />
+                      <p className="text-[10px] text-gray-500 mt-1">Leave empty to auto-generate banner text from coupon details</p>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {error && <div className="text-red-500 text-sm bg-red-500/10 px-4 py-3 rounded-xl mt-4 border border-red-500/20">{error}</div>}

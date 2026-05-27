@@ -15,6 +15,8 @@ const CouponSchema = new mongoose.Schema({
   user_type:      { type: String, enum: ['all', 'new', 'specific'], default: 'all' },
   specific_emails:{ type: [String], default: [] },
   status:         { type: Boolean, default: true },
+  show_on_banner: { type: Boolean, default: false },
+  banner_text:    { type: String, default: '' },
   used_by:        [{ // Track who used it
     user_email: String,
     used_at: { type: Date, default: Date.now },

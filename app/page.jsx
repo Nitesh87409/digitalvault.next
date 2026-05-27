@@ -83,6 +83,7 @@ export default function HomePage() {
     { name: 'Priya Sharma', role: 'Startup Founder', review: 'The growth playbook alone is worth 10x the price. My startup grew from 0 to 5k users in 3 months!', initials: 'PS', color: 'linear-gradient(135deg,#8b5cf6,#6d28d9)', textColor: '#fff', rating: 5 },
     { name: 'Arjun Mehta', role: 'Digital Marketer', review: 'Instant download worked perfectly. Quality is exceptional. Will definitely buy again!', initials: 'AM', color: 'linear-gradient(135deg,#10b981,#065f46)', textColor: '#fff', rating: 5 },
   ]);
+  const [publicCoupons, setPublicCoupons] = useState([]);
 
   useEffect(() => {
     loadProducts();
@@ -90,6 +91,7 @@ export default function HomePage() {
     loadSettings();
     loadFaqs();
     loadHomepageReviews();
+    loadPublicCoupons();
   }, []);
 
   useEffect(() => {
@@ -194,6 +196,40 @@ export default function HomePage() {
       const data = await res.json();
       if (data.flag) setTotalSales(data.totalSales || 1247);
     } catch(e) {}
+  }
+
+  async function loadPublicCoupons() {
+    try {
+      let email = '';
+      if (typeof window !== 'undefined') {
+        const c = localStorage.getItem('dv_customer');
+        if (c) {
+          email = JSON.parse(c).email || '';
+        }
+      }
+      const url = email ? `/api/coupon?action=public-coupons&email=${encodeURIComponent(email)}&t=` + Date.now() : '/api/coupon?action=public-coupons&t=' + Date.now();
+      const res = await fetch(url, { cache: 'no-store' });
+      const data = await res.json();
+      if (data.flag && data.coupons) {
+        setPublicCoupons(data.coupons);
+      }
+    } catch (e) {}
+  }
+
+  function getCouponTag(product) {
+    if (!publicCoupons || publicCoupons.length === 0) return '';
+    const productId = product.id || product._id;
+    const coupons = publicCoupons.filter(c => {
+      const pids = (c.product_ids || []).map(id => id.toString());
+      return pids.length === 0 || pids.includes(productId);
+    });
+    if (coupons.length === 0) return '';
+    const specificCoupon = coupons.find(c => (c.product_ids || []).length > 0);
+    const bestCoupon = specificCoupon || coupons[0];
+    const discountText = bestCoupon.discount_type === 'percentage'
+      ? `${bestCoupon.discount_value}% OFF`
+      : `₹${bestCoupon.discount_value} OFF`;
+    return `${bestCoupon.code}: ${discountText}`;
   }
 
   function addToCart(product) {
@@ -556,6 +592,7 @@ export default function HomePage() {
                   onAddToCart={addToCart}
                   onBuyNow={buyNow}
                   hasBundleAccess={hasBundleAccess}
+                  couponTag={getCouponTag(p)}
                 />
               ))
             )}

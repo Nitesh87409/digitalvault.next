@@ -3,6 +3,7 @@ import { Syne, DM_Sans } from 'next/font/google';
 import dynamic from 'next/dynamic';
 
 const MobileBottomNav = dynamic(() => import('@/components/MobileBottomNav'));
+const AnnouncementBanner = dynamic(() => import('@/components/AnnouncementBanner'));
 import FloatingContact from '@/components/FloatingContact';
 
 
@@ -174,6 +175,7 @@ export default async function RootLayout({ children }) {
         />
       </head>
       <body>
+        <AnnouncementBanner />
         <main className="min-h-screen">
           {children}
         </main>

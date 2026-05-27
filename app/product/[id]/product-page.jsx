@@ -16,6 +16,7 @@ export default function ProductPage({ id }) {
   const [reviews, setReviews] = useState([]);
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
+  const [productCoupon, setProductCoupon] = useState(null);
   const { hasBundleAccess } = useBundlePurchase({ showToast });
 
   function copyLink() {
@@ -46,6 +47,7 @@ export default function ProductPage({ id }) {
   useEffect(() => {
     loadProduct();
     loadReviews();
+    fetchProductCoupon();
 
     const loadCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
@@ -83,6 +85,29 @@ export default function ProductPage({ id }) {
     } catch (e) {
       console.error(e);
     }
+  }
+
+  async function fetchProductCoupon() {
+    try {
+      let email = '';
+      if (typeof window !== 'undefined') {
+        const c = localStorage.getItem('dv_customer');
+        if (c) {
+          email = JSON.parse(c).email || '';
+        }
+      }
+      const url = email ? `/api/coupon?action=public-coupons&email=${encodeURIComponent(email)}` : '/api/coupon?action=public-coupons';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.flag && data.coupons) {
+        // Find best matching coupon for this product
+        const match = data.coupons.find(c => {
+          const pids = (c.product_ids || []).map(pid => pid.toString());
+          return pids.length === 0 || pids.includes(id); // all products or specific match
+        });
+        if (match) setProductCoupon(match);
+      }
+    } catch (e) { /* silently fail */ }
   }
 
   async function deleteReview(reviewId) {
@@ -290,7 +315,33 @@ export default function ProductPage({ id }) {
                 {orig > 0 && <span className="text-lg text-[var(--muted-2)] line-through sm:text-xl">₹{orig.toLocaleString()}</span>}
                 {discount > 0 && <span className="text-xs sm:text-sm font-bold text-[#10b981] bg-[#10b981]/10 px-2 sm:px-3 py-1 rounded-lg shrink-0">{discount}% OFF</span>}
               </div>
-              <p className="text-[#10b981] text-xs sm:text-sm mb-4 sm:mb-6">✓ Inclusive of all taxes</p>
+              <p className="text-[#10b981] text-xs sm:text-sm mb-2 sm:mb-3">✓ Inclusive of all taxes</p>
+
+              {/* Coupon Badge */}
+              {productCoupon && (
+                <button
+                  onClick={() => {
+                    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+                      navigator.clipboard.writeText(productCoupon.code);
+                      showToast(`Code "${productCoupon.code}" copied! 🎟️`, '#7c3aed', '#fff');
+                    }
+                  }}
+                  className="mb-4 sm:mb-5 flex items-center gap-2 w-fit px-3 py-2 rounded-xl border border-dashed border-[#7c3aed]/40 bg-[#7c3aed]/[0.06] hover:bg-[#7c3aed]/[0.12] transition-all cursor-pointer group"
+                  title="Click to copy coupon code"
+                >
+                  <span className="text-base">🎟️</span>
+                  <span className="text-xs sm:text-sm text-[var(--text)]">
+                    Use code <span className="font-mono font-bold text-[#7c3aed] group-hover:text-[#9f67ff] transition-colors">{productCoupon.code}</span> for{' '}
+                    <span className="font-bold text-[#10b981]">
+                      {productCoupon.discount_type === 'percentage' ? `${productCoupon.discount_value}% off` : `₹${productCoupon.discount_value} off`}
+                    </span>
+                  </span>
+                  <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24" className="opacity-40 group-hover:opacity-70 transition-opacity shrink-0">
+                    <rect x="9" y="9" width="13" height="13" rx="2" ry="2" />
+                    <path d="M5 15H4a2 2 0 01-2-2V4a2 2 0 012-2h9a2 2 0 012 2v1" />
+                  </svg>
+                </button>
+              )}
 
               {/* Highlights */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-4 sm:mb-7">

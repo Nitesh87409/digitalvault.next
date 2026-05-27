@@ -43,6 +43,7 @@ export default function CartPage() {
   const [couponLoading, setCouponLoading] = useState(false);
   const [couponData, setCouponData] = useState(null);
   const [couponMsg, setCouponMsg] = useState('');
+  const [availableCoupons, setAvailableCoupons] = useState([]);
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutEmail, setCheckoutEmail] = useState('');
   const router = useRouter();
@@ -59,6 +60,7 @@ export default function CartPage() {
     if (parsedCustomer.phone) setCheckoutPhone(parsedCustomer.phone);
     if (parsedCustomer.email) setCheckoutEmail(parsedCustomer.email);
     setCart(JSON.parse(localStorage.getItem('dv_cart') || '[]'));
+    fetchAvailableCoupons(parsedCustomer.email);
   }, []);
 
   useEffect(() => {
@@ -105,6 +107,28 @@ export default function CartPage() {
     setCouponData(null);
     setCouponCode('');
     setCouponMsg('');
+  }
+
+  async function fetchAvailableCoupons(email = '') {
+    try {
+      const url = email ? `/api/coupon?action=public-coupons&email=${encodeURIComponent(email)}` : '/api/coupon?action=public-coupons';
+      const res = await fetch(url);
+      const data = await res.json();
+      if (data.flag && data.coupons) {
+        setAvailableCoupons(data.coupons);
+      }
+    } catch (e) { /* silently fail */ }
+  }
+
+  function quickApplyCoupon(code) {
+    setCouponCode(code);
+    setCouponData(null);
+    setCouponMsg('');
+    // Trigger apply after state update
+    setTimeout(() => {
+      const applyBtn = document.getElementById('cart-apply-coupon-btn');
+      if (applyBtn) applyBtn.click();
+    }, 100);
   }
 
   const subtotal = cart.reduce((s, i) => s + i.price * i.qty, 0);
@@ -363,6 +387,7 @@ export default function CartPage() {
                       <button
                         onClick={applyCoupon}
                         disabled={couponLoading}
+                        id="cart-apply-coupon-btn"
                         className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-5 py-3 rounded-xl text-sm disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap transition-transform duration-200 enabled:hover:scale-[1.02]"
                       >
                         {couponLoading ? '...' : 'Apply'}
@@ -394,6 +419,47 @@ export default function CartPage() {
                     </p>
                   )}
                 </div>
+
+                {/* Available Coupons */}
+                {availableCoupons.length > 0 && !couponData && (
+                  <div className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-5 mt-6">
+                    <h3 className="font-['Syne',sans-serif] text-base font-bold text-[var(--heading)] mb-4">🏷️ Available Coupons</h3>
+                    <div className="flex flex-col gap-2.5">
+                      {availableCoupons
+                        .filter(c => {
+                          // Filter by relevance: if coupon has product_ids, check if cart items match
+                          const pids = (c.product_ids || []).map(id => id.toString());
+                          if (pids.length === 0) return true; // all products
+                          if (isBundleCart) return false; // product-specific coupons not for bundle
+                          return cart.some(item => pids.includes(item.id));
+                        })
+                        .slice(0, 5)
+                        .map(c => (
+                          <div key={c._id} className="flex items-center justify-between gap-3 border border-dashed border-[#f5c842]/30 bg-[#f5c842]/[0.03] rounded-xl px-4 py-3 hover:border-[#f5c842]/50 transition-colors">
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2 flex-wrap">
+                                <span className="font-mono font-bold text-sm text-[#f5c842] bg-[#f5c842]/10 px-2 py-0.5 rounded tracking-wider">{c.code}</span>
+                                <span className="text-xs font-bold text-[#10b981]">
+                                  {c.discount_type === 'percentage' ? `${c.discount_value}% OFF` : `₹${c.discount_value} OFF`}
+                                </span>
+                              </div>
+                              <div className="text-[10px] text-[var(--muted-2)] mt-1 flex items-center gap-2 flex-wrap">
+                                {c.min_order > 0 && <span>Min ₹{c.min_order}</span>}
+                                {c.end_date && <span>Expires {new Date(c.end_date).toLocaleDateString('en-IN')}</span>}
+                                {c.user_type === 'new' && <span className="text-[#7c3aed] font-semibold">New Users</span>}
+                              </div>
+                            </div>
+                            <button
+                              onClick={() => quickApplyCoupon(c.code)}
+                              className="shrink-0 bg-[#f5c842]/10 border border-[#f5c842]/30 text-[#f5c842] font-bold text-xs px-3 py-1.5 rounded-lg cursor-pointer hover:bg-[#f5c842]/20 transition-colors font-['Syne',sans-serif]"
+                            >
+                              Apply
+                            </button>
+                          </div>
+                        ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               {/* Order Summary */}
