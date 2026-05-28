@@ -97,6 +97,7 @@ export default function AdminLayout({ children }) {
       group: 'WEBSITE',
       items: [
         { href: '/admin/homepage-content', id: 'homepage-content', icon: '🏠', label: 'Homepage Content' },
+        { href: '/admin/blogs', id: 'blogs', icon: '📝', label: 'Blogs' },
         { href: '/admin/reviews', id: 'reviews', icon: '⭐', label: 'Testimonials' }
       ]
     },

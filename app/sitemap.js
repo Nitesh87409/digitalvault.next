@@ -1,6 +1,7 @@
 import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import Category from "@/models/Category";
+import Blog from "@/models/Blog";
 
 export default async function sitemap() {
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
@@ -48,5 +49,30 @@ export default async function sitemap() {
     console.error("Error generating sitemap categories:", error);
   }
 
-  return [...routes, ...productRoutes, ...categoryRoutes];
+  // 4. Fetch all active blogs
+  let blogRoutes = [];
+  try {
+    await connectDB();
+    const blogs = await Blog.find({ status: true }).select("slug updatedAt").lean();
+    
+    // Add /blog root catalog URL too!
+    blogRoutes = [
+      {
+        url: `${baseUrl}/blog`,
+        lastModified: new Date().toISOString(),
+        changeFrequency: "daily",
+        priority: 0.8,
+      },
+      ...blogs.map((blog) => ({
+        url: `${baseUrl}/blog/${blog.slug}`,
+        lastModified: blog.updatedAt ? new Date(blog.updatedAt).toISOString() : new Date().toISOString(),
+        changeFrequency: "weekly",
+        priority: 0.8,
+      }))
+    ];
+  } catch (error) {
+    console.error("Error generating sitemap blogs:", error);
+  }
+
+  return [...routes, ...productRoutes, ...categoryRoutes, ...blogRoutes];
 }

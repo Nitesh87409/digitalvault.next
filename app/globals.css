@@ -506,3 +506,12 @@ input, textarea, select, button {
   animation: fadeInBanner 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
+/* Placeholder support for visual editor */
+div[contenteditable="true"]:empty::before {
+  content: attr(placeholder);
+  color: rgba(156, 163, 175, 0.4);
+  pointer-events: none;
+  display: block;
+}
+
+

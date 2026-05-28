@@ -9,6 +9,7 @@ import Review from '@/models/Review';
 import Faq from '@/models/Faq';
 import HomepageReview from '@/models/HomepageReview';
 import Setting from '@/models/Setting';
+import Blog from '@/models/Blog';
 
 export const dynamic = 'force-dynamic';
 
@@ -19,6 +20,7 @@ const TYPE_LABELS = {
   review: '⭐ Review',
   faq: '❓ FAQ',
   testimonial: '💬 Testimonial',
+  blog: '📝 Blog',
 };
 
 const MODEL_MAP = {
@@ -28,6 +30,7 @@ const MODEL_MAP = {
   review: Review,
   faq: Faq,
   testimonial: HomepageReview,
+  blog: Blog,
 };
 
 function json(body, status = 200) {
