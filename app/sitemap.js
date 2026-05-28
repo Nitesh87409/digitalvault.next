@@ -3,7 +3,7 @@ import Product from "@/models/Product";
 import Category from "@/models/Category";
 
 export default async function sitemap() {
-  const baseUrl = process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in";
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
 
   // 1. Static Pages
   const routes = [
@@ -12,7 +12,7 @@ export default async function sitemap() {
     "/terms-privacy",
     "/testimonials",
   ].map((route) => ({
-    url: `${baseUrl}${route}`,
+    url: route === "" ? `${baseUrl}/` : `${baseUrl}${route}`,
     lastModified: new Date().toISOString(),
     changeFrequency: "daily",
     priority: route === "" ? 1.0 : 0.8,
