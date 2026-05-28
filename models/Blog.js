@@ -6,6 +6,8 @@ const BlogSchema = new mongoose.Schema({
   excerpt:   { type: String, required: true, trim: true },
   content:   { type: String, required: true },
   image:     { type: String, default: '' },
+  product_id: { type: mongoose.Schema.Types.ObjectId, ref: 'Product', default: null },
+  featured_product_image_index: { type: Number, default: null },
   author:    { type: String, default: 'Admin' },
   status:    { type: Boolean, default: true },
   read_time: { type: Number, default: 5 },

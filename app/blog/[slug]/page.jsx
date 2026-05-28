@@ -1,7 +1,9 @@
 import connectDB from "@/lib/mongodb";
 import Blog from "@/models/Blog";
 import Navbar from "@/components/Navbar";
+import SmartImage from "@/components/SmartImage";
 import ThemeToggle from "@/components/ThemeToggle";
+import { renderBlogContentWithProductImages, resolveBlogFeaturedImage } from "@/lib/blog-product-images";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, User, Share2 } from "lucide-react";
 
@@ -11,7 +13,7 @@ export async function generateMetadata({ params }) {
 
   try {
     await connectDB();
-    const blog = await Blog.findOne({ slug, status: true }).lean();
+    const blog = await Blog.findOne({ slug, status: true }).populate('product_id', 'name images').lean();
 
     if (!blog) {
       return {
@@ -21,6 +23,7 @@ export async function generateMetadata({ params }) {
     }
 
     const cleanDesc = blog.excerpt || "Premium creator strategy guide and tutorials.";
+    const resolvedImage = resolveBlogFeaturedImage(blog);
 
     return {
       title: `${blog.title} | DownloadKart`,
@@ -31,7 +34,7 @@ export async function generateMetadata({ params }) {
         url: `${baseUrl}/blog/${blog.slug}`,
         images: [
           {
-            url: blog.image || "",
+            url: resolvedImage || "",
             width: 1200,
             height: 630,
             alt: blog.title,
@@ -43,7 +46,7 @@ export async function generateMetadata({ params }) {
         card: 'summary_large_image',
         title: blog.title,
         description: cleanDesc,
-        images: [blog.image || ''],
+        images: [resolvedImage || ''],
       }
     };
   } catch (error) {
@@ -58,7 +61,7 @@ export default async function BlogDetailsPage({ params }) {
   const { slug } = await params;
   await connectDB();
   
-  const blog = await Blog.findOne({ slug, status: true }).lean();
+  const blog = await Blog.findOne({ slug, status: true }).populate('product_id', 'name images').lean();
 
   if (!blog) {
     return (
@@ -73,6 +76,8 @@ export default async function BlogDetailsPage({ params }) {
   const pubDate = blog.createdAt ? new Date(blog.createdAt).toLocaleDateString('en-IN', {
     day: '2-digit', month: 'long', year: 'numeric'
   }) : 'Recently';
+  const resolvedFeaturedImage = resolveBlogFeaturedImage(blog);
+  const renderedContent = renderBlogContentWithProductImages(blog.content, blog.product_id);
 
   // Inject dynamic structured Article JSON-LD
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
@@ -80,7 +85,7 @@ export default async function BlogDetailsPage({ params }) {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
     "headline": blog.title,
-    "image": blog.image || "",
+    "image": resolvedFeaturedImage || "",
     "datePublished": blog.createdAt ? new Date(blog.createdAt).toISOString() : new Date().toISOString(),
     "dateModified": blog.updatedAt ? new Date(blog.updatedAt).toISOString() : new Date().toISOString(),
     "author": {
@@ -162,9 +167,16 @@ export default async function BlogDetailsPage({ params }) {
           </p>
 
           {/* Featured Image */}
-          {blog.image && (
+          {resolvedFeaturedImage && (
             <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#f5c842]/15 mb-12 shadow-2xl">
-              <img src={blog.image} className="w-full h-full object-cover" alt={blog.title} />
+              <SmartImage
+                src={resolvedFeaturedImage}
+                alt={blog.title}
+                width={1200}
+                loading="eager"
+                fetchPriority="high"
+                className="w-full h-full object-cover"
+              />
             </div>
           )}
 
@@ -194,7 +206,7 @@ export default async function BlogDetailsPage({ params }) {
             
             <div 
               className="blog-rich-content"
-              dangerouslySetInnerHTML={{ __html: blog.content }} 
+              dangerouslySetInnerHTML={{ __html: renderedContent }} 
             />
           </div>
 

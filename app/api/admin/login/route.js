@@ -7,7 +7,7 @@ import { buildRateLimitKey, consumePersistentRateLimit, generateSecureOtp } from
 import { sendAdmin2faOTP } from "@/lib/mailer";
 
 const ADMIN_LOGIN_LIMIT = { limit: 5, windowMs: 60_000 };
-const ADMIN_2FA_RESEND_COOLDOWN = 60; // seconds
+const ADMIN_2FA_RESEND_COOLDOWN = 60;
 const ADMIN_2FA_EXPIRY_MINUTES = 5;
 
 function requireAdminEnv(name) {
@@ -53,9 +53,6 @@ export async function POST(request) {
       return NextResponse.json({ flag: 0, message: "Invalid credentials" }, { status: 401 });
     }
 
-    // --- 2FA: Send OTP instead of direct login ---
-
-    // Check if there's already a valid OTP with resend cooldown
     const existingOtp = await Otp.findOne({ identifier: email, type: "admin-2fa" }).select("resend_after").lean();
     if (existingOtp && new Date() < existingOtp.resend_after) {
       const waitTime = Math.ceil((existingOtp.resend_after - new Date()) / 1000);
@@ -67,15 +64,12 @@ export async function POST(request) {
       });
     }
 
-    // Generate OTP
     const otp = generateSecureOtp(6);
     const otp_hash = await bcrypt.hash(otp, 12);
     const now = Date.now();
 
-    // Delete any existing admin 2FA OTPs
     await Otp.deleteMany({ identifier: email, type: "admin-2fa" });
 
-    // Create new OTP
     await Otp.create({
       identifier: email,
       type: "admin-2fa",
@@ -85,7 +79,6 @@ export async function POST(request) {
       attempts: 0,
     });
 
-    // Send OTP email
     await sendAdmin2faOTP({ email, otp });
 
     return NextResponse.json({

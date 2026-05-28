@@ -62,7 +62,7 @@ export async function GET(request) {
         _id: item._id,
         type: item.type,
         type_label: TYPE_LABELS[item.type] || item.type,
-        name: item.data?.name || item.data?.code || item.data?.q || item.data?.customer_name || 'Unnamed',
+        name: item.data?.name || item.data?.title || item.data?.code || item.data?.q || item.data?.customer_name || 'Unnamed',
         data: item.data,
         deleted_at: item.deleted_at,
         auto_delete_at: item.auto_delete_at,

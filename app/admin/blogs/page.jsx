@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
+import { buildProductImageMarkup, extractUsedProductImageIndexes } from '@/lib/blog-product-images';
 
 // Live SEO Auditor core calculation helper
 function analyzeSeo(title = '', excerpt = '', content = '', focusKeyword = '', faqs = []) {
@@ -399,11 +400,14 @@ function analyzeSeo(title = '', excerpt = '', content = '', focusKeyword = '', f
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState([]);
+  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editBlog, setEditBlog] = useState(null);
   const [editorMode, setEditorMode] = useState('visual'); // 'visual' or 'html'
   const richEditorRef = useRef(null);
+  const htmlEditorRef = useRef(null);
+  const editorSelectionRef = useRef(null);
   
   // Form states
   const [form, setForm] = useState({
@@ -411,6 +415,8 @@ export default function AdminBlogs() {
     excerpt: '',
     content: '',
     image: '',
+    product_id: '',
+    featured_product_image_index: null,
     author: 'Admin',
     status: true,
     read_time: 5,
@@ -428,20 +434,46 @@ export default function AdminBlogs() {
         richEditorRef.current.innerHTML = form.content;
       }
     }
-  }, [editorMode, modalOpen]);
+  }, [editorMode, modalOpen, form.content]);
+
+  const rememberEditorSelection = () => {
+    if (typeof window === 'undefined' || !richEditorRef.current) return;
+    const selection = window.getSelection();
+    if (!selection || selection.rangeCount === 0) return;
+    const range = selection.getRangeAt(0);
+    if (richEditorRef.current.contains(range.commonAncestorContainer)) {
+      editorSelectionRef.current = range.cloneRange();
+    }
+  };
+
+  const restoreEditorSelection = () => {
+    if (typeof window === 'undefined' || !editorSelectionRef.current) return;
+    const selection = window.getSelection();
+    if (!selection) return;
+    selection.removeAllRanges();
+    selection.addRange(editorSelectionRef.current);
+  };
 
   // Command executor for WYSIWYG rich text actions
   const executeCommand = (command, value = null) => {
+    if (editorMode === 'visual' && richEditorRef.current) {
+      richEditorRef.current.focus();
+      restoreEditorSelection();
+    }
     document.execCommand(command, false, value);
     if (richEditorRef.current) {
       setForm(prev => ({ ...prev, content: richEditorRef.current.innerHTML }));
     }
+    rememberEditorSelection();
   };
 
   const headers = { 'Content-Type': 'application/json' };
+  const selectedProduct = products.find((product) => String(product._id) === String(form.product_id || ''));
+  const usedProductImageIndexes = extractUsedProductImageIndexes(form.content);
 
   useEffect(() => {
     loadBlogs();
+    loadProducts();
   }, []);
 
   async function loadBlogs() {
@@ -458,6 +490,18 @@ export default function AdminBlogs() {
     }
   }
 
+  async function loadProducts() {
+    try {
+      const res = await fetch('/api/product', { headers });
+      const data = await res.json();
+      if (data.flag) {
+        setProducts(data.products || []);
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
   function openModal(blog = null) {
     setError('');
     setSuccessMsg('');
@@ -470,6 +514,8 @@ export default function AdminBlogs() {
         excerpt: blog.excerpt || '',
         content: blog.content || '',
         image: blog.image || '',
+        product_id: blog.product_id || '',
+        featured_product_image_index: Number.isInteger(blog.featured_product_image_index) ? blog.featured_product_image_index : null,
         author: blog.author || 'Admin',
         status: blog.status !== false,
         read_time: blog.read_time || 5,
@@ -482,6 +528,8 @@ export default function AdminBlogs() {
         excerpt: '',
         content: '',
         image: '',
+        product_id: '',
+        featured_product_image_index: null,
         author: 'Admin',
         status: true,
         read_time: 5,
@@ -548,6 +596,54 @@ export default function AdminBlogs() {
     }
   }
 
+  function insertProductImage(index) {
+    if (!selectedProduct) {
+      setError('Select a product first to insert its images.');
+      return;
+    }
+
+    const imageMarkup = buildProductImageMarkup(selectedProduct, index, `${selectedProduct.name} image ${index + 1}`);
+    if (!imageMarkup) return;
+
+    if (editorMode === 'visual' && richEditorRef.current) {
+      richEditorRef.current.focus();
+      restoreEditorSelection();
+      document.execCommand('insertHTML', false, imageMarkup);
+      setForm(prev => ({ ...prev, content: richEditorRef.current.innerHTML }));
+      rememberEditorSelection();
+      return;
+    }
+
+    if (htmlEditorRef.current) {
+      const start = htmlEditorRef.current.selectionStart || 0;
+      const end = htmlEditorRef.current.selectionEnd || 0;
+      const nextContent = `${form.content.slice(0, start)}${imageMarkup}${form.content.slice(end)}`;
+      setForm(prev => ({ ...prev, content: nextContent }));
+      requestAnimationFrame(() => {
+        if (htmlEditorRef.current) {
+          const cursor = start + imageMarkup.length;
+          htmlEditorRef.current.focus();
+          htmlEditorRef.current.setSelectionRange(cursor, cursor);
+        }
+      });
+      return;
+    }
+
+    setForm(prev => ({
+      ...prev,
+      content: `${prev.content}${prev.content ? '\n' : ''}${imageMarkup}`
+    }));
+  }
+
+  function setFeaturedProductImage(index) {
+    if (!selectedProduct?.images?.[index]) return;
+    setForm(prev => ({
+      ...prev,
+      featured_product_image_index: index,
+      image: ''
+    }));
+  }
+
   const seoAnalysis = analyzeSeo(form.title, form.excerpt, form.content, focusKeyword, form.faqs);
 
   return (
@@ -594,7 +690,7 @@ export default function AdminBlogs() {
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3 min-w-[200px]">
                         <div className="w-12 h-12 rounded-lg bg-white/5 border border-white/10 shrink-0 overflow-hidden flex items-center justify-center text-xl">
-                          {blog.image ? <img src={blog.image} className="w-full h-full object-cover" alt="" /> : '📝'}
+                          {(blog.resolved_image || blog.image) ? <img src={blog.resolved_image || blog.image} className="w-full h-full object-cover" alt="" /> : '📝'}
                         </div>
                         <div>
                           <p className="text-white font-bold mb-0.5 line-clamp-1">{blog.title}</p>
@@ -640,8 +736,8 @@ export default function AdminBlogs() {
 
       {/* Editor Modal */}
       {modalOpen && (
-        <div className="fixed inset-0 z-[200] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
-          <div className="bg-[#0a0a0f] border border-white/10 w-full max-w-[1240px] rounded-2xl max-h-[90vh] overflow-y-auto custom-scrollbar shadow-2xl flex flex-col">
+        <div className="fixed inset-0 z-[200] bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-[#0a0a0f] border-0 w-full h-full overflow-hidden shadow-2xl flex flex-col">
             
             {/* Modal Header */}
             <div className="flex justify-between items-center px-6 py-4 border-b border-white/5 shrink-0 bg-[#0e0e18]">
@@ -657,7 +753,7 @@ export default function AdminBlogs() {
             </div>
 
             {/* Modal Form */}
-            <form onSubmit={saveBlog} className="p-6 flex-1 flex flex-col gap-5 overflow-y-auto">
+            <form onSubmit={saveBlog} className="p-6 md:p-8 flex-1 flex flex-col gap-5 overflow-y-auto custom-scrollbar">
               {error && <div className="bg-red-500/10 text-red-500 p-4 rounded-xl border border-red-500/20 text-sm font-sans">{error}</div>}
               {successMsg && <div className="bg-emerald-500/10 text-emerald-400 p-4 rounded-xl border border-emerald-500/20 text-sm font-sans">{successMsg}</div>}
 
@@ -704,6 +800,102 @@ export default function AdminBlogs() {
                       />
                     </div>
 
+                    <div className="col-span-full flex flex-col gap-2.5">
+                      <label className="text-xs font-bold text-[#f5c842] uppercase tracking-wide">Linked Product For Dynamic Images</label>
+                      <select
+                        value={form.product_id}
+                        onChange={e => setForm(prev => ({
+                          ...prev,
+                          product_id: e.target.value,
+                          featured_product_image_index: null
+                        }))}
+                        className="bg-[#12121e] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm focus:border-[#f5c842]/50 transition-colors cursor-pointer"
+                      >
+                        <option value="">No linked product</option>
+                        {products.map(product => (
+                          <option key={product._id} value={product._id}>
+                            {product.name}
+                          </option>
+                        ))}
+                      </select>
+
+                      {selectedProduct ? (
+                        <div className="border border-white/10 rounded-2xl bg-[#0e0e18] p-4 flex flex-col gap-3">
+                          <div className="flex items-center justify-between gap-3 flex-wrap">
+                            <div>
+                              <p className="text-sm font-bold text-white">{selectedProduct.name}</p>
+                              <p className="text-[11px] text-gray-500">
+                                Click `Insert In Content` to place an image at the current cursor position.
+                              </p>
+                            </div>
+                            {form.featured_product_image_index !== null && form.featured_product_image_index !== '' && (
+                              <button
+                                type="button"
+                                onClick={() => setForm(prev => ({ ...prev, featured_product_image_index: null }))}
+                                className="text-[10px] px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
+                              >
+                                Clear Featured Product Image
+                              </button>
+                            )}
+                          </div>
+
+                          {selectedProduct.images?.length > 0 ? (
+                            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3">
+                              {(selectedProduct.images || []).map((src, index) => {
+                              const isInserted = usedProductImageIndexes.includes(index);
+                              const isFeatured = form.featured_product_image_index === index;
+
+                              return (
+                                <div key={`${selectedProduct._id}-${index}`} className="rounded-2xl border border-white/10 overflow-hidden bg-[#12121e]">
+                                  <div className="aspect-[4/3] bg-black/20">
+                                    <img src={src} alt={`${selectedProduct.name} ${index + 1}`} className="w-full h-full object-cover" />
+                                  </div>
+                                  <div className="p-3 flex flex-col gap-2">
+                                    <div className="flex items-center justify-between gap-2">
+                                      <span className="text-[11px] font-semibold text-white">Image #{index + 1}</span>
+                                      <div className="flex items-center gap-1.5">
+                                        {isInserted && <span className="text-[9px] px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">Inserted</span>}
+                                        {isFeatured && <span className="text-[9px] px-2 py-0.5 rounded-full bg-[#f5c842]/10 text-[#f5c842] border border-[#f5c842]/20">Featured</span>}
+                                      </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => insertProductImage(index)}
+                                        className="px-3 py-2 rounded-xl bg-white/5 border border-white/10 text-white text-[11px] font-semibold hover:bg-white/10 transition-colors cursor-pointer"
+                                      >
+                                        Insert In Content
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => setFeaturedProductImage(index)}
+                                        className={`px-3 py-2 rounded-xl text-[11px] font-semibold border transition-colors cursor-pointer ${
+                                          isFeatured
+                                            ? 'bg-[#f5c842] text-[#0a0a0f] border-[#f5c842]'
+                                            : 'bg-[#f5c842]/10 text-[#f5c842] border-[#f5c842]/20 hover:bg-[#f5c842]/20'
+                                        }`}
+                                      >
+                                        {isFeatured ? 'Featured Image' : 'Use As Featured'}
+                                      </button>
+                                    </div>
+                                  </div>
+                                </div>
+                              );
+                              })}
+                            </div>
+                          ) : (
+                            <div className="rounded-2xl border border-dashed border-white/10 px-4 py-5 text-[12px] text-gray-500 bg-[#12121e]">
+                              This product does not have any saved images yet.
+                            </div>
+                          )}
+                        </div>
+                      ) : (
+                        <div className="border border-dashed border-white/10 rounded-2xl px-4 py-5 text-[12px] text-gray-500 bg-[#0e0e18]">
+                          Select a product to browse its saved images and insert only the ones you want into this blog.
+                        </div>
+                      )}
+                    </div>
+
                     {/* Image URL */}
                     <div className="flex flex-col gap-1.5">
                       <label className="text-xs font-bold text-[#f5c842] uppercase tracking-wide">Featured Image URL (Cloudinary or Direct Link)</label>
@@ -714,6 +906,11 @@ export default function AdminBlogs() {
                         placeholder="https://res.cloudinary.com/..."
                         className="bg-[#12121e] border border-white/10 text-white outline-none px-4 py-3 rounded-xl text-sm focus:border-[#f5c842]/50 transition-colors"
                       />
+                      <span className="text-[10px] text-gray-500">
+                        {form.featured_product_image_index !== null && form.featured_product_image_index !== ''
+                          ? 'A product image is currently set as the featured image. Clear it above to use a manual URL instead.'
+                          : 'You can still use a manual URL here if you do not want the featured image to come from the linked product.'}
+                      </span>
                     </div>
 
                     {/* Read Time */}
@@ -732,7 +929,14 @@ export default function AdminBlogs() {
                   {/* HTML Content Body */}
                   <div className="flex flex-col gap-1.5 font-sans">
                     <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-1">
-                      <label className="text-xs font-bold text-[#f5c842] uppercase tracking-wide">Article Content Body *</label>
+                      <div className="flex flex-col gap-1">
+                        <label className="text-xs font-bold text-[#f5c842] uppercase tracking-wide">Article Content Body *</label>
+                        {selectedProduct && (
+                          <span className="text-[10px] text-gray-500">
+                            Place the cursor anywhere in the editor, then click `Insert In Content` on a product image to add it there dynamically.
+                          </span>
+                        )}
+                      </div>
                       
                       {/* Premium Toggle Switch */}
                       <div className="flex bg-[#0e0e18] border border-white/10 rounded-xl p-0.5 select-none shrink-0 self-end">
@@ -853,6 +1057,9 @@ export default function AdminBlogs() {
                         <div
                           ref={richEditorRef}
                           contentEditable
+                          onKeyUp={rememberEditorSelection}
+                          onMouseUp={rememberEditorSelection}
+                          onBlur={rememberEditorSelection}
                           onInput={(e) => {
                             setForm(prev => ({ ...prev, content: e.target.innerHTML }));
                           }}
@@ -863,6 +1070,7 @@ export default function AdminBlogs() {
                     ) : (
                       <div className="flex flex-col gap-1.5">
                         <textarea
+                          ref={htmlEditorRef}
                           required
                           rows={17}
                           value={form.content}

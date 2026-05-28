@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 const BinItemSchema = new mongoose.Schema({
-  type: { type: String, required: true, enum: ['product', 'category', 'coupon', 'review', 'faq', 'testimonial'] },
+  type: { type: String, required: true, enum: ['product', 'category', 'coupon', 'review', 'faq', 'testimonial', 'blog'] },
   original_id: { type: String, required: true },
   data: { type: mongoose.Schema.Types.Mixed, required: true },
   deleted_at: { type: Date, default: Date.now },

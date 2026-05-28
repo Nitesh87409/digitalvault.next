@@ -3,6 +3,15 @@ import connectDB from '@/lib/mongodb';
 import Blog from '@/models/Blog';
 import { verifyAdmin } from '@/lib/auth';
 
+function normalizeProductId(value) {
+  return /^[0-9a-fA-F]{24}$/.test(String(value || '').trim()) ? String(value).trim() : null;
+}
+
+function normalizeFeaturedIndex(value) {
+  const parsed = Number(value);
+  return Number.isInteger(parsed) && parsed >= 0 ? parsed : null;
+}
+
 export async function PUT(request, { params }) {
   try {
     const admin = verifyAdmin(request);
@@ -11,7 +20,7 @@ export async function PUT(request, { params }) {
     const { id } = await params;
     await connectDB();
     const body = await request.json();
-    const { title, excerpt, content, image, author, status, read_time, faqs } = body;
+    const { title, excerpt, content, image, product_id, featured_product_image_index, author, status, read_time, faqs } = body;
 
     const trimmedTitle = typeof title === 'string' ? title.trim() : '';
     const trimmedExcerpt = typeof excerpt === 'string' ? excerpt.trim() : '';
@@ -42,6 +51,8 @@ export async function PUT(request, { params }) {
         excerpt: trimmedExcerpt,
         content: trimmedContent,
         image: typeof image === 'string' ? image.trim() : '',
+        product_id: normalizeProductId(product_id),
+        featured_product_image_index: normalizeFeaturedIndex(featured_product_image_index),
         author: typeof author === 'string' && author.trim() ? author.trim() : 'Admin',
         status: status !== false,
         read_time: Math.max(1, Number(read_time) || 5),

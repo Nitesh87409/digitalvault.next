@@ -51,7 +51,7 @@ export default function AdminLoginPage() {
     if (!email || !password) { setError('Please enter email and password.'); return; }
     setLoading(true);
     try {
-      const res = await fetch('/api/admin', {
+      const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
@@ -107,7 +107,7 @@ export default function AdminLoginPage() {
     setError('');
     setLoading(true);
     try {
-      const res = await fetch('/api/admin', {
+      const res = await fetch('/api/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password })
