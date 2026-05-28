@@ -1,4 +1,5 @@
 import mongoose from 'mongoose';
+import '@/models/Product';
 
 const BlogSchema = new mongoose.Schema({
   title:     { type: String, required: true, trim: true },
