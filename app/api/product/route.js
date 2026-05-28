@@ -34,6 +34,27 @@ function toAdminProduct(product) {
 export async function GET(request) {
   try {
     await connectDB();
+
+    // Auto-migrate: populate missing slugs for existing products
+    const unsluggedProducts = await Product.find({
+      $or: [
+        { slug: { $exists: false } },
+        { slug: null },
+        { slug: "" }
+      ]
+    });
+    if (unsluggedProducts.length > 0) {
+      for (const prod of unsluggedProducts) {
+        let slug = prod.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+        const exists = await Product.exists({ slug, _id: { $ne: prod._id } });
+        if (exists) {
+          const suffix = Math.random().toString(36).substring(2, 6);
+          slug = `${slug}-${suffix}`;
+        }
+        await Product.findByIdAndUpdate(prod._id, { slug });
+      }
+    }
+
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
     const category = searchParams.get('category');
