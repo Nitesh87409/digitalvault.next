@@ -88,6 +88,13 @@ export default function AdminCategories() {
 
   function closeSubForm(parentId) {
     setSubForms(prev => ({ ...prev, [parentId]: { open: false, name: '', saving: false } }));
+    setExpanded(prev => {
+      const hasChildren = children.some(c => c.parent_id?.toString() === parentId.toString());
+      if (!hasChildren) {
+        return { ...prev, [parentId]: false };
+      }
+      return prev;
+    });
   }
 
   async function addSub(e, parentId) {
