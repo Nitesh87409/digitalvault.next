@@ -399,7 +399,6 @@ function analyzeSeo(title = '', excerpt = '', content = '', focusKeyword = '', f
 
 export default function AdminBlogs() {
   const [blogs, setBlogs] = useState([]);
-  const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [modalOpen, setModalOpen] = useState(false);
   const [editBlog, setEditBlog] = useState(null);
@@ -443,20 +442,7 @@ export default function AdminBlogs() {
 
   useEffect(() => {
     loadBlogs();
-    loadProducts();
   }, []);
-
-  async function loadProducts() {
-    try {
-      const res = await fetch('/api/product');
-      const data = await res.json();
-      if (data.flag && Array.isArray(data.products)) {
-        setProducts(data.products);
-      }
-    } catch (e) {
-      console.error('Failed to load products:', e);
-    }
-  }
 
   async function loadBlogs() {
     try {
@@ -854,31 +840,6 @@ export default function AdminBlogs() {
                             🖼️ Image
                           </button>
                           
-                          {/* Premium Link Product Image Dropdown */}
-                          {products.length > 0 && (
-                            <select
-                              onChange={(e) => {
-                                const val = e.target.value;
-                                if (val) {
-                                  const prod = products.find(p => p.slug === val || p.id === val || p._id === val);
-                                  if (prod && prod.images && prod.images.length > 0) {
-                                    const productUrl = `/product/${prod.slug || prod.id || prod._id}`;
-                                    const imgHTML = `<a href="${productUrl}" target="_blank" class="block my-5 group/prod-link"><img src="${prod.images[0]}" alt="${prod.name} Digital Download" class="max-w-full rounded-xl shadow-lg border border-white/10 hover:scale-[1.01] transition-transform duration-300" /><p class="text-xs text-center text-gray-500 mt-2 font-sans italic">Click to view/download: ${prod.name}</p></a>`;
-                                    executeCommand('insertHTML', imgHTML);
-                                  }
-                                  e.target.value = ''; // reset selection
-                                }
-                              }}
-                              className="bg-[#12121e] border border-white/10 text-gray-400 outline-none h-8 px-2 rounded-lg text-xs font-semibold focus:border-[#f5c842]/50 transition-colors cursor-pointer max-w-[160px]"
-                            >
-                              <option value="">🛍️ Link Product Image</option>
-                              {products.map(p => (
-                                <option key={p.id || p._id} value={p.slug || p.id || p._id}>
-                                  {p.name}
-                                </option>
-                              ))}
-                            </select>
-                          )}
                           <button
                             type="button"
                             onClick={() => executeCommand('removeFormat')}
