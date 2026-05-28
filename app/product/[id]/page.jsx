@@ -2,6 +2,8 @@ import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import ProductPage from "./product-page";
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }) {
   const { id } = await params;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");

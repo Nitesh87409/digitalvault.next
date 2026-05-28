@@ -3,6 +3,8 @@ import Blog from "@/models/Blog";
 import BlogClient from "./blog-client";
 import { resolveBlogFeaturedImage } from "@/lib/blog-product-images";
 
+export const revalidate = 300;
+
 export const metadata = {
   title: "Blog & Creator Learning Hub | DownloadKart",
   description: "Read helpful marketing strategy guides, design tutorial playbooks, and insights to grow your creator online business.",

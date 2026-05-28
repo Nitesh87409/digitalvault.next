@@ -2,6 +2,8 @@ import connectDB from "@/lib/mongodb";
 import Product from "@/models/Product";
 import CategoryClient from "./category-client";
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }) {
   const { category } = await params;
   const categoryName = decodeURIComponent(category);

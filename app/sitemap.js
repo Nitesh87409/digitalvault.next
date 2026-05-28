@@ -3,6 +3,8 @@ import Product from "@/models/Product";
 import Category from "@/models/Category";
 import Blog from "@/models/Blog";
 
+export const revalidate = 3600;
+
 export default async function sitemap() {
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
 

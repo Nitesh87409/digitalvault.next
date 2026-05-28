@@ -7,6 +7,8 @@ import { renderBlogContentWithProductImages, resolveBlogFeaturedImage } from "@/
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, User, Share2 } from "lucide-react";
 
+export const revalidate = 300;
+
 export async function generateMetadata({ params }) {
   const { slug } = await params;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
