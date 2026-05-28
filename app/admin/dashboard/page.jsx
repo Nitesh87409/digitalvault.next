@@ -14,6 +14,8 @@ export default function AdminDashboard() {
   const [products, setProducts] = useState([]);
   const [orders, setOrders] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [catParents, setCatParents] = useState([]);
+  const [catChildren, setCatChildren] = useState([]);
   const [productModal, setProductModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
   const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '', included_in_bundle: false });
@@ -100,7 +102,11 @@ export default function AdminDashboard() {
     try {
       const res = await fetch('/api/categories', { headers });
       const data = await res.json();
-      if (data.flag) setCategories(data.categories || []);
+      if (data.flag) {
+        setCategories(data.categories || []);
+        setCatParents(data.parents || []);
+        setCatChildren(data.children || []);
+      }
     } catch(e) {}
   }
 
@@ -753,9 +759,18 @@ export default function AdminDashboard() {
                   <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">📂 Category *</label>
                   <select className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans cursor-pointer focus:border-[#f5c842]/50 transition-colors appearance-none" value={form.category} onChange={e => setForm({ ...form, category: e.target.value })}>
                     <option value="">Select a Category</option>
-                    {categories.map(c => (
-                      <option key={c._id} value={c.name}>{c.name}</option>
-                    ))}
+                    {catParents.map(parent => {
+                      const subs = catChildren.filter(c => c.parent_id?.toString() === parent._id?.toString());
+                      return subs.length > 0 ? (
+                        <optgroup key={parent._id} label={`📁 ${parent.name}`}>
+                          {subs.map(sub => (
+                            <option key={sub._id} value={sub.name}>{sub.name}</option>
+                          ))}
+                        </optgroup>
+                      ) : (
+                        <option key={parent._id} value={parent.name}>{parent.name}</option>
+                      );
+                    })}
                   </select>
                 </div>
                 <div>

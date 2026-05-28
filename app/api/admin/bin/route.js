@@ -87,6 +87,14 @@ export async function POST(request) {
       const { type, id } = body;
       if (!type || !id || !MODEL_MAP[type]) return json({ flag: 0, message: 'Invalid type or id' }, 400);
 
+      // Category specific check: cannot delete if it has sub-categories
+      if (type === 'category') {
+        const hasSubs = await Category.exists({ parent_id: id });
+        if (hasSubs) {
+          return json({ flag: 0, message: 'Cannot delete category because it contains active sub-categories. Please delete or reassign its sub-categories first.' }, 400);
+        }
+      }
+
       const Model = MODEL_MAP[type];
       const item = await Model.findById(id).lean();
       if (!item) return json({ flag: 0, message: 'Item not found' }, 404);
@@ -126,6 +134,17 @@ export async function POST(request) {
       delete restoreData.__v;
       delete restoreData.createdAt;
       delete restoreData.updatedAt;
+
+      // Handle category parent validation
+      if (binItem.type === 'category' && restoreData.parent_id) {
+        const parentExists = await Category.findById(restoreData.parent_id).select('_id').lean();
+        if (!parentExists) {
+          restoreData.parent_id = null;
+          // Regenerate clean top-level slug from name
+          let nameOnly = restoreData.name || '';
+          restoreData.slug = nameOnly.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+        }
+      }
 
       try {
         await Model.create(restoreData);
