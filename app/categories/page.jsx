@@ -137,7 +137,7 @@ export default function CategoriesPage() {
   };
 
   const handleSearchProduct = (product) => {
-    router.push(`/product/${product.id || product._id}`);
+    router.push(`/product/${product.slug || product.id || product._id}`);
     setIsSearchOpen(false);
   };
 

@@ -147,7 +147,7 @@ export default function ProductPage({ id }) {
     const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
     if (cart.find(i => i.id === productId)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
-    cart.push({ id: productId, name: product.name, price: product.sale_price, orig_price: product.original_price, image: product.images?.[0] || null, qty: 1 });
+    cart.push({ id: productId, slug: product.slug, name: product.name, price: product.sale_price, orig_price: product.original_price, image: product.images?.[0] || null, qty: 1 });
     localStorage.setItem('dv_cart', JSON.stringify(cart));
     showToast('Added to cart! 🎉', '#10b981', '#fff');
     // Realtime cart update
@@ -164,6 +164,7 @@ export default function ProductPage({ id }) {
     if (!cart.find(i => i.id === productId)) {
       cart.push({
         id: productId,
+        slug: product.slug,
         name: product.name,
         price: product.sale_price,
         orig_price: product.original_price,

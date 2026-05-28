@@ -64,13 +64,25 @@ export async function PUT(request, { params }) {
 
     const safeFileUrl = await normalizeStoredDownloadSource(file_url);
 
-    // Fetch existing product to compare images
-    const oldProduct = await Product.findById(id).select('images').lean();
+    // Fetch existing product to compare images and name
+    const oldProduct = await Product.findById(id).select('name slug images').lean();
+    if (!oldProduct) return NextResponse.json({ flag: 0, message: 'Product not found' });
+
+    let slug = oldProduct.slug;
+    if (!slug || oldProduct.name !== name) {
+      slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+      const slugExists = await Product.exists({ slug, _id: { $ne: id } });
+      if (slugExists) {
+        const suffix = Math.random().toString(36).substring(2, 6);
+        slug = `${slug}-${suffix}`;
+      }
+    }
 
     const product = await Product.findByIdAndUpdate(
       id,
       {
         name: sanitizePlainText(name, 200),
+        slug,
         description: sanitizeRichText(description),
         category: sanitizePlainText(category || 'Uncategorized', 120) || 'Uncategorized',
         images: images || [],

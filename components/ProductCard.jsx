@@ -21,7 +21,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
   const badge = badges[index % badges.length];
   const sale = product.sale_price || 0;
   const orig = product.original_price || 0;
-  const productId = product.id || product._id;
+  const productId = product.slug || product.id || product._id;
   const isBundleProduct = !!product.included_in_bundle;
   const rawDesc = product.description ? product.description.replace(/<[^>]*>/g, '') : '';
   const desc = rawDesc || 'Premium digital product — instant download after purchase.';

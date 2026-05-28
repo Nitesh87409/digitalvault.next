@@ -5,11 +5,12 @@ import { verifyAdmin } from '@/lib/auth';
 import { sanitizePlainText, sanitizeRichText } from '@/lib/sanitize-content';
 import { normalizeStoredDownloadSource } from '@/lib/safe-download-source';
 
-const PUBLIC_PRODUCT_FIELDS = 'name description category images original_price sale_price average_rating total_reviews included_in_bundle';
+const PUBLIC_PRODUCT_FIELDS = 'name description category images original_price sale_price average_rating total_reviews included_in_bundle slug';
 
 function toPublicProduct(product) {
   return {
     id: product._id?.toString(),
+    slug: product.slug || product._id?.toString(),
     name: product.name,
     description: sanitizeRichText(product.description || ''),
     category: product.category || 'Uncategorized',
@@ -39,7 +40,9 @@ export async function GET(request) {
     const admin = verifyAdmin(request);
 
     if (id) {
-      const filter = admin ? { _id: id } : { _id: id, status: true };
+      const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
+      const queryField = isObjectId ? '_id' : 'slug';
+      const filter = admin ? { [queryField]: id } : { [queryField]: id, status: true };
       const product = await Product.findOne(filter)
         .select(admin ? '' : PUBLIC_PRODUCT_FIELDS)
         .lean();
@@ -82,8 +85,17 @@ export async function POST(request) {
 
     const safeFileUrl = await normalizeStoredDownloadSource(file_url);
 
+    // Generate unique slug
+    let slug = name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
+    const slugExists = await Product.exists({ slug });
+    if (slugExists) {
+      const suffix = Math.random().toString(36).substring(2, 6);
+      slug = `${slug}-${suffix}`;
+    }
+
     const product = await Product.create({
       name: sanitizePlainText(name, 200),
+      slug,
       description: sanitizeRichText(description),
       category: sanitizePlainText(category || 'Uncategorized', 120) || 'Uncategorized',
       images: images || [],

@@ -12,6 +12,7 @@ const ProductSchema = new mongoose.Schema({
   status:         { type: Boolean, default: true },
   average_rating: { type: Number, default: 0 },
   total_reviews:  { type: Number, default: 0 },
+  slug:           { type: String, unique: true, sparse: true },
 }, { timestamps: true });
 
 ProductSchema.index({ status: 1, createdAt: -1 });

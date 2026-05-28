@@ -353,7 +353,7 @@ export default function CartPage() {
                 <div className="flex flex-col gap-4 mb-6">
                   {cart.map(item => (
                     <div key={item.id} className="bg-[var(--surface)] border border-[var(--border)] rounded-2xl p-4 flex items-center gap-4">
-                      <Link href={item.type === 'bundle' ? '/#pricing' : `/product/${item.id}`} className="flex items-center gap-4 flex-1 min-w-0 text-inherit no-underline">
+                      <Link href={item.type === 'bundle' ? '/#pricing' : `/product/${item.slug || item.id}`} className="flex items-center gap-4 flex-1 min-w-0 text-inherit no-underline">
                         <div className="w-[90px] h-[90px] rounded-xl overflow-hidden bg-[var(--surface-2)] shrink-0 flex items-center justify-center text-[2rem]">
                           {item.image ? <img src={item.image} className="w-full h-full object-cover" alt="" /> : '📦'}
                         </div>
