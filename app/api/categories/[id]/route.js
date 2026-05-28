@@ -10,7 +10,7 @@ export async function PUT(request, { params }) {
     const admin = verifyAdmin(request);
     if (!admin) return NextResponse.json({ flag: false, message: "Unauthorized" }, { status: 401 });
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const newName = (body.name || '').trim();
     if (!newName) return NextResponse.json({ flag: false, message: "Category name is required" }, { status: 400 });
@@ -66,7 +66,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ flag: false, message: "Unauthorized" }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const deleted = await Category.findByIdAndDelete(id);
     if (!deleted) {
       return NextResponse.json({ flag: false, message: "Category not found" }, { status: 404 });

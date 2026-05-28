@@ -14,7 +14,7 @@ export async function PUT(request, { params }) {
       return NextResponse.json({ flag: false, message: 'Unauthorized. Please login.' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
     const body = await request.json();
     const { rating, review_text } = body;
 
@@ -52,7 +52,7 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ flag: false, message: 'Unauthorized. Please login.' }, { status: 401 });
     }
 
-    const { id } = params;
+    const { id } = await params;
 
     const review = await Review.findOneAndDelete({ _id: id, customer_id: user.id });
     if (!review) {
