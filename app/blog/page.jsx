@@ -17,6 +17,12 @@ export default async function Page() {
     _id: b._id?.toString(),
     createdAt: b.createdAt ? new Date(b.createdAt).toISOString() : null,
     updatedAt: b.updatedAt ? new Date(b.updatedAt).toISOString() : null,
+    faqs: Array.isArray(b.faqs) 
+      ? b.faqs.map(f => ({
+          ...f,
+          _id: f._id?.toString() || '',
+        }))
+      : []
   }));
 
   return <BlogClient initialBlogs={serializedBlogs} />;
