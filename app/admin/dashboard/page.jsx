@@ -21,9 +21,50 @@ export default function AdminDashboard() {
   const [newFiles, setNewFiles] = useState([]);
   const [saving, setSaving] = useState(false);
   const [modalError, setModalError] = useState('');
+  const [hasDraft, setHasDraft] = useState(false);
+  const [draftSavedAt, setDraftSavedAt] = useState(null);
   const descRef = useRef(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const DRAFT_KEY = 'admin_product_draft';
+
+  // Check for draft on mount
+  useEffect(() => {
+    const raw = localStorage.getItem(DRAFT_KEY);
+    if (raw) {
+      try {
+        const d = JSON.parse(raw);
+        if (d?.form?.name || d?.form?.file_url) {
+          setHasDraft(true);
+          setDraftSavedAt(d.savedAt || null);
+        }
+      } catch {}
+    }
+  }, []);
+
+  function saveDraft() {
+    const description = descRef.current?.innerHTML || '';
+    const draft = { form: { ...form, description }, images, savedAt: new Date().toISOString() };
+    localStorage.setItem(DRAFT_KEY, JSON.stringify(draft));
+    setHasDraft(true);
+    setDraftSavedAt(draft.savedAt);
+    // Brief toast-like feedback via modalError (repurposed)
+    setModalError('✅ Draft saved!');
+    setTimeout(() => setModalError(''), 2000);
+  }
+
+  function discardDraft() {
+    localStorage.removeItem(DRAFT_KEY);
+    setHasDraft(false);
+    setDraftSavedAt(null);
+  }
+
+  function clearDraftAfterSave() {
+    localStorage.removeItem(DRAFT_KEY);
+    setHasDraft(false);
+    setDraftSavedAt(null);
+  }
 
   // Search & Filter states
   const [productSearch, setProductSearch] = useState('');
@@ -104,6 +145,29 @@ export default function AdminDashboard() {
 
   function openModal(product = null) {
     setEditProduct(product);
+    setModalError('');
+
+    // If adding new product, try to restore draft
+    if (!product) {
+      const raw = localStorage.getItem(DRAFT_KEY);
+      if (raw) {
+        try {
+          const d = JSON.parse(raw);
+          if (d?.form) {
+            const { description: draftDesc, ...draftForm } = d.form;
+            setForm(draftForm);
+            setImages(d.images || []);
+            setNewFiles([]);
+            setProductModal(true);
+            setTimeout(() => {
+              if (descRef.current) descRef.current.innerHTML = draftDesc || '';
+            }, 50);
+            return;
+          }
+        } catch {}
+      }
+    }
+
     setForm({
       name: product?.name || '',
       description: '',
@@ -115,7 +179,6 @@ export default function AdminDashboard() {
     });
     setImages(product?.images || []);
     setNewFiles([]);
-    setModalError('');
     setProductModal(true);
     setTimeout(() => {
       if (descRef.current) descRef.current.innerHTML = product?.description || '';
@@ -188,7 +251,7 @@ export default function AdminDashboard() {
     const method = editProduct ? 'PUT' : 'POST';
     const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
     const data = await res.json();
-    if (data.flag) { setProductModal(false); loadProducts(); loadAll(); }
+    if (data.flag) { setProductModal(false); clearDraftAfterSave(); loadProducts(); loadAll(); }
     else setModalError(data.message || 'Error saving.');
     setSaving(false);
   }
@@ -286,9 +349,14 @@ export default function AdminDashboard() {
     tab === 'orders' ? '🛒 Orders' : '';
 
   const headerActions = tab === 'products' ? (
-    <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
-      + Add Product
-    </button>
+    <div className="relative">
+      <button onClick={() => openModal()} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto shadow-lg shadow-[#f5c842]/20 hover:scale-[1.02] transition-transform">
+        + Add Product
+      </button>
+      {hasDraft && (
+        <span className="absolute -top-2 -right-2 bg-amber-400 text-[#0a0a0f] text-[9px] font-black px-1.5 py-0.5 rounded-full shadow-lg animate-pulse tracking-wide uppercase leading-none">Draft</span>
+      )}
+    </div>
   ) : tab === 'orders' ? (
     <button onClick={exportOrdersCSV} className="bg-[#10b981]/10 border border-[#10b981]/20 text-[#10b981] font-syne font-bold cursor-pointer px-5 py-2.5 rounded-xl text-sm w-full sm:w-auto hover:bg-[#10b981]/20 transition-colors">
       📥 Export CSV
@@ -640,16 +708,39 @@ export default function AdminDashboard() {
         <div className="fixed inset-0 bg-black/90 z-[100] flex flex-col backdrop-blur-sm p-0 md:p-6 lg:p-10">
           <div className="flex flex-col bg-[#0e0e18] w-full h-full md:rounded-2xl border-none md:border border-[#f5c842]/20 overflow-hidden shadow-2xl">
             <div className="bg-[#12121a] border-b border-white/10 p-4 md:p-6 flex items-center justify-between shrink-0">
-              <h3 className="font-syne font-bold text-white text-lg">{editProduct ? 'Edit Product' : 'Add Product'}</h3>
-              <div className="flex items-center gap-3">
-                {modalError && <span className="text-red-500 text-xs bg-red-500/10 px-2 py-1 rounded hidden sm:block">{modalError}</span>}
+              <div className="flex flex-col gap-0.5">
+                <h3 className="font-syne font-bold text-white text-lg">{editProduct ? 'Edit Product' : 'Add Product'}</h3>
+                {!editProduct && draftSavedAt && (
+                  <span className="text-[10px] text-amber-400/70 font-sans">Draft · Last saved {new Date(draftSavedAt).toLocaleTimeString('en-IN', { hour: '2-digit', minute: '2-digit' })}</span>
+                )}
+              </div>
+              <div className="flex items-center gap-2">
+                {modalError && <span className={`text-xs px-2 py-1 rounded hidden sm:block ${modalError.startsWith('✅') ? 'text-[#10b981] bg-[#10b981]/10' : 'text-red-500 bg-red-500/10'}`}>{modalError}</span>}
+                {!editProduct && (
+                  <button
+                    onClick={saveDraft}
+                    className="bg-amber-400/10 border border-amber-400/30 text-amber-400 font-syne font-bold border-none cursor-pointer px-4 py-2 rounded-xl text-sm hover:bg-amber-400/20 transition-colors"
+                    title="Save as draft to continue later"
+                  >
+                    📝 Draft
+                  </button>
+                )}
+                {!editProduct && hasDraft && (
+                  <button
+                    onClick={() => { discardDraft(); setProductModal(false); }}
+                    className="bg-red-500/10 border border-red-500/20 text-red-400 font-syne font-bold border-none cursor-pointer px-3 py-2 rounded-xl text-xs hover:bg-red-500/20 transition-colors"
+                    title="Discard draft"
+                  >
+                    🗑️ Discard
+                  </button>
+                )}
                 <button onClick={saveProduct} disabled={saving} className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none cursor-pointer px-5 py-2 rounded-xl text-sm ${saving ? 'opacity-70' : 'hover:scale-[1.02]'} transition-transform shadow-lg shadow-[#f5c842]/20`}>
-                  {saving ? 'Saving...' : '💾 Save'}
+                  {saving ? 'Saving...' : '💾 Publish'}
                 </button>
                 <button onClick={() => setProductModal(false)} className="bg-white/5 border border-white/10 text-gray-400 w-10 h-10 rounded-xl cursor-pointer hover:bg-white/10 hover:text-white flex items-center justify-center transition-all">✕</button>
               </div>
             </div>
-            {modalError && <div className="sm:hidden text-red-500 text-xs bg-red-500/10 px-4 py-2 border-b border-white/5">{modalError}</div>}
+            {modalError && <div className={`sm:hidden text-xs px-4 py-2 border-b border-white/5 ${modalError.startsWith('✅') ? 'text-[#10b981] bg-[#10b981]/10' : 'text-red-500 bg-red-500/10'}`}>{modalError}</div>}
             
             <div className="flex flex-col lg:flex-row flex-1 overflow-y-auto lg:overflow-hidden custom-scrollbar">
               {/* Left Settings Pane */}
