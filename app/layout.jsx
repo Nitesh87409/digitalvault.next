@@ -39,6 +39,18 @@ export async function generateMetadata() {
   return {
     title: `${appName} – Premium Digital Products`,
     description: 'Everything you need to launch, grow, and scale your online business.',
+    openGraph: {
+      title: `${appName} – Premium Digital Products`,
+      description: 'Everything you need to launch, grow, and scale your online business.',
+      url: process.env.NEXT_PUBLIC_APP_URL || 'https://downloadkart.in',
+      siteName: appName,
+      type: 'website',
+    },
+    twitter: {
+      card: 'summary_large_image',
+      title: `${appName} – Premium Digital Products`,
+      description: 'Everything you need to launch, grow, and scale your online business.',
+    }
   };
 }
 
