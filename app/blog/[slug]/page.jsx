@@ -3,7 +3,7 @@ import Blog from "@/models/Blog";
 import Navbar from "@/components/Navbar";
 import SmartImage from "@/components/SmartImage";
 import ThemeToggle from "@/components/ThemeToggle";
-import { renderBlogContentWithProductImages, resolveBlogFeaturedImage } from "@/lib/blog-product-images";
+import { renderBlogContentWithProductImages, resolveBlogFeaturedImage, resolveProductPageHref } from "@/lib/blog-product-images";
 import Link from "next/link";
 import { ArrowLeft, Calendar, Clock, User, Share2 } from "lucide-react";
 
@@ -79,6 +79,7 @@ export default async function BlogDetailsPage({ params }) {
     day: '2-digit', month: 'long', year: 'numeric'
   }) : 'Recently';
   const resolvedFeaturedImage = resolveBlogFeaturedImage(blog);
+  const productPageHref = resolveProductPageHref(blog.product_id);
   const renderedContent = renderBlogContentWithProductImages(blog.content, blog.product_id);
 
   // Inject dynamic structured Article JSON-LD
@@ -170,16 +171,29 @@ export default async function BlogDetailsPage({ params }) {
 
           {/* Featured Image */}
           {resolvedFeaturedImage && (
-            <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#f5c842]/15 mb-12 shadow-2xl">
-              <SmartImage
-                src={resolvedFeaturedImage}
-                alt={blog.title}
-                width={1200}
-                loading="eager"
-                fetchPriority="high"
-                className="w-full h-full object-cover"
-              />
-            </div>
+            productPageHref ? (
+              <Link href={productPageHref} className="block w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#f5c842]/15 mb-12 shadow-2xl">
+                <SmartImage
+                  src={resolvedFeaturedImage}
+                  alt={blog.title}
+                  width={1200}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover"
+                />
+              </Link>
+            ) : (
+              <div className="w-full aspect-[16/9] rounded-2xl overflow-hidden border border-[#f5c842]/15 mb-12 shadow-2xl">
+                <SmartImage
+                  src={resolvedFeaturedImage}
+                  alt={blog.title}
+                  width={1200}
+                  loading="eager"
+                  fetchPriority="high"
+                  className="w-full h-full object-cover"
+                />
+              </div>
+            )
           )}
 
           {/* Main Rich Content HTML Body */}
