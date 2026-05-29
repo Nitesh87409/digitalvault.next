@@ -13,6 +13,7 @@ const ProductSchema = new mongoose.Schema({
   average_rating: { type: Number, default: 0 },
   total_reviews:  { type: Number, default: 0 },
   slug:           { type: String, unique: true, sparse: true },
+  youtube_video_url: { type: String, default: '' },
 }, { timestamps: true });
 
 ProductSchema.index({ status: 1, createdAt: -1 });

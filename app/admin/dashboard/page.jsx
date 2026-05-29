@@ -18,7 +18,7 @@ export default function AdminDashboard() {
   const [catChildren, setCatChildren] = useState([]);
   const [productModal, setProductModal] = useState(false);
   const [editProduct, setEditProduct] = useState(null);
-  const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '', included_in_bundle: false });
+  const [form, setForm] = useState({ name: '', description: '', category: '', original_price: '', sale_price: '', file_url: '', youtube_video_url: '', included_in_bundle: false });
   const [images, setImages] = useState([]);
   const [newFiles, setNewFiles] = useState([]);
   const [saving, setSaving] = useState(false);
@@ -161,7 +161,18 @@ export default function AdminDashboard() {
           const d = JSON.parse(raw);
           if (d?.form) {
             const { description: draftDesc, ...draftForm } = d.form;
-            setForm(draftForm);
+            setForm({
+              name: '',
+              description: '',
+              category: 'Uncategorized',
+              original_price: '',
+              sale_price: '',
+              file_url: '',
+              youtube_video_url: '',
+              included_in_bundle: false,
+              ...draftForm,
+              youtube_video_url: draftForm.youtube_video_url || '',
+            });
             setImages(d.images || []);
             setNewFiles([]);
             setProductModal(true);
@@ -181,6 +192,7 @@ export default function AdminDashboard() {
       original_price: product?.original_price || '',
       sale_price: product?.sale_price || '',
       file_url: product?.file_url || '',
+      youtube_video_url: product?.youtube_video_url || '',
       included_in_bundle: !!product?.included_in_bundle,
     });
     setImages(product?.images || []);
@@ -236,7 +248,7 @@ export default function AdminDashboard() {
   }
 
   async function saveProduct() {
-    const { name, category, original_price, sale_price, file_url } = form;
+    const { name, category, original_price, sale_price, file_url, youtube_video_url } = form;
     const description = descRef.current?.innerHTML || '';
     if (!name || !original_price || !sale_price || !file_url || !category) { setModalError('All fields required.'); return; }
     setSaving(true); setModalError('');
@@ -252,7 +264,7 @@ export default function AdminDashboard() {
       } catch(e) {}
     }
 
-    const payload = { name, description, category, original_price: Number(original_price), sale_price: Number(sale_price), file_url, images: uploadedImages, included_in_bundle: !!form.included_in_bundle };
+    const payload = { name, description, category, original_price: Number(original_price), sale_price: Number(sale_price), file_url, youtube_video_url, images: uploadedImages, included_in_bundle: !!form.included_in_bundle };
     const url = editProduct ? `/api/product/${editProduct._id}` : '/api/product';
     const method = editProduct ? 'PUT' : 'POST';
     const res = await fetch(url, { method, headers, body: JSON.stringify(payload) });
@@ -820,6 +832,10 @@ export default function AdminDashboard() {
                 <div>
                   <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">⬇️ Download File URL *</label>
                   <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.file_url} onChange={e => setForm({ ...form, file_url: e.target.value })} placeholder="https://drive.google.com/..." />
+                </div>
+                <div>
+                  <label className="text-xs font-semibold text-[#f5c842] block mb-2 uppercase tracking-wider">▶ YouTube Preview URL <span className="text-gray-500 normal-case">(Optional)</span></label>
+                  <input className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors" value={form.youtube_video_url} onChange={e => setForm({ ...form, youtube_video_url: e.target.value })} placeholder="https://youtube.com/watch?v=..." />
                 </div>
                 <label className="flex items-center justify-between gap-4 rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 cursor-pointer">
                   <span>

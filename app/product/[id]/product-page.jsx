@@ -6,6 +6,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
+import { extractYoutubeVideoId, getYoutubeEmbedUrls, getYoutubeWatchUrl } from '@/lib/youtube';
 
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
@@ -13,6 +14,8 @@ export default function ProductPage({ id }) {
   const [loading, setLoading] = useState(true);
   const [toast, setToast] = useState(null);
   const [cartCount, setCartCount] = useState(0);
+  const [showVideoPreview, setShowVideoPreview] = useState(false);
+  const [youtubeEmbedHostIndex, setYoutubeEmbedHostIndex] = useState(0);
   
   // Reviews state
   const [reviews, setReviews] = useState([]);
@@ -21,6 +24,15 @@ export default function ProductPage({ id }) {
   const [productCoupon, setProductCoupon] = useState(null);
   const { hasBundleAccess } = useBundlePurchase({ showToast });
   const { settings } = useSettings();
+
+  const youtubeVideoUrl = product?.youtube_video_url || '';
+  const youtubeVideoId = extractYoutubeVideoId(youtubeVideoUrl);
+  const youtubeEmbedUrls = getYoutubeEmbedUrls(youtubeVideoUrl);
+  const youtubeEmbedUrl = youtubeEmbedUrls[youtubeEmbedHostIndex] || '';
+
+  useEffect(() => {
+    setYoutubeEmbedHostIndex(0);
+  }, [youtubeVideoId]);
 
   function copyLink() {
     if (typeof window === 'undefined') return;
@@ -72,6 +84,7 @@ export default function ProductPage({ id }) {
       if (!data.flag) { router.push('/'); return; }
       setProduct(data.product);
       setMainImg(data.product.images?.[0] || null);
+      setShowVideoPreview(false);
       setLoading(false);
     } catch(e) {
       router.push('/');
@@ -308,9 +321,33 @@ export default function ProductPage({ id }) {
               {/* Main Image */}
               <div className="mb-4">
                 {mainImg ? (
-                  <img src={optimizeCloudinary(mainImg, 800)} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
+                  <div className="relative">
+                    <img src={optimizeCloudinary(mainImg, 800)} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
+                    {youtubeVideoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setShowVideoPreview(true)}
+                        className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full border border-[#f5c842]/40 bg-black/65 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-[0_0_0_0_rgba(245,200,66,0.42)] transition-transform hover:scale-[1.02] hover:bg-black/75 hover:shadow-[0_0_22px_rgba(245,200,66,0.55)] animate-[pulse_2.4s_ease-in-out_infinite] sm:bottom-3 sm:right-3 sm:px-3 sm:text-[11px]"
+                      >
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c842] text-[10px] text-[#0a0a0f]">▶</span>
+                        Preview
+                      </button>
+                    )}
+                  </div>
                 ) : (
-                  <div className="flex aspect-square w-full items-center justify-center rounded-2xl border border-[#f5c842]/15 bg-[var(--surface)] text-8xl">📦</div>
+                  <div className="relative flex aspect-square w-full items-center justify-center rounded-2xl border border-[#f5c842]/15 bg-[var(--surface)] text-8xl">
+                    📦
+                    {youtubeVideoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setShowVideoPreview(true)}
+                        className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full border border-[#f5c842]/40 bg-black/65 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-[0_0_0_0_rgba(245,200,66,0.42)] transition-transform hover:scale-[1.02] hover:bg-black/75 hover:shadow-[0_0_22px_rgba(245,200,66,0.55)] animate-[pulse_2.4s_ease-in-out_infinite] sm:bottom-3 sm:right-3 sm:px-3 sm:text-[11px]"
+                      >
+                        <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c842] text-[10px] text-[#0a0a0f]">▶</span>
+                        Preview
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               {/* Thumbnails */}
@@ -559,6 +596,70 @@ export default function ProductPage({ id }) {
           </div>
         </div>
       </div>
+
+      {showVideoPreview && youtubeVideoUrl && (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          onClick={() => setShowVideoPreview(false)}
+        >
+          <div
+            className="relative flex h-[calc(100dvh-3rem)] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-white/10 bg-[#0f1018] shadow-2xl sm:rounded-3xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex flex-col gap-3 border-b border-white/10 px-3 py-3 sm:flex-row sm:items-center sm:justify-between sm:px-5">
+              <div className="min-w-0">
+                <p className="text-[10px] uppercase tracking-[0.24em] text-[#f5c842] sm:text-[11px]">Product Preview</p>
+                <p className="truncate text-sm font-semibold text-white sm:text-base">{product?.name}</p>
+              </div>
+              <div className="flex w-full flex-wrap items-center gap-2 sm:w-auto sm:flex-nowrap sm:justify-end">
+                {youtubeVideoId && (
+                  <a
+                    href={getYoutubeWatchUrl(youtubeVideoUrl) || youtubeVideoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full rounded-full border border-[#f5c842]/30 px-3 py-2 text-center text-[11px] font-bold text-[#f5c842] no-underline transition-colors hover:bg-[#f5c842]/10 sm:w-auto sm:py-1.5"
+                  >
+                    Open in YouTube
+                  </a>
+                )}
+                <button
+                  type="button"
+                  onClick={() => setShowVideoPreview(false)}
+                  className="flex h-9 w-full items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10 sm:w-9"
+                  aria-label="Close preview"
+                >
+                  ✕
+                </button>
+              </div>
+            </div>
+            <div className="flex-1 min-h-0 bg-black">
+              {youtubeEmbedUrl ? (
+                <iframe
+                  src={youtubeEmbedUrl}
+                  title={`${product?.name || 'Product'} preview video`}
+                  className="h-full w-full aspect-video"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                  onError={() => {
+                    setYoutubeEmbedHostIndex((current) => Math.min(current + 1, Math.max(youtubeEmbedUrls.length - 1, 0)));
+                  }}
+                />
+              ) : (
+                <div className="flex aspect-video w-full items-center justify-center px-6 text-center text-sm text-gray-300">
+                  <a
+                    href={youtubeVideoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="rounded-full border border-[#f5c842]/30 px-4 py-2 font-bold text-[#f5c842] no-underline hover:bg-[#f5c842]/10"
+                  >
+                    Open preview in YouTube
+                  </a>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Toast */}
       {toast && (

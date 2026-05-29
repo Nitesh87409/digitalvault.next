@@ -32,7 +32,7 @@ function addSecurityHeaders(response) {
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://res.cloudinary.com https://*.googleusercontent.com",
       "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://accounts.google.com",
-      "frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com",
+      "frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://m.youtube.com",
       "object-src 'none'",
       "base-uri 'self'",
       "form-action 'self'",

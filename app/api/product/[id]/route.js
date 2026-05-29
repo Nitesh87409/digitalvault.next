@@ -4,6 +4,7 @@ import Product from '@/models/Product';
 import { verifyAdmin } from '@/lib/auth';
 import { sanitizePlainText, sanitizeRichText } from '@/lib/sanitize-content';
 import { normalizeStoredDownloadSource } from '@/lib/safe-download-source';
+import { normalizeYoutubeVideoUrl } from '@/lib/youtube';
 import cloudinary from '@/lib/cloudinary';
 
 // Extract public ID from Cloudinary URL (with or without v[digits] version segments)
@@ -56,7 +57,7 @@ export async function PUT(request, { params }) {
 
     await connectDB();
     const body = await request.json();
-    const { name, description, category, images, original_price, sale_price, file_url, included_in_bundle } = body;
+    const { name, description, category, images, original_price, sale_price, file_url, included_in_bundle, youtube_video_url } = body;
     if (!name || !original_price || !sale_price || !file_url)
       return NextResponse.json({ flag: 0, message: 'All fields required' });
     if (Number(sale_price) <= 0 || Number(original_price) <= 0)
@@ -90,6 +91,7 @@ export async function PUT(request, { params }) {
         sale_price: Number(sale_price),
         file_url: safeFileUrl,
         included_in_bundle: !!included_in_bundle,
+        youtube_video_url: normalizeYoutubeVideoUrl(youtube_video_url),
       },
       { new: true }
     );
