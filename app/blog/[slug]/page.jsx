@@ -22,7 +22,7 @@ export async function generateMetadata({ params }) {
     const settings = await Setting.findOne().lean();
     if (settings) {
       appName = settings.app_name || appName;
-      appAltName = settings.app_alt_name || '';
+      appAltName = settings.app_alt_name ? settings.app_alt_name.split(',')[0].trim() : '';
     }
 
     const blog = await Blog.findOne({ slug, status: true }).populate('product_id', 'name images').lean();

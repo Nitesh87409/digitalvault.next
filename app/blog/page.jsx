@@ -15,7 +15,7 @@ export async function generateMetadata() {
     const settings = await Setting.findOne().lean();
     if (settings) {
       appName = settings.app_name || appName;
-      appAltName = settings.app_alt_name || '';
+      appAltName = settings.app_alt_name ? settings.app_alt_name.split(',')[0].trim() : '';
     }
   } catch (e) {
     console.error('Blog metadata generation error:', e);

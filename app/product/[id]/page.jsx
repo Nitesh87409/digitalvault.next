@@ -17,7 +17,7 @@ export async function generateMetadata({ params }) {
     const settings = await Setting.findOne().lean();
     if (settings) {
       appName = settings.app_name || appName;
-      appAltName = settings.app_alt_name || '';
+      appAltName = settings.app_alt_name ? settings.app_alt_name.split(',')[0].trim() : '';
     }
 
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);

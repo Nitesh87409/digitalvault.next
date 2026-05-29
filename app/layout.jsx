@@ -31,7 +31,7 @@ export async function generateMetadata() {
     const settings = await Setting.findOne().lean();
     if (settings) {
       appName = settings.app_name || appName;
-      appAltName = settings.app_alt_name || '';
+      appAltName = settings.app_alt_name ? settings.app_alt_name.split(',')[0].trim() : '';
     } else if (process.env.NEXT_PUBLIC_APP_NAME) {
       appName = process.env.NEXT_PUBLIC_APP_NAME;
     }
@@ -170,9 +170,28 @@ export default async function RootLayout({ children }) {
 
   global.__server_settings__ = initialSettings;
 
+  const customAlternates = initialSettings.app_alt_name
+    ? initialSettings.app_alt_name.split(',').map(n => n.trim()).filter(Boolean)
+    : [];
+
+  const siteSchema = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    "name": (initialSettings.app_name || 'DownloadKart').trim(),
+    "alternateName": [
+      ...customAlternates,
+      'downloadkart.com'
+    ].filter(Boolean),
+    "url": process.env.NEXT_PUBLIC_APP_URL || 'https://downloadkart.com'
+  };
+
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <head suppressHydrationWarning>
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
+        />
         <link rel="preconnect" href="https://checkout.razorpay.com" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
         <script

@@ -641,7 +641,7 @@ export default function HomePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: '40px' }}>
             <div>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>{settings.app_name}</div>
-              <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs {settings.app_alt_name ? `at ${settings.app_alt_name}` : `at ${settings.app_name}`}.</p>
+              <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs {settings.app_alt_name ? `at ${settings.app_alt_name.split(',')[0].trim()}` : `at ${settings.app_name}`}.</p>
             </div>
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Quick Links</div>
