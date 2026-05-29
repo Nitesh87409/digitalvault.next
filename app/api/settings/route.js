@@ -50,6 +50,7 @@ export async function POST(request) {
       'support_phone',
       'business_hours',
       'app_name',
+      'app_alt_name',
       'app_logo',
       'app_name_size',
       'bundle_enabled',

@@ -13,13 +13,25 @@ export async function generateMetadata({ params }) {
   const { slug } = await params;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
 
+  let appName = 'DownloadKart';
+  let appAltName = '';
+
   try {
     await connectDB();
+    const Setting = (await import('@/models/Setting')).default;
+    const settings = await Setting.findOne().lean();
+    if (settings) {
+      appName = settings.app_name || appName;
+      appAltName = settings.app_alt_name || '';
+    }
+
     const blog = await Blog.findOne({ slug, status: true }).populate('product_id', 'name images').lean();
+
+    const altSuffix = appAltName ? ` (${appAltName})` : '';
 
     if (!blog) {
       return {
-        title: "Article Not Found | DownloadKart",
+        title: `Article Not Found | ${appName}${altSuffix}`,
         description: "The requested blog article could not be found.",
       };
     }
@@ -28,10 +40,10 @@ export async function generateMetadata({ params }) {
     const resolvedImage = resolveBlogFeaturedImage(blog);
 
     return {
-      title: `${blog.title} | DownloadKart`,
+      title: `${blog.title} | ${appName}${altSuffix}`,
       description: cleanDesc,
       openGraph: {
-        title: `${blog.title} | DownloadKart`,
+        title: `${blog.title} | ${appName}${altSuffix}`,
         description: cleanDesc,
         url: `${baseUrl}/blog/${blog.slug}`,
         images: [
@@ -53,8 +65,9 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     console.error("Error generating blog metadata:", error);
+    const altSuffix = appAltName ? ` (${appAltName})` : '';
     return {
-      title: "Blog Guide | DownloadKart",
+      title: `Blog Guide | ${appName}${altSuffix}`,
     };
   }
 }

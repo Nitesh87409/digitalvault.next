@@ -66,7 +66,8 @@ export default function HomePage() {
       social_facebook_url: '',
       social_telegram_enabled: false,
       social_telegram_url: '',
-      custom_social_links: []
+      custom_social_links: [],
+      app_alt_name: ''
     };
   });
   const { toast, showToast } = useToast();
@@ -147,6 +148,7 @@ export default function HomePage() {
           bundle_show_discount: data.settings.bundle_show_discount ?? true,
           bundle_banner_image: data.settings.bundle_banner_image || '',
           app_name: data.settings.app_name || '',
+          app_alt_name: data.settings.app_alt_name || '',
           updatedAt: data.settings.updatedAt || '',
           social_instagram_enabled: data.settings.social_instagram_enabled ?? false,
           social_instagram_url: data.settings.social_instagram_url ?? '',
@@ -639,7 +641,7 @@ export default function HomePage() {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: '40px' }}>
             <div>
               <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>{settings.app_name}</div>
-              <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs.</p>
+              <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs {settings.app_alt_name ? `at ${settings.app_alt_name}` : `at ${settings.app_name}`}.</p>
             </div>
             <div>
               <div className="mb-3 font-semibold text-[var(--heading)]">Quick Links</div>

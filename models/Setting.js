@@ -14,6 +14,7 @@ const SettingSchema = new mongoose.Schema({
   support_phone: { type: String, default: '+91 98765 43210' },
   business_hours: { type: String, default: 'Mon–Sat, 10am–6pm IST' },
   app_name: { type: String, default: '' },
+  app_alt_name: { type: String, default: '' },
   app_logo: { type: String, default: '' },
   app_name_size: { type: Number, default: 20 },
   bundle_enabled: { type: Boolean, default: true },

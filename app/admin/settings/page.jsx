@@ -20,6 +20,7 @@ export default function AdminSettingsPage() {
     support_phone: '+91 98765 43210',
     business_hours: 'Mon–Sat, 10am–6pm IST',
     app_name: '',
+    app_alt_name: '',
     app_logo: '',
     app_name_size: 20,
     refund_policy_content: '',
@@ -132,6 +133,7 @@ export default function AdminSettingsPage() {
           support_phone: data.settings.support_phone ?? '+91 98765 43210',
           business_hours: data.settings.business_hours ?? 'Mon–Sat, 10am–6pm IST',
           app_name: data.settings.app_name ?? '',
+          app_alt_name: data.settings.app_alt_name ?? '',
           app_logo: data.settings.app_logo ?? '',
           app_name_size: data.settings.app_name_size ?? 20,
           refund_policy_content: data.settings.refund_policy_content ?? '',
@@ -285,73 +287,106 @@ export default function AdminSettingsPage() {
               
               {/* BRANDING TAB */}
               {activeTab === 'branding' && (
-                <div className="bg-[var(--surface-2)] rounded-2xl p-5 sm:p-8 border border-[var(--line)] shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-2 duration-300">
-                  <h2 className="text-xl font-syne font-bold text-[var(--heading)] mb-6">Branding & Website Settings</h2>
-                  
-                  <div className="grid grid-cols-1 gap-6 mb-8">
-                    <div>
-                      <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Display Name</label>
-                      <input
-                        type="text"
-                        value={settings.app_name}
-                        onChange={(e) => handleChange('app_name', e.target.value)}
-                        placeholder={process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault'}
-                        className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
-                      />
-                      <p className="text-xs text-[var(--muted-2)] mt-2">Leave blank to use the ENV variable (NEXT_PUBLIC_APP_NAME).</p>
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Name Font Size</label>
-                      <div className="flex items-center gap-4">
+                <div className="flex flex-col gap-6">
+                  {/* Card 1: Main Branding Settings */}
+                  <div className="bg-[var(--surface-2)] rounded-2xl p-5 sm:p-8 border border-[var(--line)] shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <h2 className="text-xl font-syne font-bold text-[var(--heading)] mb-6">Branding & Website Settings</h2>
+                    
+                    <div className="grid grid-cols-1 gap-6 mb-8">
+                      <div>
+                        <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Display Name</label>
                         <input
-                          type="range"
-                          min="12"
-                          max="36"
-                          value={settings.app_name_size || 20}
-                          onChange={(e) => handleChange('app_name_size', parseInt(e.target.value))}
-                          className="w-full h-2 bg-[var(--surface)] rounded-lg appearance-none cursor-pointer accent-[#f5c842]"
-                          style={{ accentColor: '#f5c842' }}
+                          type="text"
+                          value={settings.app_name}
+                          onChange={(e) => handleChange('app_name', e.target.value)}
+                          placeholder={process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault'}
+                          className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
                         />
-                        <span className="font-syne font-bold text-lg text-[#f5c842] shrink-0 min-w-[48px] text-right">
-                          {settings.app_name_size || 20}px
-                        </span>
+                        <p className="text-xs text-[var(--muted-2)] mt-2">Leave blank to use the ENV variable (NEXT_PUBLIC_APP_NAME).</p>
                       </div>
-                      <p className="text-xs text-[var(--muted-2)] mt-2">Adjust the font size of the website name displayed next to the logo in headers (Default: 20px).</p>
-                    </div>
 
-                    <div>
-                      <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Logo</label>
-                      <div className="flex items-center gap-4">
-                        {settings.app_logo && (
-                          <img src={settings.app_logo} alt="Logo" className="w-16 h-16 object-contain bg-white rounded-lg p-1" />
-                        )}
-                        <div>
+                      <div>
+                        <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Name Font Size</label>
+                        <div className="flex items-center gap-4">
                           <input
-                            type="file"
-                            accept="image/*"
-                            onChange={handleLogoUpload}
-                            className="text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f5c842]/10 file:text-[#f5c842] hover:file:bg-[#f5c842]/20"
+                            type="range"
+                            min="12"
+                            max="36"
+                            value={settings.app_name_size || 20}
+                            onChange={(e) => handleChange('app_name_size', parseInt(e.target.value))}
+                            className="w-full h-2 bg-[var(--surface)] rounded-lg appearance-none cursor-pointer accent-[#f5c842]"
+                            style={{ accentColor: '#f5c842' }}
                           />
-                          <p className="text-xs text-[var(--muted-2)] mt-2">Upload a logo to display in the navbar and emails.</p>
-                          <p className="text-xs text-[#f5c842] mt-1.5 font-semibold">Recommended size: 200px width × 50px height (Landscape) or 1:1 Square (min 128px × 128px)</p>
+                          <span className="font-syne font-bold text-lg text-[#f5c842] shrink-0 min-w-[48px] text-right">
+                            {settings.app_name_size || 20}px
+                          </span>
+                        </div>
+                        <p className="text-xs text-[var(--muted-2)] mt-2">Adjust the font size of the website name displayed next to the logo in headers (Default: 20px).</p>
+                      </div>
+
+                      <div>
+                        <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Website Logo</label>
+                        <div className="flex items-center gap-4">
                           {settings.app_logo && (
-                            <button type="button" onClick={() => handleChange('app_logo', '')} className="text-xs text-red-500 mt-2 hover:underline">Remove Logo</button>
+                            <img src={settings.app_logo} alt="Logo" className="w-16 h-16 object-contain bg-white rounded-lg p-1" />
                           )}
+                          <div>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleLogoUpload}
+                              className="text-sm text-[var(--muted)] file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-[#f5c842]/10 file:text-[#f5c842] hover:file:bg-[#f5c842]/20"
+                            />
+                            <p className="text-xs text-[var(--muted-2)] mt-2">Upload a logo to display in the navbar and emails.</p>
+                            <p className="text-xs text-[#f5c842] mt-1.5 font-semibold">Recommended size: 200px width × 50px height (Landscape) or 1:1 Square (min 128px × 128px)</p>
+                            {settings.app_logo && (
+                              <button type="button" onClick={() => handleChange('app_logo', '')} className="text-xs text-red-500 mt-2 hover:underline">Remove Logo</button>
+                            )}
+                          </div>
                         </div>
                       </div>
                     </div>
+
+                    <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)]">
+                      <button
+                        onClick={() => saveSectionSettings(['app_name', 'app_logo', 'app_name_size'], 'Branding settings')}
+                        disabled={saving === 'Branding settings'}
+                        className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3 rounded-xl shadow-lg shadow-[#f5c842]/20 cursor-pointer transition-transform ${saving === 'Branding settings' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
+                      >
+                        {saving === 'Branding settings' ? 'Saving...' : 'Save Branding'}
+                      </button>
+                      {message && message.toLowerCase().includes('branding') && <span className={`font-medium text-sm ${message.includes('success') ? 'text-[#10b981]' : 'text-red-500'}`}>{message}</span>}
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)]">
-                    <button
-                      onClick={() => saveSectionSettings(['app_name', 'app_logo', 'app_name_size'], 'Branding settings')}
-                      disabled={saving === 'Branding settings'}
-                      className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3 rounded-xl shadow-lg shadow-[#f5c842]/20 cursor-pointer transition-transform ${saving === 'Branding settings' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
-                    >
-                      {saving === 'Branding settings' ? 'Saving...' : 'Save Branding'}
-                    </button>
-                    {message && <span className={`font-medium text-sm ${message.includes('success') ? 'text-[#10b981]' : 'text-red-500'}`}>{message}</span>}
+                  {/* Card 2: Google Search & SEO Settings */}
+                  <div className="bg-[var(--surface-2)] rounded-2xl p-5 sm:p-8 border border-[var(--line)] shadow-[var(--shadow-soft)] animate-in fade-in slide-in-from-bottom-2 duration-300">
+                    <h2 className="text-xl font-syne font-bold text-[var(--heading)] mb-6">Google Search / SEO Settings</h2>
+                    
+                    <div className="grid grid-cols-1 gap-6 mb-8">
+                      <div>
+                        <label className="text-sm font-semibold text-[var(--muted)] block mb-2 uppercase tracking-wider">Google Search / SEO Alternative Name (Spaced Brand Name)</label>
+                        <input
+                          type="text"
+                          value={settings.app_alt_name}
+                          onChange={(e) => handleChange('app_alt_name', e.target.value)}
+                          placeholder="e.g. Download Kart"
+                          className="bg-[var(--surface)] border border-[var(--line)] text-[var(--heading)] px-4 py-3 rounded-xl w-full outline-none focus:border-[#f5c842]/50 transition-colors"
+                        />
+                        <p className="text-xs text-[var(--muted-2)] mt-2">Enter the spaced version or secondary SEO name of your brand (e.g., "Download Kart") to help Google index and rank spaced searches.</p>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-4 pt-6 border-t border-[var(--line)]">
+                      <button
+                        onClick={() => saveSectionSettings(['app_alt_name'], 'SEO settings')}
+                        disabled={saving === 'SEO settings'}
+                        className={`bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-syne font-bold border-none px-8 py-3 rounded-xl shadow-lg shadow-[#f5c842]/20 cursor-pointer transition-transform ${saving === 'SEO settings' ? 'opacity-70' : 'hover:scale-[1.02]'}`}
+                      >
+                        {saving === 'SEO settings' ? 'Saving...' : 'Save SEO Settings'}
+                      </button>
+                      {message && message.toLowerCase().includes('seo') && <span className={`font-medium text-sm ${message.includes('success') ? 'text-[#10b981]' : 'text-red-500'}`}>{message}</span>}
+                    </div>
                   </div>
                 </div>
               )}

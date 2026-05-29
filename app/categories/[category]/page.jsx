@@ -7,9 +7,27 @@ export const revalidate = 300;
 export async function generateMetadata({ params }) {
   const { category } = await params;
   const categoryName = decodeURIComponent(category);
+
+  let appName = 'DownloadKart';
+  let appAltName = '';
+
+  try {
+    await connectDB();
+    const Setting = (await import('@/models/Setting')).default;
+    const settings = await Setting.findOne().lean();
+    if (settings) {
+      appName = settings.app_name || appName;
+      appAltName = settings.app_alt_name || '';
+    }
+  } catch (e) {
+    console.error('Category metadata generation error:', e);
+  }
+
+  const altSuffix = appAltName ? ` (${appAltName})` : '';
+
   return {
-    title: `${categoryName} – Digital Templates & Products | DownloadKart`,
-    description: `Explore the best collection of ${categoryName} on DownloadKart. Instant delivery!`,
+    title: `${categoryName} – Digital Templates & Products | ${appName}${altSuffix}`,
+    description: `Explore the best collection of ${categoryName} on ${appName}${altSuffix}. Instant delivery!`,
   };
 }
 

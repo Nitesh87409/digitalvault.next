@@ -23,33 +23,38 @@ const dmSans = DM_Sans({
 
 export async function generateMetadata() {
   let appName = 'DigitalVault';
+  let appAltName = '';
   try {
     const Setting = (await import('@/models/Setting')).default;
     const connectDB = (await import('@/lib/mongodb')).default;
     await connectDB();
     const settings = await Setting.findOne().lean();
-    if (settings && settings.app_name) {
-      appName = settings.app_name;
+    if (settings) {
+      appName = settings.app_name || appName;
+      appAltName = settings.app_alt_name || '';
     } else if (process.env.NEXT_PUBLIC_APP_NAME) {
       appName = process.env.NEXT_PUBLIC_APP_NAME;
     }
   } catch (e) {
     console.error('Metadata generation error:', e);
   }
+
+  const altSuffix = appAltName ? ` (${appAltName})` : '';
+
   return {
-    title: `${appName} – Premium Digital Products`,
-    description: 'Everything you need to launch, grow, and scale your online business.',
+    title: `${appName}${altSuffix} – Premium Digital Products`,
+    description: `Welcome to ${appName}${altSuffix}. Everything you need to launch, grow, and scale your online business.`,
     openGraph: {
-      title: `${appName} – Premium Digital Products`,
-      description: 'Everything you need to launch, grow, and scale your online business.',
+      title: `${appName}${altSuffix} – Premium Digital Products`,
+      description: `Welcome to ${appName}${altSuffix}. Everything you need to launch, grow, and scale your online business.`,
       url: process.env.NEXT_PUBLIC_APP_URL || 'https://downloadkart.in',
       siteName: appName,
       type: 'website',
     },
     twitter: {
       card: 'summary_large_image',
-      title: `${appName} – Premium Digital Products`,
-      description: 'Everything you need to launch, grow, and scale your online business.',
+      title: `${appName}${altSuffix} – Premium Digital Products`,
+      description: `Welcome to ${appName}${altSuffix}. Everything you need to launch, grow, and scale your online business.`,
     }
   };
 }
@@ -106,7 +111,8 @@ export default async function RootLayout({ children }) {
         support_bot_model_mode: settings.support_bot_model_mode || 'auto',
         openrouter_model: settings.openrouter_model || 'openrouter/free',
         support_bot_prompt: settings.support_bot_prompt || '',
-        custom_social_links: Array.isArray(settings.custom_social_links) ? settings.custom_social_links : []
+        custom_social_links: Array.isArray(settings.custom_social_links) ? settings.custom_social_links : [],
+        app_alt_name: settings.app_alt_name || ''
       };
     }
   } catch (e) {
@@ -157,7 +163,8 @@ export default async function RootLayout({ children }) {
       support_bot_model_mode: 'auto',
       openrouter_model: 'openrouter/free',
       support_bot_prompt: '',
-      custom_social_links: []
+      custom_social_links: [],
+      app_alt_name: ''
     };
   }
 

@@ -5,10 +5,29 @@ import { resolveBlogFeaturedImage } from "@/lib/blog-product-images";
 
 export const revalidate = 300;
 
-export const metadata = {
-  title: "Blog & Creator Learning Hub | DownloadKart",
-  description: "Read helpful marketing strategy guides, design tutorial playbooks, and insights to grow your creator online business.",
-};
+export async function generateMetadata() {
+  let appName = 'DownloadKart';
+  let appAltName = '';
+  try {
+    const Setting = (await import('@/models/Setting')).default;
+    const connectDB = (await import('@/lib/mongodb')).default;
+    await connectDB();
+    const settings = await Setting.findOne().lean();
+    if (settings) {
+      appName = settings.app_name || appName;
+      appAltName = settings.app_alt_name || '';
+    }
+  } catch (e) {
+    console.error('Blog metadata generation error:', e);
+  }
+
+  const altSuffix = appAltName ? ` (${appAltName})` : '';
+
+  return {
+    title: `Blog & Creator Learning Hub | ${appName}${altSuffix}`,
+    description: `Read helpful marketing strategy guides, design tutorial playbooks, and insights to grow your creator online business at ${appAltName || appName}.`,
+  };
+}
 
 export default async function Page() {
   await connectDB();

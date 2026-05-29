@@ -8,15 +8,27 @@ export async function generateMetadata({ params }) {
   const { id } = await params;
   const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
 
+  let appName = 'DownloadKart';
+  let appAltName = '';
+
   try {
     await connectDB();
+    const Setting = (await import('@/models/Setting')).default;
+    const settings = await Setting.findOne().lean();
+    if (settings) {
+      appName = settings.app_name || appName;
+      appAltName = settings.app_alt_name || '';
+    }
+
     const isObjectId = /^[0-9a-fA-F]{24}$/.test(id);
     const queryField = isObjectId ? '_id' : 'slug';
     const product = await Product.findOne({ [queryField]: id }).lean();
 
+    const altSuffix = appAltName ? ` (${appAltName})` : '';
+
     if (!product) {
       return {
-        title: "Product Not Found | DownloadKart",
+        title: `Product Not Found | ${appName}${altSuffix}`,
         description: "The requested digital product could not be found.",
       };
     }
@@ -26,10 +38,10 @@ export async function generateMetadata({ params }) {
       : "Premium digital product available for instant download.";
 
     return {
-      title: `${product.name} | DownloadKart`,
+      title: `${product.name} | ${appName}${altSuffix}`,
       description: cleanDescription,
       openGraph: {
-        title: `${product.name} | DownloadKart`,
+        title: `${product.name} | ${appName}${altSuffix}`,
         description: cleanDescription,
         url: `${baseUrl}/product/${product.slug || product._id}`,
         images: [
@@ -51,8 +63,9 @@ export async function generateMetadata({ params }) {
     };
   } catch (error) {
     console.error("Error generating product metadata:", error);
+    const altSuffix = appAltName ? ` (${appAltName})` : '';
     return {
-      title: "Digital Product | DownloadKart",
+      title: `Digital Product | ${appName}${altSuffix}`,
     };
   }
 }
