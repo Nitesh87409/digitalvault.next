@@ -85,16 +85,44 @@ export default function FloatingContact() {
     return null;
   }
 
+  const getIndianWhatsAppNumber = (value) => {
+    const cleaned = String(value || '').replace(/\D/g, '');
+    return cleaned.length === 10 ? `91${cleaned}` : cleaned;
+  };
+
+  const buildWhatsAppLink = (number, text = "Hi! I need help with my DigitalVault order.") => {
+    const whatsappNumber = getIndianWhatsAppNumber(number);
+    return whatsappNumber ? `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}` : null;
+  };
+
+  const normalizeWhatsAppLink = (url) => {
+    try {
+      const parsed = new URL(url);
+      const host = parsed.hostname.replace(/^www\./, '');
+      const isWhatsAppHost = host === 'wa.me' || host === 'api.whatsapp.com' || host === 'whatsapp.com';
+
+      if (!isWhatsAppHost) {
+        return url;
+      }
+
+      const number = host === 'wa.me'
+        ? parsed.pathname.split('/').filter(Boolean)[0]
+        : parsed.searchParams.get('phone');
+      const text = parsed.searchParams.get('text') || "Hi! I need help with my DigitalVault order.";
+
+      return buildWhatsAppLink(number, text) || url;
+    } catch {
+      return buildWhatsAppLink(url);
+    }
+  };
+
   // Generate a direct WhatsApp link based on support phone if the explicit URL isn't configured
   const getWhatsAppLink = () => {
     if (settings.social_whatsapp_enabled && settings.social_whatsapp_url) {
-      return settings.social_whatsapp_url;
+      return normalizeWhatsAppLink(settings.social_whatsapp_url);
     }
     if (settings.support_phone) {
-      const cleaned = settings.support_phone.replace(/\D/g, '');
-      // Prefix with Indian country code '91' if it's a 10-digit number without country code
-      const prefixed = cleaned.length === 10 ? `91${cleaned}` : cleaned;
-      return `https://wa.me/${prefixed}?text=${encodeURIComponent("Hi! I need help with my DigitalVault order.")}`;
+      return buildWhatsAppLink(settings.support_phone);
     }
     return null;
   };
