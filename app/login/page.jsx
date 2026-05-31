@@ -72,6 +72,39 @@ export default function LoginPage() {
     return () => clearInterval(interval);
   }, [timer]);
 
+  // Handle Google redirect callback (when user returns from Google after redirect auth)
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const googleRedirect = params.get('google_redirect');
+
+    if (googleRedirect === 'success') {
+      // Read customer data from the temporary cookie set by /api/auth/google-redirect
+      const cookieMatch = document.cookie.match(/(?:^|;\s*)dv_google_customer=([^;]*)/);
+      if (cookieMatch) {
+        try {
+          const customerData = JSON.parse(decodeURIComponent(cookieMatch[1]));
+          localStorage.setItem('dv_customer', JSON.stringify(customerData));
+          window.dispatchEvent(new Event('auth-updated'));
+          // Clear the temporary cookie
+          document.cookie = 'dv_google_customer=; path=/; max-age=0';
+          // Clean URL and redirect
+          const redirectTo = params.get('redirect') || '/';
+          router.replace(redirectTo);
+        } catch (e) {
+          setError('Login succeeded but failed to load profile. Please refresh.');
+        }
+      } else {
+        setError('Login succeeded but session data was not received. Please try again.');
+      }
+      // Clean URL params regardless
+      window.history.replaceState({}, '', '/login');
+    } else if (googleRedirect === 'error') {
+      const errorMessage = params.get('error_message') || 'Google login failed. Please try again.';
+      setError(errorMessage);
+      window.history.replaceState({}, '', '/login');
+    }
+  }, []);
+
   const initGoogle = () => {
     let attempts = 0;
     const tryRender = () => {
@@ -84,15 +117,9 @@ export default function LoginPage() {
 
           window.google.accounts.id.initialize({
             client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy-client-id',
-            callback: (response) => {
-              if (response.error) {
-                console.error('Google Auth Error:', response.error);
-                return;
-              }
-              handleSocialBackendAuth('google', response.credential);
-            },
+            login_uri: window.location.origin + '/api/auth/google-redirect',
             use_fedcm_for_prompt: false,
-            ux_mode: 'popup',
+            ux_mode: 'redirect',
           });
           window.google.accounts.id.renderButton(
             el,
@@ -105,7 +132,6 @@ export default function LoginPage() {
               width: safeWidth 
             }
           );
-          console.log('Google Sign-In button rendered successfully with width:', safeWidth);
         } catch (err) {
           console.error('Google init error:', err);
         }
