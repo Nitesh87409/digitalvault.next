@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function TermsPrivacyPage() {
@@ -37,11 +38,11 @@ export default function TermsPrivacyPage() {
       {/* Navbar */}
       <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[#0a0a0f]/80 backdrop-blur-xl px-6 py-4">
         <div className="mx-auto flex max-w-[900px] items-center justify-between gap-4">
-          <a href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">
+          <Link href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">
             {appName}
-          </a>
+          </Link>
           <div className="flex items-center gap-4">
-            <a href="/" className="text-sm text-gray-400 hover:text-[#f5c842] transition-colors no-underline">← Store</a>
+            <Link href="/" className="text-sm text-gray-400 hover:text-[#f5c842] transition-colors no-underline">← Store</Link>
             <ThemeToggle />
           </div>
         </div>
@@ -72,7 +73,7 @@ export default function TermsPrivacyPage() {
       <footer className="border-t border-white/5 bg-[#0a0a0f] py-6 px-6 shrink-0">
         <div className="max-w-[900px] mx-auto flex flex-wrap justify-between gap-4 items-center">
           <p className="text-xs text-gray-500">© {new Date().getFullYear()} {appName}. All rights reserved.</p>
-          <a href="/" className="text-xs text-gray-500 hover:text-[#f5c842] transition-colors no-underline">Back to Store</a>
+          <Link href="/" className="text-xs text-gray-500 hover:text-[#f5c842] transition-colors no-underline">Back to Store</Link>
         </div>
       </footer>
     </div>

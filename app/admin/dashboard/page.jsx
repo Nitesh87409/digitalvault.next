@@ -482,24 +482,22 @@ export default function AdminDashboard() {
 
             {/* Quick Links */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-              {[
-                { label: 'Manage Coupons', href: '/admin/coupons', icon: '🎟️', color: '#f5c842' },
-                { label: 'All Customers', href: '/admin/customers', icon: '👥', color: '#8b5cf6' },
-                { label: 'View Live Site', href: '/', icon: '🌐', color: '#10b981' },
-                { label: 'Add Product', onClick: () => { setTab('products'); openModal(); }, icon: '➕', color: '#3b82f6' },
-              ].map(q => (
-                q.href ? (
-                  <Link key={q.label} href={q.href} target={q.href === '/' ? '_blank' : undefined} className="bg-[#12121a] border border-white/5 rounded-xl p-4 no-underline flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5">
-                    <span className="text-xl">{q.icon}</span>
-                    <span className="text-sm font-semibold truncate" style={{ color: q.color }}>{q.label}</span>
-                  </Link>
-                ) : (
-                  <button key={q.label} onClick={q.onClick} className="bg-[#12121a] border border-white/5 rounded-xl p-4 cursor-pointer flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5 w-full text-left font-sans">
-                    <span className="text-xl">{q.icon}</span>
-                    <span className="text-sm font-semibold truncate" style={{ color: q.color }}>{q.label}</span>
-                  </button>
-                )
-              ))}
+              <Link href="/admin/coupons" className="bg-[#12121a] border border-white/5 rounded-xl p-4 no-underline flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5">
+                <span className="text-xl">🎟️</span>
+                <span className="text-sm font-semibold truncate text-[#f5c842]">Manage Coupons</span>
+              </Link>
+              <Link href="/admin/customers" className="bg-[#12121a] border border-white/5 rounded-xl p-4 no-underline flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5">
+                <span className="text-xl">👥</span>
+                <span className="text-sm font-semibold truncate text-[#8b5cf6]">All Customers</span>
+              </Link>
+              <Link href="/" target="_blank" className="bg-[#12121a] border border-white/5 rounded-xl p-4 no-underline flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5">
+                <span className="text-xl">🌐</span>
+                <span className="text-sm font-semibold truncate text-[#10b981]">View Live Site</span>
+              </Link>
+              <button onClick={() => { setTab('products'); openModal(); }} className="bg-[#12121a] border border-white/5 rounded-xl p-4 cursor-pointer flex items-center gap-3 hover:border-white/20 transition-all hover:bg-white/5 w-full text-left font-sans">
+                <span className="text-xl">➕</span>
+                <span className="text-sm font-semibold truncate text-[#3b82f6]">Add Product</span>
+              </button>
             </div>
 
             {/* Recent Orders */}

@@ -16,11 +16,13 @@ export default function AdminCustomers() {
   const [search, setSearch] = useState('');
   const [filter, setFilter] = useState('all');
   const [loading, setLoading] = useState(true);
+  const [currentTime, setCurrentTime] = useState(null);
   const router = useRouter();
   const headers = { 'Content-Type': 'application/json' };
 
   useEffect(() => {
     loadCustomers();
+    setCurrentTime(Date.now());
   }, []);
 
   async function loadCustomers() {
@@ -73,8 +75,8 @@ export default function AdminCustomers() {
   const totalRevenue = customers.reduce((s, c) => s + (c.total_spent || 0), 0);
 
   function timeAgo(dateStr) {
-    if (!dateStr) return 'Never';
-    const diff = Date.now() - new Date(dateStr).getTime();
+    if (!dateStr || !currentTime) return 'Never';
+    const diff = currentTime - new Date(dateStr).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'Just now';
     if (mins < 60) return `${mins}m ago`;

@@ -5,6 +5,7 @@ import dynamic from 'next/dynamic';
 const MobileBottomNav = dynamic(() => import('@/components/MobileBottomNav'));
 const AnnouncementBanner = dynamic(() => import('@/components/AnnouncementBanner'));
 import FloatingContact from '@/components/FloatingContact';
+import GoogleAnalytics from '@/components/GoogleAnalytics';
 
 
 const syne = Syne({
@@ -188,6 +189,7 @@ export default async function RootLayout({ children }) {
   return (
     <html lang="en" className={`${syne.variable} ${dmSans.variable}`} suppressHydrationWarning>
       <head suppressHydrationWarning>
+        <GoogleAnalytics />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}

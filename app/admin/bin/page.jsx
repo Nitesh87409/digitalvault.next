@@ -21,7 +21,12 @@ export default function AdminBin() {
   const [savingSettings, setSavingSettings] = useState(false);
   const [deleteModal, setDeleteModal] = useState({ open: false, item: null });
   const [emptyModal, setEmptyModal] = useState(false);
+  const [currentTime, setCurrentTime] = useState(null);
   const headers = { 'Content-Type': 'application/json' };
+
+  useEffect(() => {
+    setCurrentTime(Date.now());
+  }, []);
 
   useEffect(() => {
     loadBin();
@@ -76,8 +81,8 @@ export default function AdminBin() {
   }
 
   function timeLeft(autoDeleteAt) {
-    if (!autoDeleteAt) return 'Never';
-    const diff = new Date(autoDeleteAt).getTime() - Date.now();
+    if (!autoDeleteAt || !currentTime) return 'Never';
+    const diff = new Date(autoDeleteAt).getTime() - currentTime;
     if (diff <= 0) return 'Expiring...';
     const days = Math.floor(diff / (24 * 60 * 60 * 1000));
     const hours = Math.floor((diff % (24 * 60 * 60 * 1000)) / (60 * 60 * 1000));
@@ -86,7 +91,8 @@ export default function AdminBin() {
   }
 
   function timeSince(date) {
-    const diff = Date.now() - new Date(date).getTime();
+    if (!currentTime) return 'Just now';
+    const diff = currentTime - new Date(date).getTime();
     const mins = Math.floor(diff / 60000);
     if (mins < 1) return 'Just now';
     if (mins < 60) return `${mins}m ago`;

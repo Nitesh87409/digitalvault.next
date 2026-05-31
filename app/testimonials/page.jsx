@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
+import Link from 'next/link';
 import ThemeToggle from '@/components/ThemeToggle';
 
 export default function TestimonialsPage() {
@@ -49,11 +50,11 @@ export default function TestimonialsPage() {
       {/* Navbar */}
       <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[#0a0a0f]/80 backdrop-blur-xl px-6 py-4">
         <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
-          <a href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">
+          <Link href="/" className="whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline">
             {appName}
-          </a>
+          </Link>
           <div className="flex items-center gap-4">
-            <a href="/" className="text-sm text-gray-400 hover:text-[#f5c842] transition-colors no-underline">← Store</a>
+            <Link href="/" className="text-sm text-gray-400 hover:text-[#f5c842] transition-colors no-underline">← Store</Link>
             <ThemeToggle />
           </div>
         </div>
@@ -154,11 +155,11 @@ export default function TestimonialsPage() {
             <p className="text-[11px] text-gray-600 mt-1">Instant digital items & secure transaction processing.</p>
           </div>
           <div className="flex items-center gap-4 text-xs text-gray-500">
-            <a href="/" className="hover:text-[#f5c842] transition-colors no-underline">Store</a>
+            <Link href="/" className="hover:text-[#f5c842] transition-colors no-underline">Store</Link>
             <span>·</span>
-            <a href="/refund-policy" className="hover:text-[#f5c842] transition-colors no-underline">Refunds</a>
+            <Link href="/refund-policy" className="hover:text-[#f5c842] transition-colors no-underline">Refunds</Link>
             <span>·</span>
-            <a href="/terms-privacy" className="hover:text-[#f5c842] transition-colors no-underline">Terms & Privacy</a>
+            <Link href="/terms-privacy" className="hover:text-[#f5c842] transition-colors no-underline">Terms & Privacy</Link>
           </div>
         </div>
       </footer>
