@@ -69,11 +69,6 @@ export function proxy(request) {
     }
   }
 
-  // Redirect from login/register if already logged in
-  if (pathname === '/login' || pathname === '/register') {
-    if (isCustomer) return addSecurityHeaders(NextResponse.redirect(new URL('/', request.url)));
-  }
-
   return addSecurityHeaders(NextResponse.next());
 }
 

@@ -19,7 +19,17 @@ export default function Navbar({ onSearchClick }) {
 
     const loadCustomer = () => {
       const c = localStorage.getItem('dv_customer');
-      setCustomer(c ? JSON.parse(c) : null);
+      if (!c || c === 'undefined') {
+        setCustomer(null);
+        return;
+      }
+      try {
+        setCustomer(JSON.parse(c));
+      } catch (err) {
+        console.error('Failed to parse customer data:', err);
+        localStorage.removeItem('dv_customer');
+        setCustomer(null);
+      }
     };
     loadCustomer();
 

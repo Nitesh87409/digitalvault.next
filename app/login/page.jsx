@@ -1,11 +1,13 @@
 'use client';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 
 export default function LoginPage() {
   const router = useRouter();
+  const googleInitializedRef = useRef(false);
+  const googleRenderedRef = useRef(false);
   const [settings, setSettings] = useState({
     password_login_enabled: true,
     email_otp_enabled: false,
@@ -78,26 +80,46 @@ export default function LoginPage() {
     const googleRedirect = params.get('google_redirect');
 
     if (googleRedirect === 'success') {
+      const redirectTo = params.get('redirect') || '/';
+      const finishRedirectLogin = (customerData) => {
+        localStorage.setItem('dv_customer', JSON.stringify(customerData));
+        window.dispatchEvent(new Event('auth-updated'));
+        document.cookie = 'dv_google_customer=; path=/; max-age=0';
+        router.replace(redirectTo);
+      };
+      const restoreFromSession = async () => {
+        try {
+          const res = await fetch('/api/customer', { cache: 'no-store' });
+          const data = await res.json();
+          if (data.flag && data.customer) {
+            finishRedirectLogin(data.customer);
+            return;
+          }
+        } catch (e) {
+          console.error('Google redirect profile restore failed:', e);
+        }
+        setError('Login succeeded but failed to load profile. Please refresh.');
+        window.history.replaceState({}, '', '/login');
+      };
+
       // Read customer data from the temporary cookie set by /api/auth/google-redirect
       const cookieMatch = document.cookie.match(/(?:^|;\s*)dv_google_customer=([^;]*)/);
       if (cookieMatch) {
         try {
-          const customerData = JSON.parse(decodeURIComponent(cookieMatch[1]));
-          localStorage.setItem('dv_customer', JSON.stringify(customerData));
-          window.dispatchEvent(new Event('auth-updated'));
-          // Clear the temporary cookie
-          document.cookie = 'dv_google_customer=; path=/; max-age=0';
-          // Clean URL and redirect
-          const redirectTo = params.get('redirect') || '/';
-          router.replace(redirectTo);
+          let cookieValue = cookieMatch[1];
+          for (let i = 0; i < 2; i++) {
+            const decoded = decodeURIComponent(cookieValue);
+            if (decoded === cookieValue) break;
+            cookieValue = decoded;
+          }
+          finishRedirectLogin(JSON.parse(cookieValue));
+          return;
         } catch (e) {
-          setError('Login succeeded but failed to load profile. Please refresh.');
+          restoreFromSession();
+          return;
         }
-      } else {
-        setError('Login succeeded but session data was not received. Please try again.');
       }
-      // Clean URL params regardless
-      window.history.replaceState({}, '', '/login');
+      restoreFromSession();
     } else if (googleRedirect === 'error') {
       const errorMessage = params.get('error_message') || 'Google login failed. Please try again.';
       setError(errorMessage);
@@ -115,23 +137,29 @@ export default function LoginPage() {
           const containerWidth = el.offsetWidth || 348;
           const safeWidth = Math.max(200, Math.min(400, containerWidth));
 
-          window.google.accounts.id.initialize({
-            client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy-client-id',
-            login_uri: window.location.origin + '/api/auth/google-redirect',
-            use_fedcm_for_prompt: false,
-            ux_mode: 'redirect',
-          });
-          window.google.accounts.id.renderButton(
-            el,
-            { 
-              theme: 'outline', 
-              size: 'large', 
-              type: 'standard', 
-              text: 'continue_with',
-              shape: 'rectangular',
-              width: safeWidth 
-            }
-          );
+          if (!googleInitializedRef.current) {
+            window.google.accounts.id.initialize({
+              client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || 'dummy-client-id',
+              login_uri: window.location.origin + '/api/auth/google-redirect',
+              use_fedcm_for_prompt: false,
+              ux_mode: 'redirect',
+            });
+            googleInitializedRef.current = true;
+          }
+          if (!googleRenderedRef.current) {
+            window.google.accounts.id.renderButton(
+              el,
+              {
+                theme: 'outline',
+                size: 'large',
+                type: 'standard',
+                text: 'continue_with',
+                shape: 'rectangular',
+                width: safeWidth
+              }
+            );
+            googleRenderedRef.current = true;
+          }
         } catch (err) {
           console.error('Google init error:', err);
         }
@@ -160,7 +188,11 @@ export default function LoginPage() {
   }, [settings.google_login_enabled, settings.apple_login_enabled]);
 
   const handleSuccess = (data) => {
-    localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+    if (data?.customer) {
+      localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+    } else {
+      localStorage.removeItem('dv_customer');
+    }
     window.dispatchEvent(new Event('auth-updated'));
     router.refresh();
     const params = new URLSearchParams(window.location.search);

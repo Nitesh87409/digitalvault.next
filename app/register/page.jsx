@@ -43,7 +43,9 @@ export default function RegisterPage() {
       });
       const data = await res.json();
       if (data.flag) {
-        localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+        if (data.customer) {
+          localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+        }
         window.dispatchEvent(new Event('auth-updated'));
         router.refresh();
         setSuccess('Account created! Redirecting...');
