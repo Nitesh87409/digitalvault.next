@@ -4,7 +4,7 @@ import Script from 'next/script';
 
 // Google Analytics Measurement ID
 // Aap ise yahan se direct change kar sakte hain, ya .env file me NEXT_PUBLIC_GA_ID set kar sakte hain.
-export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-QVMP28ZFWS';
+export const GA_MEASUREMENT_ID = process.env.NEXT_PUBLIC_GA_ID || 'G-SYWRGY90VM';
 
 export default function GoogleAnalytics() {
   if (!GA_MEASUREMENT_ID) {
