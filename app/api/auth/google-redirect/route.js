@@ -105,7 +105,7 @@ export async function POST(request) {
     );
 
     // Build redirect URL back to login page
-    const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/api\/.*$/, '') || process.env.NEXT_PUBLIC_APP_URL || '';
+    const origin = new URL(request.url).origin;
     const redirectUrl = new URL('/login', origin);
     redirectUrl.searchParams.set('google_redirect', 'success');
 
@@ -148,8 +148,13 @@ export async function POST(request) {
   }
 }
 
+export async function GET(request) {
+  const origin = new URL(request.url).origin;
+  return NextResponse.redirect(new URL('/login', origin).toString(), 302);
+}
+
 function redirectWithError(request, message) {
-  const origin = request.headers.get('origin') || request.headers.get('referer')?.replace(/\/api\/.*$/, '') || process.env.NEXT_PUBLIC_APP_URL || '';
+  const origin = new URL(request.url).origin;
   const redirectUrl = new URL('/login', origin);
   redirectUrl.searchParams.set('google_redirect', 'error');
   redirectUrl.searchParams.set('error_message', message);
