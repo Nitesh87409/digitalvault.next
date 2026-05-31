@@ -4,7 +4,7 @@ import Script from 'next/script';
 
 // Meta (Facebook) Pixel ID
 // Aap ise yahan se direct change kar sakte hain, ya .env file me NEXT_PUBLIC_META_PIXEL_ID set kar sakte hain.
-export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '1036504532037222';
+export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '2182603115838896';
 
 export default function MetaPixel() {
   if (!META_PIXEL_ID) {
