@@ -157,6 +157,59 @@ export async function POST(request) {
       return buildAuthResponse(newCustomer, "Account created");
     }
 
+    if (action === "silent-guest-login") {
+      const email = normalizeEmail(body?.email);
+      const phone = normalizePhone(body?.phone);
+
+      if (!isValidEmail(email)) {
+        return deny("Valid email address required", 400);
+      }
+      if (!isValidPhone(phone)) {
+        return deny("Valid 10-digit phone number required", 400);
+      }
+
+      const { customer, error } = await findCustomerByContact(email, phone);
+      if (error) return error;
+
+      if (customer) {
+        if (customer.is_blocked) {
+          return deny("Your account is blocked. Please contact support.", 403);
+        }
+        if ((customer.email && normalizeEmail(customer.email) !== email) || (customer.phone && normalizePhone(customer.phone) !== phone)) {
+          return deny("Email and phone do not match the existing account.", 409);
+        }
+
+        let changed = false;
+        if (!customer.email) {
+          customer.email = email;
+          changed = true;
+        }
+        if (!customer.phone) {
+          customer.phone = phone;
+          changed = true;
+        }
+        if (changed) {
+          await customer.save();
+        }
+
+        await Customer.updateOne({ _id: customer._id }, { $set: { last_login: new Date() } });
+        return buildAuthResponse(customer, "Login successful");
+      }
+
+      const newCustomer = await Customer.create({
+        name: "Guest",
+        email,
+        phone,
+        password: "",
+        auth_provider: "local",
+        is_verified: true,
+        is_blocked: false,
+        last_login: new Date(),
+      });
+
+      return buildAuthResponse(newCustomer, "Account created");
+    }
+
     if (action === "register") {
       if (!(await isPasswordAuthEnabled())) {
         return deny("Password registration is disabled.", 403);

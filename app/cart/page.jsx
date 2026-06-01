@@ -187,7 +187,33 @@ export default function CartPage() {
       return;
     }
 
-    const activeCustomer = customer || { name: 'Guest', email: guestContact.email, phone: guestContact.phone };
+    let activeCustomer = customer;
+
+    if (!customer && guestContact) {
+      setLoading(true);
+      try {
+        const loginRes = await fetch('/api/customer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'silent-guest-login', email: guestContact.email, phone: guestContact.phone })
+        });
+        const loginData = await loginRes.json();
+        if (loginData.flag && loginData.customer) {
+          localStorage.setItem('dv_customer', JSON.stringify(loginData.customer));
+          window.dispatchEvent(new CustomEvent('auth-updated'));
+          setCustomer(loginData.customer);
+          activeCustomer = loginData.customer;
+        } else {
+          setError(loginData.message || 'Error processing guest details.');
+          setLoading(false);
+          return;
+        }
+      } catch (e) {
+        setError('Network error. Try again.');
+        setLoading(false);
+        return;
+      }
+    }
 
     const isPhoneMissing = !activeCustomer.phone;
     const isEmailMissing = !activeCustomer.email;
@@ -195,10 +221,12 @@ export default function CartPage() {
     if (customer && (isPhoneMissing || isEmailMissing)) {
       if (isPhoneMissing && (!checkoutPhone || !/^\d{10}$/.test(checkoutPhone))) {
         setError('Please enter a valid 10-digit phone number in the order summary.');
+        setLoading(false);
         return;
       }
       if (isEmailMissing && (!checkoutEmail || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(checkoutEmail))) {
         setError('Please enter a valid email address in the order summary.');
+        setLoading(false);
         return;
       }
 

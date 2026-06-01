@@ -220,11 +220,39 @@ export default function ProductPage({ id }) {
     setCheckoutError('');
     setCheckoutLoading(true);
 
-    const customer = getStoredCustomer();
+    let customer = getStoredCustomer();
+    let email = customer?.email || contact?.email || '';
+    let phone = customer?.phone || contact?.phone || '';
+    let name = customer?.name || 'Guest';
+
+    if (contact) {
+      try {
+        const loginRes = await fetch('/api/customer', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ action: 'silent-guest-login', email: contact.email, phone: contact.phone })
+        });
+        const loginData = await loginRes.json();
+        if (loginData.flag && loginData.customer) {
+          localStorage.setItem('dv_customer', JSON.stringify(loginData.customer));
+          window.dispatchEvent(new CustomEvent('auth-updated'));
+          customer = loginData.customer;
+          email = customer.email;
+          phone = customer.phone;
+          name = customer.name;
+        } else {
+          setCheckoutError(loginData.message || 'Error processing guest details.');
+          setCheckoutLoading(false);
+          return;
+        }
+      } catch (e) {
+        setCheckoutError('Network error. Try again.');
+        setCheckoutLoading(false);
+        return;
+      }
+    }
+
     const productId = product.id || product._id;
-    const email = customer?.email || contact?.email || '';
-    const phone = customer?.phone || contact?.phone || '';
-    const name = customer?.name || 'Guest';
 
     try {
       const orderRes = await fetch('/api/order', {
