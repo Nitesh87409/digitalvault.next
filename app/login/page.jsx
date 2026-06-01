@@ -127,13 +127,25 @@ export default function LoginPage() {
     }
   }, []);
 
+  const getGoogleOAuthUrl = () => {
+    const clientId = process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID;
+    const redirectUri = window.location.origin + '/api/auth/google-redirect';
+    const params = new URLSearchParams({
+      client_id: clientId,
+      redirect_uri: redirectUri,
+      response_type: 'code',
+      scope: 'openid email profile',
+      prompt: 'select_account',
+    });
+    return `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+  };
+
   const initGoogle = () => {
     let attempts = 0;
     const tryRender = () => {
       const el = document.getElementById('googleSignInDiv');
       if (window.google && el) {
         try {
-          // Dynamic width calculation for responsive rendering (mobile-friendly)
           const containerWidth = el.offsetWidth || 348;
           const safeWidth = Math.max(200, Math.min(400, containerWidth));
 
@@ -161,7 +173,7 @@ export default function LoginPage() {
             googleRenderedRef.current = true;
           }
         } catch (err) {
-          console.error('Google init error:', err);
+          googleRenderedRef.current = false;
         }
       } else if (attempts < 30) {
         attempts++;
@@ -568,9 +580,7 @@ export default function LoginPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (!window.google) {
-                                setError('Google Sign-In is blocked by your browser privacy shields or failed to load. Please disable adblockers and refresh the page to continue.');
-                              }
+                              window.location.href = getGoogleOAuthUrl();
                             }}
                             className="flex items-center justify-center gap-2.5 w-full p-3 bg-white text-black border-none text-[0.95rem] font-semibold cursor-pointer font-sans"
                           >
