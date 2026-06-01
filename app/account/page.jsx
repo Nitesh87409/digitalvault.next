@@ -29,7 +29,7 @@ export default function AccountPage() {
 
   useEffect(() => {
     const c = localStorage.getItem('dv_customer');
-    if (!c) { router.push('/login?redirect=/account'); return; }
+    if (!c) { router.push('/register?redirect=/account'); return; }
     const parsed = JSON.parse(c);
     setCustomer(parsed);
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
