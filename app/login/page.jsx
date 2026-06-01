@@ -57,6 +57,7 @@ export default function LoginPage() {
   }, []);
 
   useEffect(() => {
+    fetch('/api/settings?t=' + new Date().getTime(), { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         console.log("Fetched settings data:", data.settings);
