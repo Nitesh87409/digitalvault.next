@@ -65,7 +65,7 @@ export function proxy(request) {
 
   if (isCustomerRoute) {
     if (!isCustomer) {
-      return addSecurityHeaders(NextResponse.redirect(new URL('/login', request.url)));
+      return addSecurityHeaders(NextResponse.redirect(new URL('/register', request.url)));
     }
   }
 
