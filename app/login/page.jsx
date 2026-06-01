@@ -4,10 +4,26 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 
+function isFacebookBrowser() {
+  if (typeof navigator === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return /FBAN|FBAV|FB_IAB|FBIOS|Instagram|LinkedInApp/.test(ua);
+}
+
+function getExternalBrowserUrl() {
+  const url = window.location.href;
+  const ua = navigator.userAgent || '';
+  if (/android/i.test(ua)) {
+    return 'intent://' + url.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;end';
+  }
+  return url;
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const googleInitializedRef = useRef(false);
   const googleRenderedRef = useRef(false);
+  const [isInAppBrowser, setIsInAppBrowser] = useState(false);
   const [settings, setSettings] = useState({
     password_login_enabled: true,
     email_otp_enabled: false,
@@ -37,7 +53,10 @@ export default function LoginPage() {
   const [otpCode, setOtpCode] = useState('');
 
   useEffect(() => {
-    fetch('/api/settings?t=' + new Date().getTime(), { cache: 'no-store' })
+    setIsInAppBrowser(isFacebookBrowser());
+  }, []);
+
+  useEffect(() => {
       .then(res => res.json())
       .then(data => {
         console.log("Fetched settings data:", data.settings);
@@ -359,6 +378,19 @@ export default function LoginPage() {
         </div>
       </nav>
 
+      {/* Facebook In-App Browser Banner */}
+      {isInAppBrowser && (
+        <div className="bg-[#1877f2] text-white text-center px-4 py-3 text-sm">
+          <p className="mb-2 font-semibold">Google Sign-In ke liye Chrome mein open karein 👇</p>
+          <a
+            href={getExternalBrowserUrl()}
+            className="inline-block bg-white text-[#1877f2] font-bold px-5 py-2 rounded-lg text-sm no-underline"
+          >
+            🌐 Chrome mein Open Karein
+          </a>
+        </div>
+      )}
+
       {/* Main */}
       <div className="flex-1 flex items-center justify-center py-4 md:py-8 px-4 relative z-[1]">
         <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[16px] md:rounded-[20px] p-5 sm:p-7 md:p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
@@ -572,6 +604,11 @@ export default function LoginPage() {
 
                   <div className="flex flex-col gap-3">
                     {settings.google_login_enabled && (
+                      isInAppBrowser ? (
+                        <div className="w-full text-center px-3 py-3 bg-[#1a1a2a] border border-[#f5c842]/20 rounded-xl text-[#9ca3af] text-sm">
+                          Google Sign-In ke liye upar diye button se <strong className="text-[#f5c842]">Chrome mein open karein</strong>
+                        </div>
+                      ) : (
                       <div className="w-full flex justify-center overflow-hidden rounded-xl bg-white hover:scale-[1.02] transition-transform duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.1)]">
                         <div 
                           id="googleSignInDiv" 
@@ -594,6 +631,7 @@ export default function LoginPage() {
                           </button>
                         </div>
                       </div>
+                      )
                     )}
                     {settings.apple_login_enabled && (
                       <button onClick={handleAppleLogin} className="flex items-center justify-center gap-2.5 w-full p-3 bg-black text-white border border-white/20 rounded-xl text-[0.95rem] font-semibold cursor-pointer transition-transform duration-200 shadow-[0_2px_4px_rgba(0,0,0,0.1)] hover:scale-[1.02]">
