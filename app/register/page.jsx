@@ -79,52 +79,50 @@ export default function RegisterPage() {
         </div>
       </nav>
 
-      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
-        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[440px]">
-          <div className="text-center mb-7">
-            <div className="text-[2.5rem] mb-3">🚀</div>
-            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Create Account</h2>
-            <p className="text-[#6b7280] text-sm">Join {settings.app_name} and get instant access</p>
+      <div className="flex-1 flex items-center justify-center py-4 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-5 w-full max-w-[440px]">
+          <div className="text-center mb-4">
+            <h2 className="font-['Syne',sans-serif] text-xl font-bold text-white mb-1">Create Account</h2>
+            <p className="text-[#6b7280] text-xs">Join {settings.app_name} and get instant access</p>
           </div>
 
-          <div className="flex flex-col gap-4">
+          <div className="flex flex-col gap-3">
             {[
               { label: 'Full Name', key: 'name', type: 'text', placeholder: 'Your full name' },
               { label: 'Email Address', key: 'email', type: 'email', placeholder: 'your@email.com' },
               { label: 'Phone Number (Optional)', key: 'phone', type: 'tel', placeholder: '10-digit mobile number', maxLength: 10 },
             ].map(f => (
               <div key={f.key}>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">{f.label}</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">{f.label}</label>
                 <input
                   type={f.type}
                   value={form[f.key]}
                   onChange={e => setForm({ ...form, [f.key]: e.target.value })}
                   placeholder={f.placeholder}
                   maxLength={f.maxLength}
-                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans"
+                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full px-3.5 py-2.5 rounded-xl text-sm font-sans"
                 />
               </div>
             ))}
 
             {/* Password */}
             <div>
-              <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Password</label>
+              <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Password</label>
               <div className="relative">
                 <input
                   type={showPass ? 'text' : 'password'}
                   value={form.password}
                   onChange={e => { setForm({ ...form, password: e.target.value }); checkStrength(e.target.value); }}
                   placeholder="Min 6 characters"
-                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full pl-4 pr-12 py-3 rounded-xl text-sm font-sans"
+                  className="bg-[#1a1a2a] border border-white/5 text-white outline-none w-full pl-3.5 pr-12 py-2.5 rounded-xl text-sm font-sans"
                 />
                 <button onClick={() => setShowPass(!showPass)} className="absolute right-3.5 top-1/2 -translate-y-1/2 bg-none border-none cursor-pointer text-[#6b7280]">
                   {showPass ? '🙈' : '👁'}
                 </button>
               </div>
-              {/* Strength bars */}
               {form.password && (
-                <div className="mt-2">
-                  <div className="flex gap-1 mb-1">
+                <div className="mt-1.5">
+                  <div className="flex gap-1 mb-0.5">
                     {[0,1,2,3].map(i => (
                       <div key={i} className="flex-1 h-1 rounded-sm transition-all duration-300" style={{ background: i < strength ? strengthColors[strength - 1] : '#1a1a2a' }}></div>
                     ))}
@@ -136,19 +134,19 @@ export default function RegisterPage() {
               )}
             </div>
 
-            {error && <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">{error}</div>}
-            {success && <div className="text-[#10b981] text-[0.8rem] px-3.5 py-2.5 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">{success}</div>}
+            {error && <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">{error}</div>}
+            {success && <div className="text-[#10b981] text-[0.8rem] px-3 py-2 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">{success}</div>}
 
             <button
               onClick={register}
               disabled={loading}
-              className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
+              className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 rounded-xl text-base mt-0.5 active:scale-[0.98] transition-all disabled:opacity-70 disabled:cursor-not-allowed"
             >
               {loading ? 'Creating account...' : 'Create Account →'}
             </button>
           </div>
 
-          <div className="border-t border-white/5 my-5"></div>
+          <div className="border-t border-white/5 my-4"></div>
           <p className="text-center text-[#6b7280] text-sm">
             Already have an account?{' '}
             <Link href="/login" className="text-[#f5c842] font-semibold no-underline">Login here</Link>
