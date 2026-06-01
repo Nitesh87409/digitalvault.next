@@ -65,7 +65,11 @@ export function proxy(request) {
 
   if (isCustomerRoute) {
     if (!isCustomer) {
-      return addSecurityHeaders(NextResponse.redirect(new URL('/login', request.url)));
+      const registerUrl = new URL('/register', request.url);
+      const existingRedirect = request.nextUrl.searchParams.get('redirect');
+      const redirectTarget = existingRedirect || pathname;
+      registerUrl.searchParams.set('redirect', redirectTarget);
+      return addSecurityHeaders(NextResponse.redirect(registerUrl));
     }
   }
 

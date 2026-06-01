@@ -124,30 +124,29 @@ export default function ForgotPasswordPage() {
         </div>
       </nav>
 
-      <div className="flex-1 flex items-center justify-center py-10 px-4 relative z-[1]">
-        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-9 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
-          <div className="text-center mb-7">
-            <div className="text-[2.5rem] mb-3">🔒</div>
-            <h2 className="font-['Syne',sans-serif] text-[1.6rem] font-bold text-white mb-1.5">Reset Password</h2>
-            <p className="text-[#6b7280] text-sm">We'll send you a code to reset your password</p>
+      <div className="flex-1 flex items-center justify-center py-4 px-4 relative z-[1]">
+        <div className="bg-[#12121a] border border-[#f5c842]/15 rounded-[20px] p-5 w-full max-w-[420px] shadow-[0_20px_40px_rgba(0,0,0,0.4)]">
+          <div className="text-center mb-4">
+            <h2 className="font-['Syne',sans-serif] text-xl font-bold text-white mb-1">Reset Password</h2>
+            <p className="text-[#6b7280] text-xs">We'll send you a code to reset your password</p>
           </div>
 
           {step === 1 ? (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Email or Mobile Number</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Email or Mobile Number</label>
                 <input
                   type="text"
                   value={identifier}
                   onChange={e => setIdentifier(e.target.value)}
                   onKeyDown={e => e.key === 'Enter' && sendOtp()}
                   placeholder="your@email.com or +91..."
-                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               {error && (
-                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
+                <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
@@ -155,55 +154,55 @@ export default function ForgotPasswordPage() {
               <button
                 onClick={sendOtp}
                 disabled={loading}
-                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Sending...' : 'Send Reset Code →'}
               </button>
             </div>
           ) : (
-            <div className="flex flex-col gap-4">
+            <div className="flex flex-col gap-3">
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Enter OTP Code</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Enter OTP Code</label>
                 <input
                   type="text"
                   maxLength={settings.otp_length}
                   value={otpCode}
                   onChange={e => setOtpCode(e.target.value)}
                   placeholder={"0".repeat(settings.otp_length)}
-                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-xl tracking-[4px] text-center font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 rounded-xl text-xl tracking-[4px] text-center font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">New Password</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">New Password</label>
                 <input
                   type="password"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               <div>
-                <label className="text-xs text-[#9ca3af] block mb-1.5 font-semibold">Confirm New Password</label>
+                <label className="text-xs text-[#9ca3af] block mb-1 font-semibold">Confirm New Password</label>
                 <input
                   type="password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
                   placeholder="••••••••"
-                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-4 py-3 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
+                  className="bg-[#1a1a2a] border border-white/10 text-white outline-none w-full px-3.5 py-2.5 rounded-xl text-sm font-sans focus:border-[#f5c842]/50 transition-colors duration-200"
                 />
               </div>
 
               {error && (
-                <div className="text-[#ef4444] text-[0.8rem] px-3.5 py-2.5 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
+                <div className="text-[#ef4444] text-[0.8rem] px-3 py-2 bg-[#ef4444]/5 rounded-lg border border-[#ef4444]/20">
                   {error}
                 </div>
               )}
 
               {message && (
-                <div className="text-[#10b981] text-[0.8rem] px-3.5 py-2.5 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">
+                <div className="text-[#10b981] text-[0.8rem] px-3 py-2 bg-[#10b981]/5 rounded-lg border border-[#10b981]/20">
                   {message}
                 </div>
               )}
@@ -211,14 +210,14 @@ export default function ForgotPasswordPage() {
               <button
                 onClick={resetPassword}
                 disabled={loading}
-                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-3.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full py-2.5 rounded-xl text-base mt-1 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
               >
                 {loading ? 'Resetting...' : 'Reset Password →'}
               </button>
 
-              <div className="text-center mt-2">
-                <button 
-                  onClick={() => setStep(1)} 
+              <div className="text-center">
+                <button
+                  onClick={() => setStep(1)}
                   disabled={loading}
                   className="bg-transparent border-none text-[#9ca3af] cursor-pointer text-sm disabled:cursor-not-allowed"
                 >

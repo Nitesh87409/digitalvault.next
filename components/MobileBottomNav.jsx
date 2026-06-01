@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
 import { Home, LayoutGrid, User, ShoppingCart } from 'lucide-react';
 import { useState, useEffect } from 'react';
 
 export default function MobileBottomNav() {
   const pathname = usePathname();
+  const router = useRouter();
   const [cartCount, setCartCount] = useState(0);
   const [activeTab, setActiveTab] = useState('home');
 
@@ -42,6 +43,16 @@ export default function MobileBottomNav() {
     }
   }, [pathname]);
 
+  function handleAccountClick(e) {
+    e.preventDefault();
+    const currentPage = pathname && pathname !== '/account' ? pathname : null;
+    if (currentPage) {
+      router.push(`/account?redirect=${encodeURIComponent(currentPage)}`);
+    } else {
+      router.push('/account');
+    }
+  }
+
   if (pathname?.startsWith('/admin')) return null;
 
   return (
@@ -62,10 +73,10 @@ export default function MobileBottomNav() {
             <span className="text-[10px] font-medium leading-none">Categories</span>
           </Link>
           
-          <Link href="/account" className={`flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 ${activeTab === 'account' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
+          <button onClick={handleAccountClick} className={`flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 bg-transparent border-none cursor-pointer ${activeTab === 'account' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
             <User size={22} className="mb-1" />
             <span className="text-[10px] font-medium leading-none">Account</span>
-          </Link>
+          </button>
           
           <Link href="/cart" className={`relative flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 ${activeTab === 'cart' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
             <div className="relative mb-1">
