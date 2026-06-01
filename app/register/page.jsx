@@ -47,9 +47,9 @@ export default function RegisterPage() {
           localStorage.setItem('dv_customer', JSON.stringify(data.customer));
         }
         window.dispatchEvent(new Event('auth-updated'));
-        router.refresh();
         const params = new URLSearchParams(window.location.search);
-        router.push(params.get('redirect') || '/');
+        const redirectTo = params.get('redirect') || '/';
+        router.push(redirectTo);
       } else {
         setError(data.message || 'Registration failed.');
       }
