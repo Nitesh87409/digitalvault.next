@@ -48,11 +48,8 @@ export default function RegisterPage() {
         }
         window.dispatchEvent(new Event('auth-updated'));
         router.refresh();
-        setSuccess('Account created! Redirecting...');
-        setTimeout(() => {
-          const params = new URLSearchParams(window.location.search);
-          router.push(params.get('redirect') || '/');
-        }, 1200);
+        const params = new URLSearchParams(window.location.search);
+        router.push(params.get('redirect') || '/');
       } else {
         setError(data.message || 'Registration failed.');
       }
