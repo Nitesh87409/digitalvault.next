@@ -9,11 +9,14 @@ import Customer from '@/models/Customer';
 import Coupon from '@/models/Coupon';
 import { sendOrderConfirmation } from '@/lib/mailer';
 import { verifyAdmin, verifyCustomer } from '@/lib/auth';
+import { buildRateLimitKey, consumePersistentRateLimit } from '@/lib/security';
 
 export const runtime = 'nodejs';
 export const dynamic = 'force-dynamic';
 
 const DOWNLOAD_TOKEN_TTL_MS = 30 * 24 * 60 * 60 * 1000;
+const CHECKOUT_LIMIT = { limit: 10, windowMs: 60_000 };
+const PAYMENT_VERIFY_LIMIT = { limit: 20, windowMs: 60_000 };
 
 function json(flag, message, extra = {}, status = 200) {
   return NextResponse.json({ flag, message, ...extra }, { status });
@@ -21,6 +24,25 @@ function json(flag, message, extra = {}, status = 200) {
 
 function money(value) {
   return Math.max(0, Math.round(Number(value || 0) * 100) / 100);
+}
+
+function normalizeEmail(value) {
+  return typeof value === 'string' ? value.toLowerCase().trim() : '';
+}
+
+function normalizePhone(value) {
+  const digits = typeof value === 'string' ? value.replace(/\D/g, '') : '';
+  if (digits.length === 12 && digits.startsWith('91')) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith('0')) return digits.slice(1);
+  return digits;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidPhone(value) {
+  return /^\d{10}$/.test(value);
 }
 
 function getRazorpay() {
@@ -39,9 +61,37 @@ function getRazorpayKey() {
   return process.env.RAZORPAY_KEY_ID;
 }
 
-async function getActiveCustomer(request) {
+function getErrorMessage(error, fallback = 'Server error') {
+  if (typeof error === 'string' && error.trim()) return error.trim();
+  if (typeof error?.message === 'string' && error.message.trim()) return error.message.trim();
+  if (typeof error?.error?.description === 'string' && error.error.description.trim()) {
+    return error.error.description.trim();
+  }
+  return fallback;
+}
+
+async function createRazorpayOrder(order) {
+  try {
+    return await getRazorpay().orders.create(order);
+  } catch (error) {
+    const providerMessage = getErrorMessage(error, 'Unknown Razorpay error');
+    console.error('Razorpay order creation failed:', {
+      statusCode: error?.statusCode || null,
+      code: error?.error?.code || null,
+      description: providerMessage,
+    });
+    if (error?.statusCode === 401) {
+      throw new Error('Payment gateway configuration error. Please contact support.');
+    }
+    throw new Error('Payment gateway is temporarily unavailable. Please try again shortly.');
+  }
+}
+
+async function getActiveCustomer(request, { required = true } = {}) {
   const decoded = verifyCustomer(request);
-  if (!decoded) return { error: json(0, 'Unauthorized', {}, 401) };
+  if (!decoded) {
+    return required ? { error: json(0, 'Unauthorized', {}, 401) } : { customer: null };
+  }
 
   const customer = await Customer.findById(decoded.id)
     .select('name email phone is_blocked')
@@ -50,6 +100,125 @@ async function getActiveCustomer(request) {
     return { error: json(0, 'Unauthorized', {}, 401) };
   }
   return { customer };
+}
+
+async function findGuestCustomerByContact(email, phone) {
+  const matches = await Customer.find({
+    $or: [
+      { email },
+      { phone },
+    ],
+  })
+    .select('name email phone is_blocked')
+    .limit(2)
+    .lean();
+
+  const uniqueMatches = new Map(matches.map(customer => [customer._id.toString(), customer]));
+  if (uniqueMatches.size > 1) {
+    return { error: json(0, 'Email and phone belong to different accounts. Please login or use matching details.', {}, 409) };
+  }
+
+  return { customer: matches[0] || null };
+}
+
+async function resolveCheckoutCustomer(request, body) {
+  const authResult = await getActiveCustomer(request, { required: false });
+  if (authResult.error) return authResult;
+  if (authResult.customer) {
+    const email = normalizeEmail(body.email);
+    const phone = normalizePhone(body.phone);
+    const updateData = {};
+    if (!authResult.customer.email && isValidEmail(email)) updateData.email = email;
+    if (!authResult.customer.phone && isValidPhone(phone)) updateData.phone = phone;
+    if (Object.keys(updateData).length) {
+      const updatedCustomer = await Customer.findByIdAndUpdate(
+        authResult.customer._id,
+        { $set: updateData },
+        { new: true }
+      )
+        .select('name email phone is_blocked')
+        .lean();
+      return { customer: updatedCustomer };
+    }
+    return { customer: authResult.customer };
+  }
+
+  const email = normalizeEmail(body.email);
+  const phone = normalizePhone(body.phone);
+
+  if (!isValidEmail(email)) return { error: json(0, 'Valid email address required') };
+  if (!isValidPhone(phone)) return { error: json(0, 'Valid 10-digit phone number required') };
+
+  const guestResult = await findGuestCustomerByContact(email, phone);
+  if (guestResult.error) return guestResult;
+
+  if (guestResult.customer) {
+    if (guestResult.customer.is_blocked) {
+      return { error: json(0, 'Your account is blocked.', {}, 403) };
+    }
+    if (
+      (guestResult.customer.email && normalizeEmail(guestResult.customer.email) !== email) ||
+      (guestResult.customer.phone && normalizePhone(guestResult.customer.phone) !== phone)
+    ) {
+      return { error: json(0, 'Email and phone do not match the existing account.', {}, 409) };
+    }
+
+    const updateData = {};
+    if (!guestResult.customer.email) updateData.email = email;
+    if (!guestResult.customer.phone) updateData.phone = phone;
+
+    if (Object.keys(updateData).length) {
+      const updatedCustomer = await Customer.findByIdAndUpdate(
+        guestResult.customer._id,
+        { $set: updateData },
+        { new: true }
+      )
+        .select('name email phone is_blocked')
+        .lean();
+      return { customer: updatedCustomer };
+    }
+
+    return { customer: guestResult.customer };
+  }
+
+  try {
+    const newCustomer = await Customer.create({
+      name: 'Guest',
+      email,
+      phone,
+      auth_provider: 'local',
+      is_verified: true,
+      is_blocked: false,
+    });
+    return {
+      customer: newCustomer.toObject ? newCustomer.toObject() : newCustomer,
+    };
+  } catch (error) {
+    if (error.code !== 11000) throw error;
+
+    const retryResult = await findGuestCustomerByContact(email, phone);
+    if (retryResult.error) return retryResult;
+    if (!retryResult.customer || retryResult.customer.is_blocked) {
+      return { error: json(0, 'Unable to create guest account. Please try logging in.', {}, 409) };
+    }
+    if (
+      (retryResult.customer.email && normalizeEmail(retryResult.customer.email) !== email) ||
+      (retryResult.customer.phone && normalizePhone(retryResult.customer.phone) !== phone)
+    ) {
+      return { error: json(0, 'Email and phone do not match the existing account.', {}, 409) };
+    }
+    return { customer: retryResult.customer };
+  }
+}
+
+function getCheckoutContact(customer, body) {
+  const bodyEmail = normalizeEmail(body.email);
+  const bodyPhone = normalizePhone(body.phone);
+  return {
+    name: customer.name || 'Guest',
+    email: customer.email || bodyEmail,
+    phone: bodyPhone || customer.phone || '',
+  };
 }
 
 async function validateCoupon({ code, email, amount, productIds }) {
@@ -268,30 +437,34 @@ export async function POST(request) {
     const { action } = body;
 
     if (action === 'create') {
-      const { customer, error } = await getActiveCustomer(request);
-      if (error) return error;
+      const rate = await consumePersistentRateLimit(buildRateLimitKey(request, 'order-create'), CHECKOUT_LIMIT);
+      if (!rate.allowed) return json(0, 'Too many checkout attempts. Please try again shortly.', {}, 429);
 
       const { product_id, coupon_code } = body;
       if (!mongoose.Types.ObjectId.isValid(product_id)) {
         return json(0, 'Product not found');
       }
 
-      if (!customer.email && !body.email) return json(0, 'Email address required');
-      if (!customer.phone && !body.phone) return json(0, 'Phone number required');
-
       const product = await Product.findOne({ _id: product_id, status: true }).lean();
       if (!product) return json(0, 'Product not found');
 
+      const { customer, error } = await resolveCheckoutCustomer(request, body);
+      if (error) return error;
+
+      const checkoutContact = getCheckoutContact(customer, body);
+      if (!isValidEmail(checkoutContact.email)) return json(0, 'Email address required');
+      if (!isValidPhone(checkoutContact.phone)) return json(0, 'Phone number required');
+
       const couponResult = await validateCoupon({
         code: coupon_code,
-        email: customer.email,
+        email: checkoutContact.email,
         amount: money(product.sale_price),
         productIds: [product._id],
       });
       if (!couponResult.flag) return json(0, couponResult.message);
       if (couponResult.finalAmount < 1) return json(0, 'Order amount must be at least 1');
 
-      const rzpOrder = await getRazorpay().orders.create({
+      const rzpOrder = await createRazorpayOrder({
         amount: Math.round(couponResult.finalAmount * 100),
         currency: 'INR',
         receipt: `rcpt_${Date.now()}`,
@@ -299,9 +472,9 @@ export async function POST(request) {
 
       const order = await Order.create({
         customer_id: customer._id,
-        name: customer.name,
-        email: customer.email || body.email,
-        phone: customer.phone || body.phone,
+        name: checkoutContact.name,
+        email: checkoutContact.email,
+        phone: checkoutContact.phone,
         amount: couponResult.finalAmount,
         original_amount: money(product.sale_price),
         discount_amount: couponResult.discount,
@@ -322,31 +495,36 @@ export async function POST(request) {
     }
 
     if (action === 'cart-checkout') {
-      const { customer, error } = await getActiveCustomer(request);
-      if (error) return error;
+      const rate = await consumePersistentRateLimit(buildRateLimitKey(request, 'cart-checkout'), CHECKOUT_LIMIT);
+      if (!rate.allowed) return json(0, 'Too many checkout attempts. Please try again shortly.', {}, 429);
 
       const { items = [], coupon_code } = body;
       const productIds = [...new Set(items.map(i => i.product_id).filter(Boolean))];
       if (!productIds.length || !productIds.every(id => mongoose.Types.ObjectId.isValid(id))) {
         return json(0, 'No valid products found');
       }
-      if (!customer.email && !body.email) return json(0, 'Email address required');
-      if (!customer.phone && !body.phone) return json(0, 'Phone number required');
 
       const products = await Product.find({ _id: { $in: productIds }, status: true }).lean();
       if (!products.length) return json(0, 'No valid products found');
 
+      const { customer, error } = await resolveCheckoutCustomer(request, body);
+      if (error) return error;
+
+      const checkoutContact = getCheckoutContact(customer, body);
+      if (!isValidEmail(checkoutContact.email)) return json(0, 'Email address required');
+      if (!isValidPhone(checkoutContact.phone)) return json(0, 'Phone number required');
+
       const totalAmount = money(products.reduce((sum, product) => sum + product.sale_price, 0));
       const couponResult = await validateCoupon({
         code: coupon_code,
-        email: customer.email,
+        email: checkoutContact.email,
         amount: totalAmount,
         productIds: products.map(p => p._id),
       });
       if (!couponResult.flag) return json(0, couponResult.message);
       if (couponResult.finalAmount < 1) return json(0, 'Order amount must be at least 1');
 
-      const rzpOrder = await getRazorpay().orders.create({
+      const rzpOrder = await createRazorpayOrder({
         amount: Math.round(couponResult.finalAmount * 100),
         currency: 'INR',
         receipt: `cart_${Date.now()}`,
@@ -355,14 +533,15 @@ export async function POST(request) {
       const pricedItems = distributeDiscount(products, couponResult.discount);
       const orders = await Order.insertMany(pricedItems.map(({ product, discount, amount }) => ({
         customer_id: customer._id,
-        name: customer.name,
-        email: customer.email || body.email,
-        phone: customer.phone || body.phone,
+        name: checkoutContact.name,
+        email: checkoutContact.email,
+        phone: checkoutContact.phone,
         amount,
         original_amount: money(product.sale_price),
         discount_amount: discount,
         coupon_code: couponResult.coupon?.code || null,
         product_id: product._id,
+        product_name: product.name,
         razorpay_order_id: rzpOrder.id,
         payment_status: 0,
       })));
@@ -379,7 +558,10 @@ export async function POST(request) {
     }
 
     if (action === 'payment-success') {
-      const { customer, error } = await getActiveCustomer(request);
+      const rate = await consumePersistentRateLimit(buildRateLimitKey(request, 'payment-success'), PAYMENT_VERIFY_LIMIT);
+      if (!rate.allowed) return json(0, 'Too many payment verification attempts. Please try again shortly.', {}, 429);
+
+      const { customer, error } = await getActiveCustomer(request, { required: false });
       if (error) return error;
 
       const { razorpay_response, order_id, order_ids } = body;
@@ -395,8 +577,15 @@ export async function POST(request) {
         return json(0, 'Order not found');
       }
 
-      const orders = await Order.find({ _id: { $in: ids }, customer_id: customer._id }).lean();
+      const orderQuery = { _id: { $in: ids } };
+      if (customer) orderQuery.customer_id = customer._id;
+
+      const orders = await Order.find(orderQuery).lean();
       if (orders.length !== ids.length) return json(0, 'Order not found');
+      const orderCustomerId = orders[0]?.customer_id?.toString();
+      if (!orderCustomerId || orders.some(order => order.customer_id?.toString() !== orderCustomerId)) {
+        return json(0, 'Order not found');
+      }
       if (orders.some(order => order.razorpay_order_id !== razorpay_order_id)) {
         return json(0, 'Payment order mismatch');
       }
@@ -406,10 +595,15 @@ export async function POST(request) {
 
       const unpaidOrders = orders.filter(order => order.payment_status !== 1);
       if (!unpaidOrders.length) {
-        return json(1, 'Payment already verified', { redirect: ids.length > 1 ? '/account' : undefined });
+        const existingToken = orders.find(order => order.download_token)?.download_token;
+        return json(1, 'Payment already verified', {
+          download_token: existingToken,
+          redirect: existingToken ? undefined : ids.length > 1 ? '/account?tab=downloads' : undefined,
+        });
       }
 
-      const tokenById = new Map(unpaidOrders.map(order => [order._id.toString(), uuidv4()]));
+      const sharedDownloadToken = uuidv4();
+      const tokenById = new Map(unpaidOrders.map(order => [order._id.toString(), sharedDownloadToken]));
       const tokenExpiresAt = newDownloadTokenExpiry();
       await Order.bulkWrite(unpaidOrders.map(order => ({
         updateOne: {
@@ -428,7 +622,7 @@ export async function POST(request) {
 
       const paidTotal = money(unpaidOrders.reduce((sum, order) => sum + order.amount, 0));
       await Customer.updateOne(
-        { _id: customer._id },
+        { _id: orderCustomerId },
         {
           $inc: { total_spent: paidTotal, total_orders: unpaidOrders.length },
           $set: { last_login: new Date() },
@@ -439,7 +633,7 @@ export async function POST(request) {
       if (couponCode) {
         await markCouponUsed({
           couponCode,
-          email: customer.email,
+          email: unpaidOrders[0].email,
           orderId: unpaidOrders[0]._id,
           discount: money(unpaidOrders.reduce((sum, order) => sum + (order.discount_amount || 0), 0)),
           revenue: paidTotal,
@@ -458,20 +652,12 @@ export async function POST(request) {
           });
         })
       );
-      // await Promise.allSettled(unpaidOrders.map(order => sendOrderConfirmation({
-      //   name: order.name,
-      //   email: order.email,
-      //   download_token: tokenById.get(order._id.toString()),
-      //   amount: order.amount,
-      //   product_name: order.product_name,
-      // })));
 
       const firstToken = tokenById.get(unpaidOrders[0]._id.toString());
       return NextResponse.json({
         flag: 1,
         message: 'Payment verified!',
-        download_token: unpaidOrders.length === 1 ? firstToken : undefined,
-        redirect: unpaidOrders.length > 1 ? '/account?tab=downloads' : undefined,
+        download_token: firstToken,
       });
     }
 
@@ -489,20 +675,24 @@ export async function POST(request) {
 
     if (action === 'get-download') {
       const { token } = body;
-      const order = await Order.findOne({ download_token: token, payment_status: 1 })
+      const orders = await Order.find({ download_token: token, payment_status: 1 })
         .populate('product_id')
         .lean();
-      if (!order) return json(0, 'Invalid download link');
-      if (order.token_expires_at && new Date(order.token_expires_at) < new Date()) {
+      if (!orders.length) return json(0, 'Invalid download link');
+      if (orders.some(order => order.token_expires_at && new Date(order.token_expires_at) < new Date())) {
         return json(0, 'Download link expired');
       }
 
-      const product = order.product_id;
-      if (!product) return json(0, 'Product not found');
+      const files = orders
+        .map(order => order.product_id)
+        .filter(Boolean)
+        .map(product => ({ id: product._id, name: product.name }));
+
+      if (!files.length) return json(0, 'Product not found');
 
       return NextResponse.json({
         flag: 1,
-        files: [{ id: product._id, name: product.name }],
+        files,
       });
     }
 
@@ -542,7 +732,8 @@ export async function POST(request) {
 
     return json(0, 'Invalid action');
   } catch (e) {
-    console.error('Order error:', e.message);
-    return json(0, e.message || 'Server error');
+    const message = getErrorMessage(e);
+    console.error('Order error:', message);
+    return json(0, message);
   }
 }

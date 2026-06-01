@@ -1,6 +1,7 @@
 import './globals.css';
 import { Syne, DM_Sans } from 'next/font/google';
 import dynamic from 'next/dynamic';
+import Script from 'next/script';
 
 const MobileBottomNav = dynamic(() => import('@/components/MobileBottomNav'));
 const AnnouncementBanner = dynamic(() => import('@/components/AnnouncementBanner'));
@@ -192,14 +193,16 @@ export default async function RootLayout({ children }) {
       <head suppressHydrationWarning>
         <GoogleAnalytics />
         <MetaPixel />
-        <script
+        <Script
+          id="site-schema"
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(siteSchema) }}
         />
         <link rel="preconnect" href="https://checkout.razorpay.com" />
         <link rel="dns-prefetch" href="https://checkout.razorpay.com" />
-        <script
-          suppressHydrationWarning
+        <Script
+          id="initial-settings"
+          strategy="beforeInteractive"
           dangerouslySetInnerHTML={{
             __html: `
               window.__initial_settings__ = ${JSON.stringify(initialSettings)};

@@ -8,6 +8,33 @@ import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
 import { extractYoutubeVideoId, getYoutubeEmbedUrls, getYoutubeWatchUrl } from '@/lib/youtube';
 
+let razorpayScriptPromise = null;
+
+function loadRazorpayScript() {
+  if (typeof window === 'undefined') return Promise.resolve(false);
+  if (window.Razorpay) return Promise.resolve(true);
+  if (razorpayScriptPromise) return razorpayScriptPromise;
+
+  razorpayScriptPromise = new Promise((resolve) => {
+    const existing = document.getElementById('razorpay-checkout-js');
+    if (existing) {
+      existing.addEventListener('load', () => resolve(true), { once: true });
+      existing.addEventListener('error', () => resolve(false), { once: true });
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.id = 'razorpay-checkout-js';
+    script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+    script.async = true;
+    script.onload = () => resolve(true);
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+
+  return razorpayScriptPromise;
+}
+
 export default function ProductPage({ id }) {
   const [product, setProduct] = useState(null);
   const [mainImg, setMainImg] = useState(null);
@@ -22,6 +49,11 @@ export default function ProductPage({ id }) {
   const [isDescExpanded, setIsDescExpanded] = useState(false);
   const [showShareMenu, setShowShareMenu] = useState(false);
   const [productCoupon, setProductCoupon] = useState(null);
+  const [guestCheckoutOpen, setGuestCheckoutOpen] = useState(false);
+  const [guestForm, setGuestForm] = useState({ email: '', phone: '' });
+  const [checkoutLoading, setCheckoutLoading] = useState(false);
+  const [checkoutError, setCheckoutError] = useState('');
+  const [currentCustomerId, setCurrentCustomerId] = useState('');
   const { hasBundleAccess } = useBundlePurchase({ showToast });
   const { settings } = useSettings();
 
@@ -68,12 +100,21 @@ export default function ProductPage({ id }) {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
       setCartCount(cart.reduce((s, i) => s + i.qty, 0));
     };
+    const loadCurrentCustomer = () => {
+      const customer = getStoredCustomer();
+      setCurrentCustomerId(customer?.id || customer?._id || '');
+    };
     loadCartCount();
+    loadCurrentCustomer();
     window.addEventListener('cart-updated', loadCartCount);
+    window.addEventListener('auth-updated', loadCurrentCustomer);
     window.addEventListener('storage', loadCartCount);
+    window.addEventListener('storage', loadCurrentCustomer);
     return () => {
       window.removeEventListener('cart-updated', loadCartCount);
+      window.removeEventListener('auth-updated', loadCurrentCustomer);
       window.removeEventListener('storage', loadCartCount);
+      window.removeEventListener('storage', loadCurrentCustomer);
     };
   }, []);
 
@@ -154,9 +195,16 @@ export default function ProductPage({ id }) {
     setTimeout(() => setToast(null), 2500);
   }
 
+  function getStoredCustomer() {
+    try {
+      return JSON.parse(localStorage.getItem('dv_customer') || 'null');
+    } catch {
+      localStorage.removeItem('dv_customer');
+      return null;
+    }
+  }
+
   function addToCart() {
-    const c = localStorage.getItem('dv_customer');
-    if (!c) { router.push(`/login?redirect=/product/${id}`); return; }
     const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
     if (cart.find(i => i.id === productId)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
@@ -167,29 +215,107 @@ export default function ProductPage({ id }) {
     window.dispatchEvent(new CustomEvent('cart-updated'));
   }
 
-  function buyNow() {
-    const c = localStorage.getItem('dv_customer');
-    if (!c) { router.push(`/login?redirect=/product/${id}`); return; }
+  async function startProductCheckout(contact = null) {
+    if (!product || checkoutLoading) return;
+    setCheckoutError('');
+    setCheckoutLoading(true);
 
-    // Cart mein add karo
+    const customer = getStoredCustomer();
     const productId = product.id || product._id;
-    const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
-    if (!cart.find(i => i.id === productId)) {
-      cart.push({
-        id: productId,
-        slug: product.slug,
-        name: product.name,
-        price: product.sale_price,
-        orig_price: product.original_price,
-        image: product.images?.[0] || null,
-        qty: 1
-      });
-      localStorage.setItem('dv_cart', JSON.stringify(cart));
-      window.dispatchEvent(new CustomEvent('cart-updated'));
-    }
+    const email = customer?.email || contact?.email || '';
+    const phone = customer?.phone || contact?.phone || '';
+    const name = customer?.name || 'Guest';
 
-    // Cart page pe redirect
-    router.push('/cart');
+    try {
+      const orderRes = await fetch('/api/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'create',
+          product_id: productId,
+          email,
+          phone,
+        })
+      });
+      const orderData = await orderRes.json();
+      if (!orderData.flag) {
+        setCheckoutError(orderData.message || 'Error creating order.');
+        setCheckoutLoading(false);
+        return;
+      }
+
+      const razorpayReady = await loadRazorpayScript();
+      if (!razorpayReady || !window.Razorpay) {
+        setCheckoutError('Payment gateway failed to load. Try again.');
+        setCheckoutLoading(false);
+        return;
+      }
+
+      setCheckoutLoading(false);
+      setGuestCheckoutOpen(false);
+
+      const rzp = new window.Razorpay({
+        key: orderData.razorpay_key,
+        amount: orderData.amount,
+        currency: orderData.currency || 'INR',
+        name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
+        description: product.name,
+        order_id: orderData.razorpay_order_id,
+        prefill: { name, email, contact: phone },
+        theme: { color: '#f5c842' },
+        handler: async function(response) {
+          const verifyRes = await fetch('/api/order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              action: 'payment-success',
+              razorpay_response: response,
+              order_id: orderData.order_id,
+              email,
+            })
+          });
+          const verifyData = await verifyRes.json();
+          if (verifyData.flag && verifyData.download_token) {
+            router.push(`/download?token=${verifyData.download_token}`);
+          } else {
+            setCheckoutError(verifyData.message || 'Payment error. Please check My Account.');
+          }
+        },
+        modal: { ondismiss: () => setCheckoutError('Payment cancelled.') }
+      });
+      rzp.open();
+    } catch {
+      setCheckoutError('Network error. Try again.');
+      setCheckoutLoading(false);
+    }
+  }
+
+  function submitGuestCheckout() {
+    const email = guestForm.email.trim().toLowerCase();
+    const phone = guestForm.phone.replace(/\D/g, '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setCheckoutError('Please enter a valid email address.');
+      return;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      setCheckoutError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+    startProductCheckout({ email, phone });
+  }
+
+  function buyNow() {
+    const customer = getStoredCustomer();
+    if (!customer || !customer.email || !customer.phone) {
+      setGuestForm({
+        email: customer?.email || '',
+        phone: customer?.phone || '',
+      });
+      setCheckoutError('');
+      setGuestCheckoutOpen(true);
+      return;
+    }
+    startProductCheckout();
   }
 
   if (loading) return (
@@ -490,6 +616,11 @@ export default function ProductPage({ id }) {
                   </>
                 )}
               </div>
+              {checkoutError && (
+                <div className="mb-6 rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/8 px-3.5 py-2.5 text-[0.8rem] text-[#ef4444]">
+                  {checkoutError}
+                </div>
+              )}
 
               <div className="border-t border-[#f5c842]/10 pt-6 flex flex-col gap-3 text-xs sm:text-sm">
                 {[['Format', 'Digital Download'], ['Delivery', 'Instant (Email + Download Page)'], ['Access', 'Lifetime'], ['Support', 'Email Support']].map(([k, v]) => (
@@ -549,8 +680,7 @@ export default function ProductPage({ id }) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {reviews.map(review => {
                   // Determine if the current logged-in user owns this review
-                  const currentUserId = typeof window !== 'undefined' ? JSON.parse(localStorage.getItem('dv_customer') || '{}')._id : null;
-                  const isMine = currentUserId && review.customer_id && review.customer_id._id === currentUserId;
+                  const isMine = currentCustomerId && review.customer_id && review.customer_id._id === currentCustomerId;
 
                   return (
                     <div key={review._id} className="theme-card group relative flex flex-col rounded-2xl p-5">
@@ -596,6 +726,72 @@ export default function ProductPage({ id }) {
           </div>
         </div>
       </div>
+
+      {guestCheckoutOpen && (
+        <div
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          onClick={() => !checkoutLoading && setGuestCheckoutOpen(false)}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-2xl border border-[#f5c842]/20 bg-[#12121a] p-5 shadow-2xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-['Syne',sans-serif] text-xl font-bold text-white">Checkout Details</h2>
+                <p className="mt-1 text-sm text-[#9ca3af]">Enter your details to continue payment.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !checkoutLoading && setGuestCheckoutOpen(false)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10"
+                aria-label="Close checkout"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-[#9ca3af]">Email Address</label>
+                <input
+                  type="email"
+                  value={guestForm.email}
+                  onChange={event => setGuestForm(prev => ({ ...prev, email: event.target.value }))}
+                  placeholder="your@email.com"
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[#f5c842]/50"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-[#9ca3af]">Phone Number</label>
+                <input
+                  type="tel"
+                  value={guestForm.phone}
+                  onChange={event => setGuestForm(prev => ({ ...prev, phone: event.target.value.replace(/\D/g, '').slice(0, 10) }))}
+                  placeholder="10-digit mobile number"
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[#f5c842]/50"
+                  maxLength={10}
+                />
+              </div>
+            </div>
+
+            {checkoutError && (
+              <div className="mt-4 rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/8 px-3.5 py-2.5 text-[0.8rem] text-[#ef4444]">
+                {checkoutError}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={submitGuestCheckout}
+              disabled={checkoutLoading}
+              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transition-transform enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {checkoutLoading ? 'Processing...' : 'Pay Now'}
+            </button>
+          </div>
+        </div>
+      )}
 
       {showVideoPreview && youtubeVideoUrl && (
         <div

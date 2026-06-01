@@ -46,6 +46,7 @@ export default function CartPage() {
   const [availableCoupons, setAvailableCoupons] = useState([]);
   const [checkoutPhone, setCheckoutPhone] = useState('');
   const [checkoutEmail, setCheckoutEmail] = useState('');
+  const [guestCheckoutOpen, setGuestCheckoutOpen] = useState(false);
   const router = useRouter();
   const { settings } = useSettings();
 
@@ -54,13 +55,19 @@ export default function CartPage() {
     loadRazorpayScript();
     
     const c = localStorage.getItem('dv_customer');
-    if (!c) { router.push('/login?redirect=/cart'); return; }
-    const parsedCustomer = JSON.parse(c);
-    setCustomer(parsedCustomer);
-    if (parsedCustomer.phone) setCheckoutPhone(parsedCustomer.phone);
-    if (parsedCustomer.email) setCheckoutEmail(parsedCustomer.email);
+    let parsedCustomer = null;
+    try {
+      parsedCustomer = c ? JSON.parse(c) : null;
+    } catch {
+      localStorage.removeItem('dv_customer');
+    }
+    if (parsedCustomer) {
+      setCustomer(parsedCustomer);
+      if (parsedCustomer.phone) setCheckoutPhone(parsedCustomer.phone);
+      if (parsedCustomer.email) setCheckoutEmail(parsedCustomer.email);
+    }
     setCart(JSON.parse(localStorage.getItem('dv_cart') || '[]'));
-    fetchAvailableCoupons(parsedCustomer.email);
+    fetchAvailableCoupons(parsedCustomer?.email || '');
   }, []);
 
   useEffect(() => {
@@ -166,14 +173,26 @@ export default function CartPage() {
     setCouponMsg('');
   }
 
-  async function proceedToCheckout() {
-    if (!customer || cart.length === 0) return;
+  async function proceedToCheckout(guestContact = null) {
+    if (cart.length === 0) return;
     setError('');
 
-    const isPhoneMissing = !customer.phone;
-    const isEmailMissing = !customer.email;
+    if (!customer && isBundleCart) {
+      router.push('/login?redirect=/cart');
+      return;
+    }
 
-    if (isPhoneMissing || isEmailMissing) {
+    if (!customer && !guestContact) {
+      setGuestCheckoutOpen(true);
+      return;
+    }
+
+    const activeCustomer = customer || { name: 'Guest', email: guestContact.email, phone: guestContact.phone };
+
+    const isPhoneMissing = !activeCustomer.phone;
+    const isEmailMissing = !activeCustomer.email;
+
+    if (customer && (isPhoneMissing || isEmailMissing)) {
       if (isPhoneMissing && (!checkoutPhone || !/^\d{10}$/.test(checkoutPhone))) {
         setError('Please enter a valid 10-digit phone number in the order summary.');
         return;
@@ -213,9 +232,9 @@ export default function CartPage() {
       let data;
       const authHeaders = { 'Content-Type': 'application/json' };
       const payload = {
-        name: customer.name,
-        email: customer.email || checkoutEmail,
-        phone: customer.phone || checkoutPhone,
+        name: activeCustomer.name || 'Guest',
+        email: activeCustomer.email || checkoutEmail,
+        phone: activeCustomer.phone || checkoutPhone,
         coupon_code: couponData?.code || null,
         discount_amount: couponDiscount || 0,
       };
@@ -252,6 +271,7 @@ export default function CartPage() {
       const razorpayReady = await loadRazorpayScript();
       if (!razorpayReady || !window.Razorpay) { setError('Payment gateway failed to load. Try again.'); setLoading(false); return; }
       setLoading(false);
+      setGuestCheckoutOpen(false);
 
       const rzp = new window.Razorpay({
         key: isBundleCart ? data.key_id : data.razorpay_key,
@@ -260,7 +280,7 @@ export default function CartPage() {
         name: process.env.NEXT_PUBLIC_APP_NAME || 'DigitalVault',
         description: isBundleCart ? 'Complete Bundle' : cart.length === 1 ? cart[0].name : `${cart.length} Products`,
         order_id: data.razorpay_order_id,
-        prefill: { name: customer.name, email: customer.email || checkoutEmail, contact: customer.phone || checkoutPhone },
+        prefill: { name: activeCustomer.name || 'Guest', email: activeCustomer.email || checkoutEmail, contact: activeCustomer.phone || checkoutPhone },
         theme: { color: '#f5c842' },
         handler: async function(response) {
           const verRes = await fetch(isBundleCart ? '/api/bundle/verify-payment' : '/api/order', {
@@ -276,7 +296,7 @@ export default function CartPage() {
               razorpay_response: response,
               order_id: data.order_id || null,
               order_ids: data.order_ids || null,
-              email: customer.email || checkoutEmail,
+              email: activeCustomer.email || checkoutEmail,
               coupon_code: couponData?.code || null,
               discount_amount: couponDiscount || 0,
             })
@@ -304,6 +324,20 @@ export default function CartPage() {
       setError('Network error. Try again.');
       setLoading(false);
     }
+  }
+
+  function submitGuestCheckout() {
+    const email = checkoutEmail.trim().toLowerCase();
+    const phone = checkoutPhone.replace(/\D/g, '');
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setError('Please enter a valid email address.');
+      return;
+    }
+    if (!/^\d{10}$/.test(phone)) {
+      setError('Please enter a valid 10-digit phone number.');
+      return;
+    }
+    proceedToCheckout({ email, phone });
   }
 
   const inputClass = "bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none px-4 py-3 rounded-xl text-sm font-['DM_Sans',sans-serif] focus:border-[#f5c842]/50 transition-colors duration-200";
@@ -533,7 +567,7 @@ export default function CartPage() {
                 )}
 
                 <button
-                  onClick={proceedToCheckout}
+                  onClick={() => proceedToCheckout()}
                   disabled={loading}
                   className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-4 rounded-xl text-base mb-3 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
                 >
@@ -552,6 +586,71 @@ export default function CartPage() {
           )}
         </div>
       </div>
+      {guestCheckoutOpen && (
+        <div
+          className="fixed inset-0 z-[210] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
+          onClick={() => !loading && setGuestCheckoutOpen(false)}
+        >
+          <div
+            className="w-full max-w-[420px] rounded-2xl border border-[#f5c842]/20 bg-[#12121a] p-5 shadow-2xl"
+            onClick={event => event.stopPropagation()}
+          >
+            <div className="mb-4 flex items-start justify-between gap-4">
+              <div>
+                <h2 className="font-['Syne',sans-serif] text-xl font-bold text-white">Checkout Details</h2>
+                <p className="mt-1 text-sm text-[#9ca3af]">Enter your details to continue payment.</p>
+              </div>
+              <button
+                type="button"
+                onClick={() => !loading && setGuestCheckoutOpen(false)}
+                className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-white/10 bg-white/5 text-white transition-colors hover:bg-white/10"
+                aria-label="Close checkout"
+              >
+                x
+              </button>
+            </div>
+
+            <div className="flex flex-col gap-3">
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-[#9ca3af]">Email Address</label>
+                <input
+                  type="email"
+                  value={checkoutEmail}
+                  onChange={event => setCheckoutEmail(event.target.value)}
+                  placeholder="your@email.com"
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[#f5c842]/50"
+                />
+              </div>
+              <div>
+                <label className="mb-1.5 block text-xs font-semibold text-[#9ca3af]">Phone Number</label>
+                <input
+                  type="tel"
+                  value={checkoutPhone}
+                  onChange={event => setCheckoutPhone(event.target.value.replace(/\D/g, '').slice(0, 10))}
+                  placeholder="10-digit mobile number"
+                  className="w-full rounded-xl border border-white/10 bg-[#1a1a2a] px-4 py-3 text-sm text-white outline-none transition-colors focus:border-[#f5c842]/50"
+                  maxLength={10}
+                />
+              </div>
+            </div>
+
+            {error && (
+              <div className="mt-4 rounded-xl border border-[#ef4444]/20 bg-[#ef4444]/8 px-3.5 py-2.5 text-[0.8rem] text-[#ef4444]">
+                {error}
+              </div>
+            )}
+
+            <button
+              type="button"
+              onClick={submitGuestCheckout}
+              disabled={loading}
+              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transition-transform enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
+            >
+              {loading ? 'Processing...' : 'Pay Now'}
+            </button>
+          </div>
+        </div>
+      )}
     </>
   );
 }

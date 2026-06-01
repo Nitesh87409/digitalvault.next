@@ -60,7 +60,7 @@ export function proxy(request) {
   }
 
   // Protect Customer Routes
-  const customerRoutes = ['/account', '/download', '/my-orders'];
+  const customerRoutes = ['/account', '/my-orders'];
   const isCustomerRoute = customerRoutes.some(route => pathname.startsWith(route));
 
   if (isCustomerRoute) {

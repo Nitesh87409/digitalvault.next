@@ -17,9 +17,71 @@ function normalizeEmail(value) {
   return typeof value === "string" ? value.toLowerCase().trim() : "";
 }
 
+function normalizePhone(value) {
+  const digits = typeof value === "string" ? value.replace(/\D/g, "") : "";
+  if (digits.length === 12 && digits.startsWith("91")) return digits.slice(2);
+  if (digits.length === 11 && digits.startsWith("0")) return digits.slice(1);
+  return digits;
+}
+
+function isValidEmail(value) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value);
+}
+
+function isValidPhone(value) {
+  return /^\d{10}$/.test(value);
+}
+
 async function isPasswordAuthEnabled() {
   const settings = await Setting.findOne().lean();
   return settings?.password_login_enabled !== false;
+}
+
+async function findCustomerByContact(email, phone) {
+  const matches = await Customer.find({
+    $or: [
+      { email },
+      { phone },
+    ],
+  }).limit(2);
+
+  const uniqueMatches = new Map(matches.map(customer => [customer._id.toString(), customer]));
+  if (uniqueMatches.size > 1) {
+    return { error: deny("Email and phone belong to different accounts. Please use matching details.", 409) };
+  }
+
+  return { customer: matches[0] || null };
+}
+
+async function buildAuthResponse(customer, message) {
+  const isPremium = await hasActiveBundleAccess(customer._id);
+  const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: "customer" }, "30d");
+  const response = NextResponse.json({
+    flag: 1,
+    message,
+    customer: {
+      id: customer._id,
+      name: customer.name,
+      email: customer.email,
+      phone: customer.phone,
+      has_password: !!customer.password,
+      createdAt: customer.createdAt,
+      is_blocked: customer.is_blocked,
+      is_premium: isPremium
+    },
+  });
+
+  response.cookies.set({
+    name: "dv_token",
+    value: token,
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "strict",
+    maxAge: 30 * 24 * 60 * 60,
+    path: "/",
+  });
+
+  return response;
 }
 
 export async function POST(request) {
@@ -31,6 +93,68 @@ export async function POST(request) {
 
     if (!action) {
       return deny("Invalid action", 400);
+    }
+
+    if (action === "email-phone") {
+      const email = normalizeEmail(body?.email);
+      const phone = normalizePhone(body?.phone);
+
+      if (!isValidEmail(email)) {
+        return deny("Valid email address required", 400);
+      }
+      if (!isValidPhone(phone)) {
+        return deny("Valid 10-digit phone number required", 400);
+      }
+
+      const rateLimit = await consumePersistentRateLimit(buildRateLimitKey(request, "customer-email-phone", `${email}:${phone}`), CUSTOMER_AUTH_LIMIT);
+      if (!rateLimit.allowed) {
+        return deny("Too many requests. Please try again later.", 429);
+      }
+
+      const { customer, error } = await findCustomerByContact(email, phone);
+      if (error) return error;
+
+      if (customer) {
+        if (customer.is_blocked) {
+          return deny("Your account is blocked. Please contact support.", 403);
+        }
+        if ((customer.email && normalizeEmail(customer.email) !== email) || (customer.phone && normalizePhone(customer.phone) !== phone)) {
+          return deny("Email and phone do not match the existing account.", 409);
+        }
+
+        let changed = false;
+        if (!customer.email) {
+          customer.email = email;
+          changed = true;
+        }
+        if (!customer.phone) {
+          customer.phone = phone;
+          changed = true;
+        }
+        if (changed) {
+          await customer.save();
+        }
+
+        return NextResponse.json({
+          flag: 1,
+          requires_otp: true,
+          message: "OTP verification required",
+          email,
+        });
+      }
+
+      const newCustomer = await Customer.create({
+        name: "Guest",
+        email,
+        phone,
+        password: "",
+        auth_provider: "local",
+        is_verified: true,
+        is_blocked: false,
+        last_login: new Date(),
+      });
+
+      return buildAuthResponse(newCustomer, "Account created");
     }
 
     if (action === "register") {

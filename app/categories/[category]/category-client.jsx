@@ -14,8 +14,6 @@ export default function CategoryClient({ initialProducts, categoryName }) {
   const { hasBundleAccess, bundleLoading, unlockBundle } = useBundlePurchase({ showToast });
 
   function addToCart(product) {
-    const c = localStorage.getItem('dv_customer');
-    if (!c) { window.location.href = '/login'; return; }
     const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
     if (cart.find(i => i.id === productId)) { showToast('Already in cart! 🛒', '#f5c842', '#0a0a0f'); return; }
@@ -26,9 +24,6 @@ export default function CategoryClient({ initialProducts, categoryName }) {
   }
 
   function buyNow(product) {
-    const c = localStorage.getItem('dv_customer');
-    if (!c) { window.location.href = '/login'; return; }
-
     const productId = product.id || product._id;
     const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
     if (!cart.find(i => i.id === productId)) {

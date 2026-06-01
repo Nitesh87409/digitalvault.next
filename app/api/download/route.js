@@ -33,17 +33,13 @@ export async function GET(request) {
       return NextResponse.json({ flag: 0, message: 'Invalid request' }, { status: 400 });
     }
 
-    const order = await Order.findOne({ download_token: token, payment_status: 1 })
+    const order = await Order.findOne({ download_token: token, product_id: pid, payment_status: 1 })
       .select('product_id token_expires_at')
       .lean();
     if (!order) return new NextResponse('Access denied.', { status: 403 });
     if (order.token_expires_at && new Date(order.token_expires_at) < new Date()) {
       return new NextResponse('Download link expired.', { status: 403 });
     }
-    if (order.product_id?.toString() !== pid) {
-      return new NextResponse('Access denied - wrong product.', { status: 403 });
-    }
-
     const product = await Product.findById(pid).select('file_url name').lean();
     if (!product?.file_url) return new NextResponse('File not found.', { status: 404 });
 
