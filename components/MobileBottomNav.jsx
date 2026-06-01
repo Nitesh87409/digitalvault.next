@@ -62,7 +62,7 @@ export default function MobileBottomNav() {
             <span className="text-[10px] font-medium leading-none">Categories</span>
           </Link>
           
-          <Link href="/account" className={`flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 ${activeTab === 'account' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
+          <Link href={`/account${pathname && pathname !== '/account' ? `?redirect=${encodeURIComponent(pathname)}` : ''}`} className={`flex h-full flex-1 flex-col items-center justify-center transition-all duration-200 active:scale-95 ${activeTab === 'account' ? 'text-[#f5c842]' : 'text-[var(--muted)] hover:text-[var(--heading)]'}`}>
             <User size={22} className="mb-1" />
             <span className="text-[10px] font-medium leading-none">Account</span>
           </Link>
