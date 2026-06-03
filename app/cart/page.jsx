@@ -375,7 +375,7 @@ export default function CartPage() {
       <div className="font-['DM_Sans',sans-serif] bg-[var(--bg)] min-h-screen text-[var(--text)]">
 
         {/* Nav */}
-        <nav className="bg-[var(--nav-bg)] border-b border-[var(--line-soft)] backdrop-blur-[20px] px-6 py-4 sticky top-0 z-10">
+        <nav className="bg-[var(--nav-bg)] border-b border-[var(--line-soft)] backdrop-blur-[20px] px-6 py-3 sticky top-0 z-10">
           <div className="max-w-[1152px] mx-auto flex items-center justify-between">
             <Link
               href="/"
@@ -450,7 +450,7 @@ export default function CartPage() {
                         onClick={applyCoupon}
                         disabled={couponLoading}
                         id="cart-apply-coupon-btn"
-                        className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-5 py-3 rounded-xl text-sm disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap transition-transform duration-200 enabled:hover:scale-[1.02]"
+                        className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-5 py-3 rounded-xl text-sm disabled:opacity-70 disabled:cursor-not-allowed whitespace-nowrap transform transition-all duration-100 ease-out enabled:hover:scale-[1.02] enabled:active:scale-[0.96] enabled:active:brightness-95 select-none"
                       >
                         {couponLoading ? '...' : 'Apply'}
                       </button>
@@ -597,7 +597,7 @@ export default function CartPage() {
                 <button
                   onClick={() => proceedToCheckout()}
                   disabled={loading}
-                  className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-4 rounded-xl text-base mb-3 transition-transform duration-200 disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.02]"
+                  className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none w-full p-4 rounded-xl text-base mb-3 transform transition-all duration-100 ease-out disabled:opacity-70 disabled:cursor-not-allowed enabled:hover:scale-[1.01] enabled:hover:shadow-[0_0_20px_rgba(245,200,66,0.3)] enabled:active:scale-[0.96] enabled:active:brightness-95 cursor-pointer select-none"
                 >
                   {loading ? '⏳ Processing...' : `Pay ₹${finalAmount.toLocaleString()} →`}
                 </button>
@@ -672,7 +672,7 @@ export default function CartPage() {
               type="button"
               onClick={submitGuestCheckout}
               disabled={loading}
-              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transition-transform enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.01] enabled:hover:shadow-[0_0_20px_rgba(245,200,66,0.3)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:cursor-not-allowed disabled:opacity-70 select-none cursor-pointer"
             >
               {loading ? 'Processing...' : 'Pay Now'}
             </button>

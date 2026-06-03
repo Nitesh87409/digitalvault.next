@@ -349,7 +349,7 @@ export default function ProductPage({ id }) {
   if (loading) return (
     <div className="theme-page font-dm min-h-screen bg-[var(--bg)] text-[var(--text)]">
       {/* Nav Skeleton */}
-      <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-4 backdrop-blur-xl">
+      <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-3 backdrop-blur-xl">
         <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
           <div className="w-32 h-6 rounded-lg skeleton-shimmer" />
           <div className="flex gap-4 items-center">
@@ -425,7 +425,7 @@ export default function ProductPage({ id }) {
     <>
       <div className="theme-page font-dm">
         {/* Nav */}
-        <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-4 backdrop-blur-xl">
+        <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-3 backdrop-blur-xl">
           <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
             <Link
               href="/"
@@ -447,7 +447,7 @@ export default function ProductPage({ id }) {
               <Link href="/" className="theme-link whitespace-nowrap text-sm no-underline">← Store</Link>
               <Link href="/account" className="theme-link hidden whitespace-nowrap text-sm no-underline sm:inline">My Account</Link>
               <ThemeToggle />
-              <Link href="/cart" className="theme-icon-btn relative h-11 w-11 rounded-xl">
+              <Link href="/cart" className="hidden md:inline-flex theme-icon-btn relative h-11 w-11 rounded-xl items-center justify-center">
                 <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
                 {cartCount > 0 && (
                   <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f5c842] text-[10px] font-bold text-[#0a0a0f]">
@@ -625,20 +625,26 @@ export default function ProductPage({ id }) {
               </div>
 
               {/* Buttons */}
-              <div className="flex flex-col sm:flex-row gap-3 mb-6 sm:mb-8">
+              <div className="hidden md:flex flex-row gap-3 mb-6 sm:mb-8">
                 {hasBundleAccess && product.included_in_bundle ? (
                   <a
                     href={`/api/bundle/download/${product.id || product._id}`}
-                    className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all text-center no-underline flex items-center justify-center shadow-lg hover:scale-[1.01]"
+                    className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-center no-underline flex items-center justify-center shadow-lg transform transition-all duration-100 ease-out hover:scale-[1.01] hover:brightness-110 hover:shadow-[0_0_20px_rgba(245,200,66,0.3)] active:scale-[0.96] active:brightness-95 select-none"
                   >
                     📥 Access Now (Download)
                   </a>
                 ) : (
                   <>
-                    <button onClick={addToCart} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-[#f5c842]/10 border-2 border-[#f5c842]/40 text-[#f5c842] hover:bg-[#f5c842]/20 transition-all">
-                      🛒 Add to Cart
+                    <button 
+                      onClick={addToCart} 
+                      className="flex-[0.4] sm:flex-[0.3] py-2.5 sm:py-3.5 rounded-xl text-xs sm:text-sm font-semibold font-['Syne',sans-serif] bg-[#f5c842]/5 border border-[#f5c842]/25 text-[#f5c842] opacity-80 hover:opacity-100 transform transition-all duration-100 ease-out hover:bg-[#f5c842]/10 hover:scale-[1.01] active:scale-[0.96] active:bg-[#f5c842]/20 select-none cursor-pointer"
+                    >
+                      🛒 Add<span className="hidden sm:inline"> to Cart</span>
                     </button>
-                    <button onClick={buyNow} className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] hover:brightness-110 transition-all">
+                    <button 
+                      onClick={buyNow} 
+                      className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] active:scale-[0.96] active:brightness-95 select-none cursor-pointer"
+                    >
                       ⚡ Buy Now
                     </button>
                   </>
@@ -813,7 +819,7 @@ export default function ProductPage({ id }) {
               type="button"
               onClick={submitGuestCheckout}
               disabled={checkoutLoading}
-              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transition-transform enabled:hover:scale-[1.02] disabled:cursor-not-allowed disabled:opacity-70"
+              className="mt-5 w-full rounded-xl border-none bg-gradient-to-br from-[#f5c842] to-[#e0a800] px-4 py-3.5 font-['Syne',sans-serif] text-base font-bold text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.01] enabled:hover:shadow-[0_0_20px_rgba(245,200,66,0.3)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:cursor-not-allowed disabled:opacity-70 select-none cursor-pointer"
             >
               {checkoutLoading ? 'Processing...' : 'Pay Now'}
             </button>
@@ -893,6 +899,40 @@ export default function ProductPage({ id }) {
         >
           {toast.msg}
         </div>
+      )}
+
+      {/* Mobile Sticky CTA Panel */}
+      {!loading && product && (
+        <>
+          {/* Spacer at the bottom of the page content to prevent overlap */}
+          <div className="md:hidden h-[calc(60px+58px+env(safe-area-inset-bottom))]" aria-hidden="true" />
+          
+          <div className="md:hidden fixed bottom-[calc(58px+env(safe-area-inset-bottom))] left-0 right-0 z-[999] bg-[var(--nav-bg)] border-t border-[#f5c842]/10 backdrop-blur-xl px-4 py-2 flex flex-row gap-3 shadow-[0_-8px_30px_rgba(0,0,0,0.5)]">
+            {hasBundleAccess && product.included_in_bundle ? (
+              <a
+                href={`/api/bundle/download/${product.id || product._id}`}
+                className="flex-1 py-2.5 rounded-xl text-sm font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-center no-underline flex items-center justify-center shadow-lg transform transition-all duration-100 ease-out hover:scale-[1.01] hover:brightness-110 hover:shadow-[0_0_20px_rgba(245,200,66,0.3)] active:scale-[0.96] active:brightness-95 select-none"
+              >
+                📥 Access Now (Download)
+              </a>
+            ) : (
+              <>
+                <button 
+                  onClick={addToCart} 
+                  className="flex-[0.4] py-2 rounded-xl text-xs font-semibold font-['Syne',sans-serif] bg-[#f5c842]/5 border border-[#f5c842]/25 text-[#f5c842] opacity-80 hover:opacity-100 transform transition-all duration-100 ease-out hover:bg-[#f5c842]/10 hover:scale-[1.01] active:scale-[0.96] active:bg-[#f5c842]/20 select-none cursor-pointer"
+                >
+                  🛒 Add
+                </button>
+                <button 
+                  onClick={buyNow} 
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] active:scale-[0.96] active:brightness-95 select-none cursor-pointer"
+                >
+                  ⚡ Buy Now
+                </button>
+              </>
+            )}
+          </div>
+        </>
       )}
     </>
   );

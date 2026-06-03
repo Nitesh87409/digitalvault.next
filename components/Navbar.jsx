@@ -111,7 +111,7 @@ export default function Navbar({ onSearchClick }) {
 
   return (
     <nav className="fixed top-0 z-[100] w-full max-w-[100vw] overflow-x-clip border-b border-[#f5c842]/15 bg-[var(--nav-bg)] backdrop-blur-xl transition-colors duration-300">
-      <div className="relative mx-auto flex h-[64px] md:h-[76px] w-full max-w-[1152px] items-center justify-between gap-3 px-4 py-3 md:px-[18px]">
+      <div className="relative mx-auto flex h-[52px] md:h-[62px] w-full max-w-[1152px] items-center justify-between gap-3 px-4 py-2 md:px-[18px]">
         {isMobileSearchOpen ? (
           /* Mobile Search Overlay */
           <div className="absolute inset-0 z-50 flex items-center bg-[var(--bg)] px-4 py-2 gap-3 transition-all duration-200">

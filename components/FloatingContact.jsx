@@ -163,10 +163,12 @@ export default function FloatingContact() {
   const showWhatsapp = settings.social_whatsapp_enabled || (settings.support_phone && !settings.social_whatsapp_url);
   const showTelegram = settings.social_telegram_enabled && settings.social_telegram_url;
 
+  const isProductPage = pathname?.startsWith('/product/');
+
   return (
     <div
       ref={widgetRef}
-      className="fixed bottom-[80px] md:bottom-6 right-4 md:right-6 z-[999] font-sans transition-all duration-300"
+      className={`fixed ${isProductPage ? 'bottom-[130px]' : 'bottom-[80px]'} md:bottom-6 right-4 md:right-6 z-[999] font-sans transition-all duration-300`}
     >
       {/* Support Card Popup */}
       <div

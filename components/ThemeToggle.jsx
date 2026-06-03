@@ -27,9 +27,9 @@ export default function ThemeToggle({ className = '' }) {
       aria-label={isLight ? 'Switch to night theme' : 'Switch to day theme'}
       title={isLight ? 'Night mode' : 'Day mode'}
       onClick={toggleTheme}
-      className={`theme-icon-btn h-11 w-11 rounded-xl shrink-0 ${className}`}
+      className={`theme-icon-btn h-9 w-9 rounded-xl shrink-0 ${className}`}
     >
-      {isLight ? <Moon size={18} /> : <Sun size={18} />}
+      {isLight ? <Moon size={15} /> : <Sun size={15} />}
     </button>
   );
 }

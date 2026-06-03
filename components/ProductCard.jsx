@@ -89,7 +89,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
                 href={`/api/bundle/download/${productId}`}
                 download
                 onClick={(e) => e.stopPropagation()}
-                className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center no-underline"
+                className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transform transition-all duration-100 ease-out hover:scale-[1.03] active:scale-[0.93] active:brightness-95 whitespace-nowrap flex items-center justify-center no-underline select-none"
                 title="Download from bundle"
                 aria-label={`Download ${product.name} from bundle`}
               >
@@ -99,7 +99,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
               <>
                 <button
                   onClick={(e) => { e.stopPropagation(); onAddToCart(product); }}
-                  className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8"
+                  className="theme-icon-btn flex h-7 w-7 shrink-0 items-center justify-center rounded-full sm:h-8 sm:w-8 transform transition-all duration-100 ease-out hover:scale-[1.05] active:scale-[0.90] cursor-pointer"
                   title="Add to Cart"
                   aria-label={`Add ${product.name} to cart`}
                 >
@@ -108,7 +108,7 @@ export default function ProductCard({ product, index, onAddToCart, onBuyNow, has
 
                 <button
                   onClick={(e) => { e.stopPropagation(); onBuyNow(product); }}
-                  className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transition-transform active:scale-95 whitespace-nowrap flex items-center justify-center"
+                  className="bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] px-3 py-1.5 sm:px-4 sm:py-1.5 rounded-full text-xs font-bold transform transition-all duration-100 ease-out hover:scale-[1.03] active:scale-[0.93] active:brightness-95 whitespace-nowrap flex items-center justify-center select-none cursor-pointer"
                   aria-label={`Buy ${product.name} now`}
                 >
                   Buy
