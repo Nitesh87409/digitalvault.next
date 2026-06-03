@@ -269,10 +269,10 @@ export default function Navbar({ onSearchClick }) {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="theme-icon-btn h-11 w-11 rounded-xl flex lg:hidden items-center justify-center text-[var(--heading)] focus:outline-none"
+                className="theme-icon-btn h-9 w-9 rounded-xl flex lg:hidden items-center justify-center text-[var(--heading)] focus:outline-none"
                 aria-label="Toggle Menu"
               >
-                <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <svg width="18" height="18" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <line x1="3" y1="12" x2="21" y2="12"></line>
                   <line x1="3" y1="6" x2="21" y2="6"></line>
                   <line x1="3" y1="18" x2="21" y2="18"></line>
@@ -295,7 +295,7 @@ export default function Navbar({ onSearchClick }) {
 
           {/* Side Drawer Panel */}
           <div 
-            className="fixed top-0 right-0 h-[100dvh] w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
+            className="fixed top-0 right-0 h-[100dvh] w-[240px] sm:w-[280px] bg-[#0e0e18]/95 backdrop-blur-2xl border-l border-[#f5c842]/15 z-[999] p-6 flex flex-col justify-between shadow-2xl transition-all duration-300 ease-out animate-[slideIn_0.3s_ease-out] text-[#e8e8f0] overflow-y-auto overscroll-contain [-webkit-overflow-scrolling:touch]"
           >
             <style jsx>{`
               @keyframes slideIn {
