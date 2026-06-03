@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Download, ShoppingBag, Shield, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2, Lock } from 'lucide-react';
+import { User, Download, ShoppingBag, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2 } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
@@ -13,11 +13,9 @@ export default function AccountPage() {
   const { settings } = useSettings();
   const [activeTab, setActiveTab] = useState('profile');
   const [form, setForm] = useState({ name: '', phone: '' });
-  const [passForm, setPassForm] = useState({ current: '', newp: '', conf: '' });
   const [downloads, setDownloads] = useState([]);
   const [orders, setOrders] = useState([]);
   const [profileMsg, setProfileMsg] = useState(null);
-  const [passMsg, setPassMsg] = useState(null);
   const [loading, setLoading] = useState(false);
   const [cartCount, setCartCount] = useState(0);
   const [reviewFormOpen, setReviewFormOpen] = useState(null);
@@ -33,7 +31,6 @@ export default function AccountPage() {
     const parsed = JSON.parse(c);
     setCustomer(parsed);
     setForm({ name: parsed.name || '', phone: parsed.phone || '' });
-    setPassTab(parsed.has_password ? 'update' : 'reset');
 
     // Fetch up-to-date customer data (like registration date and active status) from database
     fetch('/api/customer')
@@ -184,101 +181,7 @@ export default function AccountPage() {
     setTimeout(() => setProfileMsg(null), 3000);
   }
 
-  const [passTab, setPassTab] = useState('update'); // 'update' or 'reset'
-  const [otpStep, setOtpStep] = useState(1); // 1: identifier, 2: otp & password
-  const [otpCode, setOtpCode] = useState('');
-  const [timer, setTimer] = useState(0);
 
-  useEffect(() => {
-    let interval;
-    if (timer > 0) {
-      interval = setInterval(() => setTimer((prev) => prev - 1), 1000);
-    }
-    return () => clearInterval(interval);
-  }, [timer]);
-
-  async function sendOtp() {
-    setPassMsg(null);
-    setLoading(true);
-    try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'send-otp', identifier: customer.email })
-      });
-      const data = await res.json();
-      if (data.flag) {
-        setOtpStep(2);
-        setPassMsg({ msg: 'OTP sent to your email.', ok: true });
-        setTimer(data.cooldown || 60);
-      } else {
-        setPassMsg({ msg: data.message || 'Failed to send OTP.', ok: false });
-      }
-    } catch (e) {
-      setPassMsg({ msg: 'Connection error.', ok: false });
-    }
-    setLoading(false);
-  }
-
-  async function resetPassword() {
-    if (!otpCode) { setPassMsg({ msg: 'Please enter OTP code.', ok: false }); return; }
-    if (!passForm.newp) { setPassMsg({ msg: 'Please enter new password.', ok: false }); return; }
-    if (passForm.newp.length < 6) { setPassMsg({ msg: 'Password must be at least 6 characters.', ok: false }); return; }
-    if (passForm.newp !== passForm.conf) { setPassMsg({ msg: 'Passwords do not match.', ok: false }); return; }
-
-    setLoading(true);
-    try {
-      const res = await fetch('/api/auth/reset-password', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          action: 'reset', 
-          identifier: customer.email, 
-          otp: otpCode, 
-          new_password: passForm.newp 
-        })
-      });
-      const data = await res.json();
-      if (data.flag) {
-        setPassMsg({ msg: '✅ Password ' + (customer.has_password ? 'reset' : 'set') + ' successfully!', ok: true });
-        const updated = { ...customer, has_password: true };
-        localStorage.setItem('dv_customer', JSON.stringify(updated));
-        setCustomer(updated);
-        setOtpStep(1);
-        setPassTab('update');
-        setPassForm({ current: '', newp: '', conf: '' });
-        setOtpCode('');
-      } else {
-        setPassMsg({ msg: data.message || 'Reset failed.', ok: false });
-      }
-    } catch (e) {
-      setPassMsg({ msg: 'Connection error.', ok: false });
-    }
-    setLoading(false);
-  }
-
-  async function changePassword() {
-    if (!passForm.current || !passForm.newp || !passForm.conf) { setPassMsg({ msg: 'Fill all fields.', ok: false }); return; }
-    if (passForm.newp.length < 6) { setPassMsg({ msg: 'Min 6 characters.', ok: false }); return; }
-    if (passForm.newp !== passForm.conf) { setPassMsg({ msg: 'Passwords do not match.', ok: false }); return; }
-    setLoading(true);
-    try {
-      const res = await fetch('/api/customer', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'change-password', current_password: passForm.current, new_password: passForm.newp })
-      });
-      const data = await res.json();
-      if (data.flag) {
-        setPassMsg({ msg: '✅ Password changed!', ok: true });
-        setPassForm({ current: '', newp: '', conf: '' });
-      } else {
-        setPassMsg({ msg: data.message, ok: false });
-      }
-    } catch(e) { setPassMsg({ msg: 'Error. Try again.', ok: false }); }
-    setLoading(false);
-    setTimeout(() => setPassMsg(null), 3000);
-  }
 
   async function logout() {
     await fetch('/api/logout', { method: 'POST', body: JSON.stringify({ role: 'customer' }) });
@@ -297,7 +200,6 @@ export default function AccountPage() {
     { id: 'profile', icon: '👤', label: 'My Profile' },
     { id: 'downloads', icon: '⬇️', label: 'My Downloads' },
     { id: 'orders', icon: '🛒', label: 'Order History' },
-    { id: 'password', icon: '🔐', label: 'Change Password' },
   ];
 
   return (
@@ -504,144 +406,7 @@ export default function AccountPage() {
                   </div>
                 )}
 
-                {/* PASSWORD */}
-                {activeTab === 'password' && (
-                  <div>
-                    <h2 className="font-['Syne',sans-serif] text-[1.1rem] font-bold text-[var(--heading)] mb-5">Security & Password</h2>
-                    
-                    <div className="flex gap-2 mb-6 bg-[var(--surface-2)] p-1 rounded-[12px] w-fit">
-                      {customer.has_password && (
-                        <button
-                          onClick={() => setPassTab('update')}
-                          className={`px-4 py-2 rounded-lg border text-[0.875rem] font-semibold cursor-pointer transition-all duration-200 ${
-                            passTab === 'update' 
-                              ? 'bg-[var(--surface)] text-[#f5c842] border-[var(--line)]' 
-                              : 'bg-transparent text-[var(--muted)] border-transparent'
-                          }`}
-                        >
-                          Update Password
-                        </button>
-                      )}
-                      <button
-                        onClick={() => setPassTab('reset')}
-                        className={`px-4 py-2 rounded-lg border text-[0.875rem] font-semibold cursor-pointer transition-all duration-200 ${
-                          passTab === 'reset' 
-                            ? 'bg-[var(--surface)] text-[#f5c842] border-[var(--line)]' 
-                            : 'bg-transparent text-[var(--muted)] border-transparent'
-                        }`}
-                      >
-                        {customer.has_password ? 'Reset with OTP' : 'Set Password'}
-                      </button>
-                    </div>
 
-                    <div className="flex flex-col gap-4 max-w-[480px]">
-                      {passTab === 'update' ? (
-                        <>
-                          {[
-                            { label: 'Current Password', key: 'current' },
-                            { label: 'New Password', key: 'newp' },
-                            { label: 'Confirm New Password', key: 'conf' },
-                          ].map(f => (
-                            <div key={f.key}>
-                              <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">{f.label}</label>
-                              <input
-                                type="password"
-                                value={passForm[f.key]}
-                                onChange={e => setPassForm({ ...passForm, [f.key]: e.target.value })}
-                                placeholder="••••••••"
-                                className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem] font-sans"
-                              />
-                            </div>
-                          ))}
-                          {passMsg && (
-                            <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] border ${
-                              passMsg.ok 
-                                ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
-                                : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
-                            }`}>
-                              {passMsg.msg}
-                            </div>
-                          )}
-                          <button onClick={changePassword} disabled={loading} className="w-full sm:w-auto bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
-                            {loading ? 'Updating...' : 'Update Password'}
-                          </button>
-                        </>
-                      ) : (
-                        <>
-                          {otpStep === 1 ? (
-                            <div className="text-center p-5 bg-[var(--surface-2)] rounded-[16px] border border-[var(--line)]">
-                              <p className="text-[0.875rem] text-[var(--text)] mb-4">We will send an OTP to <strong>{customer.email}</strong> to verify your identity.</p>
-                              {passMsg && (
-                                <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] mb-4 border ${
-                                  passMsg.ok 
-                                    ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
-                                    : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
-                                }`}>
-                                  {passMsg.msg}
-                                </div>
-                              )}
-                              <button onClick={sendOtp} disabled={loading} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
-                                {loading ? 'Sending...' : 'Send OTP Code'}
-                              </button>
-                            </div>
-                          ) : (
-                            <>
-                              <div>
-                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">Enter OTP Code</label>
-                                <input
-                                  type="text"
-                                  maxLength={settings.otp_length}
-                                  value={otpCode}
-                                  onChange={e => setOtpCode(e.target.value)}
-                                  placeholder={"0".repeat(settings.otp_length)}
-                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[1.25rem] tracking-[4px] text-center"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">New Password</label>
-                                <input
-                                  type="password"
-                                  value={passForm.newp}
-                                  onChange={e => setPassForm({ ...passForm, newp: e.target.value })}
-                                  placeholder="••••••••"
-                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem]"
-                                />
-                              </div>
-                              <div>
-                                <label className="text-[0.75rem] text-[var(--muted)] block mb-1.5 font-semibold">Confirm New Password</label>
-                                <input
-                                  type="password"
-                                  value={passForm.conf}
-                                  onChange={e => setPassForm({ ...passForm, conf: e.target.value })}
-                                  placeholder="••••••••"
-                                  className="bg-[var(--surface-2)] border border-[var(--line)] text-[var(--heading)] outline-none w-full px-4 py-3 rounded-[12px] text-[0.875rem]"
-                                />
-                              </div>
-                              {passMsg && (
-                                <div className={`px-3.5 py-2.5 rounded-[10px] text-[0.8rem] border ${
-                                  passMsg.ok 
-                                    ? 'bg-emerald-500/10 text-[#10b981] border-emerald-500/20' 
-                                    : 'bg-red-500/10 text-[#ef4444] border-red-500/20'
-                                }`}>
-                                  {passMsg.msg}
-                                </div>
-                              )}
-                              <button onClick={resetPassword} disabled={loading} className="bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne',sans-serif] font-bold border-none cursor-pointer px-6 py-3 rounded-[12px] text-[0.9rem]">
-                                {loading ? 'Resetting...' : (customer.has_password ? 'Reset Password' : 'Set Password')}
-                              </button>
-                              <div className="flex justify-between mt-2">
-                                <button onClick={() => setOtpStep(1)} className="bg-none border-none text-[var(--muted)] cursor-pointer text-[0.8rem]">← Back</button>
-                                <button onClick={sendOtp} disabled={timer > 0 || loading} className={`bg-none border-none cursor-pointer text-[0.8rem] ${timer > 0 ? 'text-[var(--muted-2)] cursor-not-allowed' : 'text-[#f5c842]'}`}>
-                                  {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
-                                </button>
-                              </div>
-                            </>
-                          )}
-                        </>
-                      )}
-                    </div>
-                  </div>
-                )}
 
               </div>
             </div>
@@ -717,7 +482,6 @@ export default function AccountPage() {
               { id: 'profile', icon: User, label: 'Profile' },
               { id: 'downloads', icon: Download, label: 'Downloads' },
               { id: 'orders', icon: ShoppingBag, label: 'Orders' },
-              { id: 'password', icon: Shield, label: 'Security' },
             ].map(tab => (
               <button key={tab.id} onClick={() => setActiveTab(tab.id)} className="relative flex flex-col items-center flex-1 py-3 transition-colors">
                 <tab.icon size={18} className={`mb-1.5 ${activeTab === tab.id ? 'text-[#f5c842]' : 'text-[var(--muted-2)]'}`} />
@@ -874,108 +638,7 @@ export default function AccountPage() {
               </motion.div>
             )}
 
-            {activeTab === 'password' && (
-              <motion.div key="password" initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -10 }}>
-                <div className="bg-[var(--surface)] backdrop-blur-xl border border-[var(--line)] rounded-[24px] p-6 shadow-lg">
-                  <h3 className="text-base font-['Syne'] font-bold text-[var(--heading)] mb-1">Security Settings</h3>
-                  <p className="text-[11px] text-[var(--muted)] mb-6">Update your password to keep your account secure</p>
-                  
-                  <div className="flex gap-2 mb-6 bg-[var(--surface-2)] p-1 rounded-xl">
-                    {customer.has_password && (
-                      <button 
-                        onClick={() => setPassTab('update')}
-                        className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${passTab === 'update' ? 'bg-[var(--surface)] text-[#f5c842] shadow-sm' : 'text-[var(--muted)]'}`}
-                      >
-                        Update
-                      </button>
-                    )}
-                    <button 
-                      onClick={() => setPassTab('reset')}
-                      className={`flex-1 py-2 text-[11px] font-bold rounded-lg transition-all ${passTab === 'reset' ? 'bg-[var(--surface)] text-[#f5c842] shadow-sm' : 'text-[var(--muted)]'}`}
-                    >
-                      {customer.has_password ? 'Reset OTP' : 'Set Password'}
-                    </button>
-                  </div>
 
-                  <div className="space-y-4">
-                    {passTab === 'update' ? (
-                      <>
-                        <div>
-                          <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">Current Password</label>
-                          <input type="password" value={passForm.current} onChange={e => setPassForm({...passForm, current: e.target.value})} placeholder="••••••••" className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-sm text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 focus:shadow-[inset_0_0_20px_rgba(245,200,66,0.05)] transition-all" />
-                        </div>
-                        <div>
-                          <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">New Password</label>
-                          <input type="password" value={passForm.newp} onChange={e => setPassForm({...passForm, newp: e.target.value})} placeholder="••••••••" className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-sm text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 focus:shadow-[inset_0_0_20px_rgba(245,200,66,0.05)] transition-all" />
-                        </div>
-                        <div>
-                          <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">Confirm Password</label>
-                          <input type="password" value={passForm.conf} onChange={e => setPassForm({...passForm, conf: e.target.value})} placeholder="••••••••" className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-sm text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 focus:shadow-[inset_0_0_20px_rgba(245,200,66,0.05)] transition-all" />
-                        </div>
-                        
-                        {passMsg && (
-                          <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${passMsg.ok ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                            {passMsg.ok && <CheckCircle2 size={14} />} {passMsg.msg}
-                          </div>
-                        )}
-                        
-                        <button onClick={changePassword} disabled={loading} className="w-full mt-2 bg-white text-[#0a0a0f] font-['Syne'] font-bold py-3.5 rounded-xl flex items-center justify-center gap-2 shadow-[0_5px_15px_rgba(255,255,255,0.1)] hover:shadow-[0_5px_25px_rgba(255,255,255,0.2)] transition-shadow">
-                          <Lock size={18} />
-                          {loading ? 'Updating...' : 'Update Password'}
-                        </button>
-                      </>
-                    ) : (
-                      <>
-                        {otpStep === 1 ? (
-                          <div className="text-center p-4 bg-[var(--surface-2)] rounded-2xl border border-[var(--line)]">
-                            <p className="text-xs text-[var(--text)] mb-4">OTP will be sent to <strong>{customer.email}</strong></p>
-                            {passMsg && (
-                              <div className={`p-3 rounded-xl text-xs mb-4 flex items-center gap-2 ${passMsg.ok ? 'bg-emerald-500/10 text-emerald-400' : 'bg-red-500/10 text-red-400'}`}>
-                                {passMsg.msg}
-                              </div>
-                            )}
-                            <button onClick={sendOtp} disabled={loading} className="w-full bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne'] font-bold py-3 rounded-xl text-sm">
-                              {loading ? 'Sending...' : 'Send OTP'}
-                            </button>
-                          </div>
-                        ) : (
-                          <>
-                            <div>
-                              <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">OTP Code</label>
-                              <input type="text" maxLength={settings.otp_length} value={otpCode} onChange={e => setOtpCode(e.target.value)} placeholder={"0".repeat(settings.otp_length)} className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-lg text-center tracking-[4px] text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 transition-all" />
-                            </div>
-                            <div>
-                              <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">New Password</label>
-                              <input type="password" value={passForm.newp} onChange={e => setPassForm({...passForm, newp: e.target.value})} placeholder="••••••••" className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-sm text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 transition-all" />
-                            </div>
-                            <div>
-                              <label className="text-[11px] text-[var(--muted)] font-medium ml-1 mb-1.5 block">Confirm Password</label>
-                              <input type="password" value={passForm.conf} onChange={e => setPassForm({...passForm, conf: e.target.value})} placeholder="••••••••" className="w-full bg-[var(--surface-2)] border border-[var(--line)] rounded-xl px-4 py-3.5 text-sm text-[var(--heading)] focus:outline-none focus:border-[#f5c842]/50 transition-all" />
-                            </div>
-                            
-                            {passMsg && (
-                              <div className={`p-3 rounded-xl text-xs flex items-center gap-2 ${passMsg.ok ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-red-500/10 text-red-400 border border-red-500/20'}`}>
-                                {passMsg.msg}
-                              </div>
-                            )}
-                            
-                            <button onClick={resetPassword} disabled={loading} className="w-full mt-2 bg-gradient-to-r from-[#f5c842] to-[#e0a800] text-[#0a0a0f] font-['Syne'] font-bold py-3.5 rounded-xl shadow-lg">
-                              {loading ? 'Resetting...' : (customer.has_password ? 'Reset Password' : 'Set Password')}
-                            </button>
-                            <div className="flex justify-between items-center mt-2 px-1">
-                              <button onClick={() => setOtpStep(1)} className="text-[10px] text-[var(--muted)]">← Change Method</button>
-                              <button onClick={sendOtp} disabled={timer > 0 || loading} className={`text-[10px] font-bold ${timer > 0 ? 'text-[var(--muted-2)]' : 'text-[#f5c842]'}`}>
-                                {timer > 0 ? `Resend in ${timer}s` : 'Resend OTP'}
-                              </button>
-                            </div>
-                          </>
-                        )}
-                      </>
-                    )}
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </AnimatePresence>
         </div>
       </div>
