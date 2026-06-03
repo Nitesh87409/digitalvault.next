@@ -269,7 +269,7 @@ export default function Navbar({ onSearchClick }) {
               <button
                 type="button"
                 onClick={() => setIsMobileMenuOpen(true)}
-                className="theme-icon-btn h-11 w-11 rounded-xl hidden md:flex lg:hidden items-center justify-center text-[var(--heading)] focus:outline-none"
+                className="theme-icon-btn h-11 w-11 rounded-xl flex lg:hidden items-center justify-center text-[var(--heading)] focus:outline-none"
                 aria-label="Toggle Menu"
               >
                 <svg width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
