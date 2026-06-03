@@ -215,9 +215,9 @@ export default function Navbar({ onSearchClick }) {
                 type="button"
                 aria-label="Search"
                 onClick={handleSearchClick}
-                className="theme-icon-btn h-11 w-11 rounded-xl md:hidden"
+                className="theme-icon-btn h-9 w-9 rounded-xl md:hidden shrink-0"
               >
-                <svg width="20" height="20" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <circle cx="11" cy="11" r="8"></circle>
                   <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
                 </svg>
