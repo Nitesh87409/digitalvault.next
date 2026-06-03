@@ -27,22 +27,40 @@ export default function AccountPage() {
 
   useEffect(() => {
     const c = localStorage.getItem('dv_customer');
-    if (!c) { router.push('/register?redirect=/account'); return; }
-    const parsed = JSON.parse(c);
-    setCustomer(parsed);
-    setForm({ name: parsed.name || '', phone: parsed.phone || '' });
+    let hasLocal = false;
+    if (c) {
+      try {
+        const parsed = JSON.parse(c);
+        if (parsed && parsed.email) {
+          setCustomer(parsed);
+          setForm({ name: parsed.name || '', phone: parsed.phone || '' });
+          hasLocal = true;
+        }
+      } catch {
+        localStorage.removeItem('dv_customer');
+      }
+    }
 
     // Fetch up-to-date customer data (like registration date and active status) from database
-    fetch('/api/customer')
+    fetch('/api/customer', { cache: 'no-store' })
       .then(res => res.json())
       .then(data => {
         if (data.flag && data.customer) {
           localStorage.setItem('dv_customer', JSON.stringify(data.customer));
           setCustomer(data.customer);
           setForm({ name: data.customer.name || '', phone: data.customer.phone || '' });
+        } else {
+          if (!hasLocal) {
+            router.push('/register?redirect=/account');
+          }
         }
       })
-      .catch(console.error);
+      .catch(err => {
+        console.error(err);
+        if (!hasLocal) {
+          router.push('/register?redirect=/account');
+        }
+      });
 
     const params = new URLSearchParams(window.location.search);
     const tab = params.get('tab');

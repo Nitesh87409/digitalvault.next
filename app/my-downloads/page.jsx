@@ -8,6 +8,7 @@ import Toast, { useToast } from '@/components/Toast';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 
 export default function MyDownloadsPage() {
+  const [customer, setCustomer] = useState(null);
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [supportEmail, setSupportEmail] = useState('support@digitalvault.in');
@@ -22,13 +23,45 @@ export default function MyDownloadsPage() {
   }, []);
 
   useEffect(() => {
-    loadDownloads();
-  }, [hasBundleAccess]);
+    const c = localStorage.getItem('dv_customer');
+    let hasLocal = false;
+    if (c) {
+      try {
+        const parsed = JSON.parse(c);
+        if (parsed && parsed.email) {
+          setCustomer(parsed);
+          hasLocal = true;
+        }
+      } catch {
+        localStorage.removeItem('dv_customer');
+      }
+    }
+
+    fetch('/api/customer', { cache: 'no-store' })
+      .then(res => res.json())
+      .then(data => {
+        if (data.flag && data.customer) {
+          localStorage.setItem('dv_customer', JSON.stringify(data.customer));
+          setCustomer(data.customer);
+        } else if (!hasLocal) {
+          router.push('/login?redirect=/my-downloads');
+        }
+      })
+      .catch(() => {
+        if (!hasLocal) {
+          router.push('/login?redirect=/my-downloads');
+        }
+      });
+  }, []);
+
+  useEffect(() => {
+    if (customer?.email) {
+      loadDownloads();
+    }
+  }, [hasBundleAccess, customer]);
 
   async function loadDownloads() {
-    const customer = JSON.parse(localStorage.getItem('dv_customer') || 'null');
     if (!customer?.email) {
-      router.push('/login?redirect=/my-downloads');
       return;
     }
 

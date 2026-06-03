@@ -8,6 +8,7 @@ const AnnouncementBanner = dynamic(() => import('@/components/AnnouncementBanner
 import FloatingContact from '@/components/FloatingContact';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import MetaPixel from '@/components/MetaPixel';
+import SessionSync from '@/components/SessionSync';
 
 
 const syne = Syne({
@@ -221,6 +222,7 @@ export default async function RootLayout({ children }) {
       </head>
       <body>
         <AnnouncementBanner />
+        <SessionSync />
         <main className="min-h-screen">
           {children}
         </main>
