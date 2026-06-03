@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { motion, AnimatePresence } from 'framer-motion';
-import { User, Download, ShoppingBag, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2 } from 'lucide-react';
+import { User, Download, ShoppingBag, LogOut, Edit2, CheckCircle, Home, ShoppingCart, CheckCircle2, Shield } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
