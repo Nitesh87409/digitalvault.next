@@ -4,6 +4,29 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Script from 'next/script';
 
+function getGoogleButtonText() {
+  if (typeof window === 'undefined') return 'Continue with Google';
+  const ua = navigator.userAgent || '';
+  const isFacebook = ua.includes('FBAN') || ua.includes('FBAV');
+  const isInstagram = ua.includes('Instagram');
+  if (isFacebook || isInstagram) {
+    return 'Use Chrome/Safari for Google Login';
+  }
+  return 'Continue with Google';
+}
+
+function getGoogleLoadErrorMessage() {
+  if (typeof window === 'undefined') return 'Google Sign-In failed to load. Please use email and phone.';
+  const ua = navigator.userAgent || '';
+  const isFacebook = ua.includes('FBAN') || ua.includes('FBAV');
+  const isInstagram = ua.includes('Instagram');
+  
+  if (isFacebook || isInstagram) {
+    return 'Please use Chrome/Safari browser.';
+  }
+  return 'Google Sign-In failed to load. Please use email and phone.';
+}
+
 export default function LoginPage() {
   const router = useRouter();
   const googleInitializedRef = useRef(false);
@@ -252,7 +275,7 @@ export default function LoginPage() {
             googleRenderedRef.current = true;
           }
         } catch {
-          setError('Google Sign-In failed to load. Please use email and phone.');
+          setError(getGoogleLoadErrorMessage());
         }
       } else if (attempts < 30) {
         attempts++;
@@ -408,11 +431,11 @@ export default function LoginPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (!window.google) setError('Google Sign-In failed to load. Please use email and phone.');
+                              if (!window.google) setError(getGoogleLoadErrorMessage());
                             }}
                             className="flex items-center justify-center gap-2.5 w-full p-3 bg-white text-black border-none text-[0.95rem] font-semibold cursor-pointer font-sans"
                           >
-                            Continue with Google
+                            {getGoogleButtonText()}
                           </button>
                         </div>
                       </div>
@@ -432,7 +455,7 @@ export default function LoginPage() {
             <Script
               src="https://accounts.google.com/gsi/client"
               onLoad={initGoogle}
-              onError={() => setError('Google Sign-In failed to load. Please use email and phone.')}
+              onError={() => setError(getGoogleLoadErrorMessage())}
               strategy="afterInteractive"
             />
           )}
