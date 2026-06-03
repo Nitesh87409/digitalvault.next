@@ -16,15 +16,26 @@ function getGoogleButtonText() {
 }
 
 function getGoogleLoadErrorMessage() {
-  if (typeof window === 'undefined') return 'Google Sign-In failed to load. Please use email and phone.';
-  const ua = navigator.userAgent || '';
-  const isFacebook = ua.includes('FBAN') || ua.includes('FBAV');
-  const isInstagram = ua.includes('Instagram');
-  
-  if (isFacebook || isInstagram) {
-    return 'Please use Chrome/Safari browser.';
-  }
   return 'Google Sign-In failed to load. Please use email and phone.';
+}
+
+function isWebView() {
+  if (typeof window === 'undefined') return false;
+  const ua = navigator.userAgent || '';
+  return ua.includes('FBAN') || ua.includes('FBAV') || ua.includes('Instagram');
+}
+
+function handleGoogleWebViewClick() {
+  if (typeof window === 'undefined') return;
+  const ua = navigator.userAgent || '';
+  const isAndroid = /Android/i.test(ua);
+  
+  if (isAndroid) {
+    const rawUrl = window.location.host + window.location.pathname + window.location.search;
+    window.location.href = `intent://${rawUrl}#Intent;scheme=https;package=com.android.chrome;end`;
+  } else {
+    alert('Google Login is blocked inside Facebook/Instagram WebView on iOS. Please tap the 3-dots or share icon at the top right and select "Open in Safari".');
+  }
 }
 
 export default function LoginPage() {
@@ -275,7 +286,9 @@ export default function LoginPage() {
             googleRenderedRef.current = true;
           }
         } catch {
-          setError(getGoogleLoadErrorMessage());
+          if (!isWebView()) {
+            setError(getGoogleLoadErrorMessage());
+          }
         }
       } else if (attempts < 30) {
         attempts++;
@@ -431,7 +444,11 @@ export default function LoginPage() {
                           <button
                             type="button"
                             onClick={() => {
-                              if (!window.google) setError(getGoogleLoadErrorMessage());
+                              if (isWebView()) {
+                                handleGoogleWebViewClick();
+                              } else if (!window.google) {
+                                setError(getGoogleLoadErrorMessage());
+                              }
                             }}
                             className="flex items-center justify-center gap-2.5 w-full p-3 bg-white text-black border-none text-[0.95rem] font-semibold cursor-pointer font-sans"
                           >
@@ -455,7 +472,11 @@ export default function LoginPage() {
             <Script
               src="https://accounts.google.com/gsi/client"
               onLoad={initGoogle}
-              onError={() => setError(getGoogleLoadErrorMessage())}
+              onError={() => {
+                if (!isWebView()) {
+                  setError(getGoogleLoadErrorMessage());
+                }
+              }}
               strategy="afterInteractive"
             />
           )}
