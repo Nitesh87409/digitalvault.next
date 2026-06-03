@@ -37,25 +37,7 @@ export async function GET(request) {
   try {
     await connectDB();
 
-    // Auto-migrate: populate missing slugs for existing products
-    const unsluggedProducts = await Product.find({
-      $or: [
-        { slug: { $exists: false } },
-        { slug: null },
-        { slug: "" }
-      ]
-    });
-    if (unsluggedProducts.length > 0) {
-      for (const prod of unsluggedProducts) {
-        let slug = prod.name.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/(^-|-$)+/g, "");
-        const exists = await Product.exists({ slug, _id: { $ne: prod._id } });
-        if (exists) {
-          const suffix = Math.random().toString(36).substring(2, 6);
-          slug = `${slug}-${suffix}`;
-        }
-        await Product.findByIdAndUpdate(prod._id, { slug });
-      }
-    }
+
 
     const { searchParams } = new URL(request.url);
     const id = searchParams.get('id');
@@ -70,7 +52,12 @@ export async function GET(request) {
         .select(admin ? '' : PUBLIC_PRODUCT_FIELDS)
         .lean();
       if (!product) return NextResponse.json({ flag: 0, message: 'Product not found' });
-      return NextResponse.json({ flag: 1, product: admin ? toAdminProduct(product) : toPublicProduct(product) });
+      const response = NextResponse.json({ flag: 1, product: admin ? toAdminProduct(product) : toPublicProduct(product) });
+      // Cache single-product responses at the edge for faster repeat loads
+      if (!admin) {
+        response.headers.set('Cache-Control', 's-maxage=300, stale-while-revalidate=600');
+      }
+      return response;
     }
 
     const filter = admin ? {} : { status: true };

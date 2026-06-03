@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import Toast from '@/components/Toast';
@@ -36,10 +37,10 @@ function loadRazorpayScript() {
   return razorpayScriptPromise;
 }
 
-export default function ProductPage({ id }) {
-  const [product, setProduct] = useState(null);
-  const [mainImg, setMainImg] = useState(null);
-  const [loading, setLoading] = useState(true);
+export default function ProductPage({ id, initialProduct }) {
+  const [product, setProduct] = useState(initialProduct || null);
+  const [mainImg, setMainImg] = useState(initialProduct?.images?.[0] || null);
+  const [loading, setLoading] = useState(!initialProduct);
   const [toast, setToast] = useState(null);
   const [cartCount, setCartCount] = useState(0);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
@@ -93,7 +94,19 @@ export default function ProductPage({ id }) {
   const router = useRouter();
 
   useEffect(() => {
-    loadProduct();
+    // If we have server-provided data, load secondary data immediately in parallel
+    if (initialProduct) {
+      const productId = initialProduct.id || initialProduct._id;
+      if (productId) {
+        Promise.all([
+          loadReviews(productId),
+          fetchProductCoupon(productId),
+        ]);
+      }
+    } else {
+      // Fallback: client-side fetch if no server data available
+      loadProduct();
+    }
 
     const loadCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
@@ -127,9 +140,12 @@ export default function ProductPage({ id }) {
       setShowVideoPreview(false);
       setLoading(false);
 
-      if (data.product?._id) {
-        loadReviews(data.product._id);
-        fetchProductCoupon(data.product._id);
+      const productId = data.product?._id || data.product?.id;
+      if (productId) {
+        Promise.all([
+          loadReviews(productId),
+          fetchProductCoupon(productId),
+        ]);
       }
     } catch(e) {
       router.push('/');
@@ -485,7 +501,7 @@ export default function ProductPage({ id }) {
               <div className="mb-3">
                 {mainImg ? (
                   <div className="relative">
-                    <img src={optimizeCloudinary(mainImg, 800)} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
+                    <Image src={optimizeCloudinary(mainImg, 800)} alt={product.name} width={800} height={800} priority className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" sizes="(max-width: 1024px) 100vw, 50vw" />
                     {youtubeVideoUrl && (
                       <button
                         type="button"
