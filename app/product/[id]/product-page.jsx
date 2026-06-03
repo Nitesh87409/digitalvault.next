@@ -3,6 +3,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
+import Toast from '@/components/Toast';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
@@ -192,7 +193,8 @@ export default function ProductPage({ id }) {
 
   function showToast(msg, bg = '#10b981', color = '#fff') {
     setToast({ msg, bg, color });
-    setTimeout(() => setToast(null), 2500);
+    const duration = msg.toLowerCase().includes('cart') ? 4000 : 2500;
+    setTimeout(() => setToast(null), duration);
   }
 
   function getStoredCustomer() {
@@ -892,14 +894,7 @@ export default function ProductPage({ id }) {
       )}
 
       {/* Toast */}
-      {toast && (
-        <div 
-          className="fixed bottom-6 right-6 z-[9999] px-5 py-3 rounded-xl text-sm font-semibold shadow-[0_4px_20px_rgba(0,0,0,0.3)] font-sans"
-          style={{ background: toast.bg, color: toast.color }}
-        >
-          {toast.msg}
-        </div>
-      )}
+      <Toast toast={toast} />
 
       {/* Mobile Sticky CTA Panel */}
       {!loading && product && (
