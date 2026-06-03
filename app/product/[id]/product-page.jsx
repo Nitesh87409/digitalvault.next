@@ -94,6 +94,9 @@ export default function ProductPage({ id, initialProduct }) {
   const router = useRouter();
 
   useEffect(() => {
+    // Preload Razorpay script in background to save ~0.8s during checkout
+    loadRazorpayScript().catch(() => {});
+
     // If we have server-provided data, load secondary data immediately in parallel
     if (initialProduct) {
       const productId = initialProduct.id || initialProduct._id;
@@ -668,9 +671,10 @@ export default function ProductPage({ id, initialProduct }) {
                     </button>
                     <button 
                       onClick={buyNow} 
-                      className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] active:scale-[0.96] active:brightness-95 select-none cursor-pointer"
+                      disabled={checkoutLoading}
+                      className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.02] enabled:hover:brightness-110 enabled:hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:opacity-75 disabled:cursor-not-allowed select-none cursor-pointer"
                     >
-                      ⚡ Buy Now
+                      {checkoutLoading ? '⏳ Opening Payment...' : '⚡ Buy Now'}
                     </button>
                   </>
                 )}
@@ -943,9 +947,10 @@ export default function ProductPage({ id, initialProduct }) {
                 </button>
                 <button 
                   onClick={buyNow} 
-                  className="flex-1 py-2.5 rounded-xl text-sm font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out hover:scale-[1.02] hover:brightness-110 hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] active:scale-[0.96] active:brightness-95 select-none cursor-pointer"
+                  disabled={checkoutLoading}
+                  className="flex-1 py-2.5 rounded-xl text-sm font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.02] enabled:hover:brightness-110 enabled:hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:opacity-75 disabled:cursor-not-allowed select-none cursor-pointer"
                 >
-                  ⚡ Buy Now
+                  {checkoutLoading ? '⏳ Opening Payment...' : '⚡ Buy Now'}
                 </button>
               </>
             )}
