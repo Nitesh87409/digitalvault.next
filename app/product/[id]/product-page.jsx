@@ -94,8 +94,6 @@ export default function ProductPage({ id }) {
 
   useEffect(() => {
     loadProduct();
-    loadReviews();
-    fetchProductCoupon();
 
     const loadCartCount = () => {
       const cart = JSON.parse(localStorage.getItem('dv_cart') || '[]');
@@ -128,14 +126,21 @@ export default function ProductPage({ id }) {
       setMainImg(data.product.images?.[0] || null);
       setShowVideoPreview(false);
       setLoading(false);
+
+      if (data.product?._id) {
+        loadReviews(data.product._id);
+        fetchProductCoupon(data.product._id);
+      }
     } catch(e) {
       router.push('/');
     }
   }
 
-  async function loadReviews() {
+  async function loadReviews(prodId) {
+    const targetId = prodId || product?.id || product?._id;
+    if (!targetId) return;
     try {
-      const res = await fetch(`/api/reviews?productId=${id}`);
+      const res = await fetch(`/api/reviews?productId=${targetId}`);
       const data = await res.json();
       if (data.flag) {
         setReviews(data.reviews || []);
@@ -145,7 +150,9 @@ export default function ProductPage({ id }) {
     }
   }
 
-  async function fetchProductCoupon() {
+  async function fetchProductCoupon(productId) {
+    const targetId = productId || product?.id || product?._id;
+    if (!targetId) return;
     try {
       let email = '';
       if (typeof window !== 'undefined') {
@@ -161,7 +168,7 @@ export default function ProductPage({ id }) {
         // Find best matching coupon for this product
         const match = data.coupons.find(c => {
           const pids = (c.product_ids || []).map(pid => pid.toString());
-          return pids.length === 0 || pids.includes(id); // all products or specific match
+          return pids.length === 0 || pids.includes(targetId); // all products or specific match
         });
         if (match) setProductCoupon(match);
       }
@@ -461,9 +468,9 @@ export default function ProductPage({ id }) {
           </div>
         </nav>
 
-        <div className="mx-auto max-w-[1152px] px-4 py-6 md:px-6 md:py-10">
+        <div className="mx-auto max-w-[1152px] px-4 pt-3 pb-6 md:px-6 md:pt-4 md:pb-10">
           {/* Breadcrumb */}
-          <div className="mb-5 md:mb-8 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-[var(--muted-2)] leading-relaxed">
+          <div className="mb-3 md:mb-5 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-[var(--muted-2)] leading-relaxed">
             <Link href="/" className="theme-link no-underline">Home</Link>
             <span className="opacity-40">›</span>
             <Link href="/#products" className="theme-link no-underline">Products</Link>
@@ -475,7 +482,7 @@ export default function ProductPage({ id }) {
             {/* LEFT — Images */}
             <div className="w-full lg:w-1/2 min-w-0">
               {/* Main Image */}
-              <div className="mb-4">
+              <div className="mb-3">
                 {mainImg ? (
                   <div className="relative">
                     <img src={optimizeCloudinary(mainImg, 800)} alt={product.name} className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" loading="eager" />
@@ -508,15 +515,15 @@ export default function ProductPage({ id }) {
               </div>
               {/* Thumbnails */}
               {product.images?.length > 1 && (
-                <div className="flex gap-3 overflow-x-auto pb-2 scrollbar-hide">
+                <div className="flex gap-2 overflow-x-auto pb-1.5 scrollbar-hide">
                   {product.images.map((img, i) => (
                     <img
                       key={i}
-                      src={optimizeCloudinary(img, 120)}
+                      src={optimizeCloudinary(img, 100)}
                       alt={`${product.name} ${i + 1}`}
                       onClick={() => setMainImg(img)}
                       loading="lazy"
-                      className={`w-[70px] h-[70px] sm:w-[80px] sm:h-[80px] object-cover rounded-xl cursor-pointer shrink-0 transition-colors border-2 ${mainImg === img ? 'border-[#f5c842]' : 'border-transparent'}`}
+                      className={`w-[56px] h-[56px] sm:w-[64px] sm:h-[64px] object-cover rounded-xl cursor-pointer shrink-0 transition-colors border-2 ${mainImg === img ? 'border-[#f5c842]' : 'border-transparent'}`}
                     />
                   ))}
                 </div>
