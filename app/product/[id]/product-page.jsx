@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import ThemeToggle from '@/components/ThemeToggle';
 import Toast from '@/components/Toast';
+import Navbar from '@/components/Navbar';
 import { useBundlePurchase } from '@/hooks/useBundlePurchase';
 import { useSettings } from '@/hooks/useSettings';
 import { optimizeCloudinary } from '@/lib/cloudinary-image';
@@ -452,40 +453,9 @@ export default function ProductPage({ id, initialProduct }) {
   return (
     <>
       <div className="theme-page font-dm">
-        {/* Nav */}
-        <nav className="sticky top-0 z-[100] border-b border-[#f5c842]/10 bg-[var(--nav-bg)] px-6 py-3 backdrop-blur-xl">
-          <div className="mx-auto flex max-w-[1152px] items-center justify-between gap-4">
-            <Link
-              href="/"
-              className="shrink truncate whitespace-nowrap font-syne text-xl font-bold text-[#f5c842] no-underline flex items-center gap-2"
-              style={settings.app_name_size ? { fontSize: `${settings.app_name_size}px` } : {}}
-            >
-              {settings.app_logo ? (
-                <img
-                  src={settings.app_logo}
-                  alt={settings.app_name}
-                  className="h-8 w-8 object-contain shrink-0"
-                  loading="eager"
-                  fetchPriority="high"
-                />
-              ) : null}
-              {settings.app_name}
-            </Link>
-            <div className="flex items-center gap-3 sm:gap-4">
-              <Link href="/" className="theme-link whitespace-nowrap text-sm no-underline">← Store</Link>
-              <Link href="/account" className="theme-link hidden whitespace-nowrap text-sm no-underline sm:inline">My Account</Link>
-              <ThemeToggle />
-              <Link href="/cart" className="hidden md:inline-flex theme-icon-btn relative h-11 w-11 rounded-xl items-center justify-center">
-                <svg width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 002 2h14a2 2 0 002-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 01-8 0"/></svg>
-                {cartCount > 0 && (
-                  <span className="absolute -right-1.5 -top-1.5 flex h-4 w-4 items-center justify-center rounded-full bg-[#f5c842] text-[10px] font-bold text-[#0a0a0f]">
-                    {cartCount > 9 ? '9+' : cartCount}
-                  </span>
-                )}
-              </Link>
-            </div>
-          </div>
-        </nav>
+        <Navbar />
+        {/* Spacer to prevent fixed navbar from covering content */}
+        <div className="h-[52px] md:h-[62px]" />
 
         <div className="mx-auto max-w-[1152px] px-4 pt-3 pb-6 md:px-6 md:pt-4 md:pb-10">
           {/* Breadcrumb */}
