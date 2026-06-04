@@ -11,6 +11,11 @@ export default function MetaPixel() {
     return null;
   }
 
+  // Don't load on localhost (development)
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return null;
+  }
+
   return (
     <>
       {/* Meta Pixel Code */}

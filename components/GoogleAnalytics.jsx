@@ -11,6 +11,11 @@ export default function GoogleAnalytics() {
     return null;
   }
 
+  // Don't load on localhost (development)
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return null;
+  }
+
   return (
     <>
       {/* Global Site Tag (gtag.js) - Google Analytics */}

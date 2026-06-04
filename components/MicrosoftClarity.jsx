@@ -11,6 +11,11 @@ export default function MicrosoftClarity() {
     return null;
   }
 
+  // Don't load on localhost (development)
+  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+    return null;
+  }
+
   return (
     <Script
       id="microsoft-clarity"
