@@ -294,7 +294,7 @@ export async function GET(request) {
     await connectDB();
 
     const decoded = verifyCustomer(request);
-    if (!decoded) return deny("Unauthorized", 401);
+    if (!decoded) return NextResponse.json({ flag: 0, customer: null });
 
     const account = await Customer.findById(decoded.id).select('_id name email phone createdAt is_blocked password').lean();
     if (!account) return deny("User not found", 404);
