@@ -55,7 +55,7 @@ async function findCustomerByContact(email, phone) {
 
 async function buildAuthResponse(customer, message) {
   const isPremium = await hasActiveBundleAccess(customer._id);
-  const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: "customer" }, "30d");
+  const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: "customer" }, "24h");
   const response = NextResponse.json({
     flag: 1,
     message,
@@ -76,7 +76,7 @@ async function buildAuthResponse(customer, message) {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 24 * 60 * 60,
     path: "/",
   });
 

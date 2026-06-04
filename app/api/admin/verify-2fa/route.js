@@ -68,7 +68,7 @@ export async function POST(request) {
     }
 
     // Generate token and set cookie
-    const token = generateToken({ id: admin._id, email: admin.email, name: admin.name, role: "admin" }, "7d");
+    const token = generateToken({ id: admin._id, email: admin.email, name: admin.name, role: "admin" }, "24h");
 
     const response = NextResponse.json({
       flag: 1,
@@ -82,7 +82,7 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "strict",
-      maxAge: 7 * 24 * 60 * 60,
+      maxAge: 24 * 60 * 60,
       path: "/",
     });
 

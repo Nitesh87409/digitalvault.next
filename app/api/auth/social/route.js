@@ -124,7 +124,7 @@ export async function POST(request) {
         name: customer.name,
         role: 'customer',
       },
-      '30d'
+      '24h'
     );
 
     const response = NextResponse.json({
@@ -146,7 +146,7 @@ export async function POST(request) {
       httpOnly: true,
       path: '/',
       secure: process.env.NODE_ENV === 'production',
-      maxAge: 30 * 24 * 60 * 60,
+      maxAge: 24 * 60 * 60,
       sameSite: 'lax',
     });
 

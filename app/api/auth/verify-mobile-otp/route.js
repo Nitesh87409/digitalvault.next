@@ -59,7 +59,7 @@ export async function POST(request) {
 
     await Customer.updateOne({ _id: customer._id }, { last_login: new Date() });
 
-    const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: 'customer' });
+    const token = generateToken({ id: customer._id, email: customer.email, name: customer.name, role: 'customer' }, '24h');
     const response = NextResponse.json({
       flag: 1,
       message: 'Login successful',
@@ -72,7 +72,7 @@ export async function POST(request) {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'lax',
-      maxAge: 30 * 24 * 60 * 60,
+      maxAge: 24 * 60 * 60,
       path: '/'
     });
 

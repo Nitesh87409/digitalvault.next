@@ -146,7 +146,7 @@ async function processVerifiedUser(request, verified) {
       name: customer.name,
       role: 'customer',
     },
-    '30d'
+    '24h'
   );
 
   const origin = new URL(request.url).origin;
@@ -161,7 +161,7 @@ async function processVerifiedUser(request, verified) {
     httpOnly: true,
     path: '/',
     secure: process.env.NODE_ENV === 'production',
-    maxAge: 30 * 24 * 60 * 60,
+    maxAge: 24 * 60 * 60,
     sameSite: 'lax',
   });
 
