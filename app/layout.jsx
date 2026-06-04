@@ -8,6 +8,7 @@ const AnnouncementBanner = dynamic(() => import('@/components/AnnouncementBanner
 import FloatingContact from '@/components/FloatingContact';
 import GoogleAnalytics from '@/components/GoogleAnalytics';
 import MetaPixel from '@/components/MetaPixel';
+import MicrosoftClarity from '@/components/MicrosoftClarity';
 import SessionSync from '@/components/SessionSync';
 
 
@@ -194,6 +195,7 @@ export default async function RootLayout({ children }) {
       <head suppressHydrationWarning>
         <GoogleAnalytics />
         <MetaPixel />
+        <MicrosoftClarity />
         <Script
           id="site-schema"
           type="application/ld+json"
