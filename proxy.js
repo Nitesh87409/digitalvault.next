@@ -27,15 +27,15 @@ function addSecurityHeaders(response) {
     'Content-Security-Policy',
     [
       "default-src 'self'",
-      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://api.razorpay.com https://cdn.razorpay.com https://accounts.google.com https://www.googletagmanager.com https://connect.facebook.net",
+      "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://checkout.razorpay.com https://checkout-static-next.razorpay.com https://api.razorpay.com https://cdn.razorpay.com https://accounts.google.com https://www.googletagmanager.com https://connect.facebook.net",
       "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
       "font-src 'self' https://fonts.gstatic.com",
       "img-src 'self' data: blob: https://res.cloudinary.com https://*.googleusercontent.com https://www.google-analytics.com https://www.googletagmanager.com https://www.facebook.com",
-      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://cdn.razorpay.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://connect.facebook.net https://www.facebook.com",
-      "frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://m.youtube.com",
+      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com https://cdn.razorpay.com https://checkout-static-next.razorpay.com https://accounts.google.com https://www.google-analytics.com https://analytics.google.com https://www.googletagmanager.com https://connect.facebook.net https://www.facebook.com https://capig.datah04.com",
+      "frame-src https://api.razorpay.com https://checkout.razorpay.com https://accounts.google.com https://www.youtube.com https://www.youtube-nocookie.com https://youtube.com https://m.youtube.com https://www.facebook.com",
       "object-src 'none'",
       "base-uri 'self'",
-      "form-action 'self'",
+      "form-action 'self' https://www.facebook.com",
     ].join('; ')
   );
   return response;
