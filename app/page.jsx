@@ -647,6 +647,7 @@ export default function HomePage() {
                   ['/#faq', 'FAQ'],
                   ['/testimonials', 'Real Testimonials'],
                   ['/blog', 'Blog'],
+                  ['/about-us', 'About Us'],
                   ['/refund-policy', 'Refund Policy'],
                   ['/terms-privacy', 'Terms & Privacy'],
                   ['/account', 'My Account']

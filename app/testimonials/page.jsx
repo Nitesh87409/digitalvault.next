@@ -157,6 +157,8 @@ export default function TestimonialsPage() {
           <div className="flex items-center gap-4 text-xs text-gray-500">
             <Link href="/" className="hover:text-[#f5c842] transition-colors no-underline">Store</Link>
             <span>·</span>
+            <Link href="/about-us" className="hover:text-[#f5c842] transition-colors no-underline">About Us</Link>
+            <span>·</span>
             <Link href="/refund-policy" className="hover:text-[#f5c842] transition-colors no-underline">Refunds</Link>
             <span>·</span>
             <Link href="/terms-privacy" className="hover:text-[#f5c842] transition-colors no-underline">Terms & Privacy</Link>

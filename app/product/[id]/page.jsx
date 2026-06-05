@@ -52,7 +52,7 @@ async function getAppMeta() {
 
 export async function generateMetadata({ params }) {
   const { id } = await params;
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.downloadkart.com").replace(/\/+$/, "");
 
   await connectDB();
   const [product, { appName, appAltName }] = await Promise.all([
@@ -115,7 +115,7 @@ export default async function Page({ params }) {
   // Build JSON-LD structured data
   let jsonLd = null;
   if (product) {
-    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
+    const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.downloadkart.com").replace(/\/+$/, "");
     jsonLd = {
       "@context": "https://schema.org",
       "@type": "Product",

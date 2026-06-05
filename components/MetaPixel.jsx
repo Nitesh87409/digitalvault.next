@@ -6,13 +6,25 @@ import Script from 'next/script';
 // Aap ise yahan se direct change kar sakte hain, ya .env file me NEXT_PUBLIC_META_PIXEL_ID set kar sakte hain.
 export const META_PIXEL_ID = process.env.NEXT_PUBLIC_META_PIXEL_ID || '2182603115838896';
 
+import { useState, useEffect } from 'react';
+
 export default function MetaPixel() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!META_PIXEL_ID) {
     return null;
   }
 
+  if (!mounted) {
+    return null;
+  }
+
   // Don't load on localhost (development)
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  if (window.location.hostname === 'localhost') {
     return null;
   }
 

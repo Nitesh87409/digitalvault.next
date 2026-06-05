@@ -52,7 +52,7 @@ export async function generateMetadata() {
     openGraph: {
       title: `${appName}${altSuffix} – Premium Digital Products`,
       description: `Welcome to ${appName}${altSuffix}. Everything you need to launch, grow, and scale your online business.`,
-      url: process.env.NEXT_PUBLIC_APP_URL || 'https://downloadkart.in',
+      url: process.env.NEXT_PUBLIC_APP_URL || 'https://www.downloadkart.com',
       siteName: appName,
       type: 'website',
     },
@@ -222,7 +222,7 @@ export default async function RootLayout({ children }) {
           }}
         />
       </head>
-      <body>
+      <body suppressHydrationWarning>
         <AnnouncementBanner />
         <SessionSync />
         <main className="min-h-screen">

@@ -75,6 +75,7 @@ export async function POST(request) {
       'bundle_send_email',
       'refund_policy_content',
       'terms_privacy_content',
+      'about_us_content',
       'social_instagram_enabled',
       'social_instagram_url',
       'social_whatsapp_enabled',
@@ -100,7 +101,7 @@ export async function POST(request) {
 
     fields.forEach((field) => {
       if (payload[field] !== undefined) {
-        if (field === 'refund_policy_content' || field === 'terms_privacy_content') {
+        if (field === 'refund_policy_content' || field === 'terms_privacy_content' || field === 'about_us_content') {
           settings[field] = sanitizeRichText(payload[field]);
         } else {
           settings[field] = payload[field];

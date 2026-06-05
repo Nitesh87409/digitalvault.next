@@ -6,13 +6,14 @@ import Blog from "@/models/Blog";
 export const revalidate = 3600;
 
 export default async function sitemap() {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.downloadkart.com").replace(/\/+$/, "");
 
   // 1. Static Pages
   const routes = [
     "",
     "/refund-policy",
     "/terms-privacy",
+    "/about-us",
     "/testimonials",
   ].map((route) => ({
     url: route === "" ? `${baseUrl}/` : `${baseUrl}${route}`,

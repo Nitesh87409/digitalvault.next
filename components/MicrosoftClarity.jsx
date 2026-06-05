@@ -6,13 +6,25 @@ import Script from 'next/script';
 // Aap ise yahan se direct change kar sakte hain, ya .env file me NEXT_PUBLIC_CLARITY_ID set kar sakte hain.
 export const CLARITY_PROJECT_ID = process.env.NEXT_PUBLIC_CLARITY_ID || 'x1m6nhpycf';
 
+import { useState, useEffect } from 'react';
+
 export default function MicrosoftClarity() {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
   if (!CLARITY_PROJECT_ID) {
     return null;
   }
 
+  if (!mounted) {
+    return null;
+  }
+
   // Don't load on localhost (development)
-  if (typeof window !== 'undefined' && window.location.hostname === 'localhost') {
+  if (window.location.hostname === 'localhost') {
     return null;
   }
 

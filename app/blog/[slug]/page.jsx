@@ -11,7 +11,7 @@ export const revalidate = 300;
 
 export async function generateMetadata({ params }) {
   const { slug } = await params;
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.downloadkart.com").replace(/\/+$/, "");
 
   let appName = 'DownloadKart';
   let appAltName = '';
@@ -96,7 +96,7 @@ export default async function BlogDetailsPage({ params }) {
   const renderedContent = renderBlogContentWithProductImages(blog.content, blog.product_id);
 
   // Inject dynamic structured Article JSON-LD
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://downloadkart.in").replace(/\/+$/, "");
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || "https://www.downloadkart.com").replace(/\/+$/, "");
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
