@@ -451,7 +451,7 @@ export default function ProductPage({ id, initialProduct }) {
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
           {/* LEFT — Images Skeleton */}
-          <div className="w-full max-w-[80%] mx-auto lg:max-w-none lg:w-[40%] min-w-0">
+          <div className="w-full max-w-[90%] mx-auto lg:max-w-none lg:w-[45%] min-w-0">
             <div className="mb-4 aspect-square w-full rounded-2xl skeleton-shimmer" />
             <div className="flex gap-3">
               {[1, 2, 3].map(i => (
@@ -461,7 +461,7 @@ export default function ProductPage({ id, initialProduct }) {
           </div>
 
           {/* RIGHT — Info Skeleton */}
-          <div className="w-full lg:w-[60%] flex flex-col min-w-0 space-y-5">
+          <div className="w-full lg:w-[55%] flex flex-col min-w-0 space-y-5">
             <div className="w-24 h-5 rounded-full skeleton-shimmer" />
             <div className="w-3/4 h-10 rounded-xl skeleton-shimmer" />
             <div className="w-1/2 h-5 rounded skeleton-shimmer" />
@@ -536,7 +536,7 @@ export default function ProductPage({ id, initialProduct }) {
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
             {/* LEFT — Images */}
-            <div className="w-full max-w-[80%] mx-auto lg:max-w-none lg:w-[40%] min-w-0">
+            <div className="w-full max-w-[90%] mx-auto lg:max-w-none lg:w-[45%] min-w-0">
               {/* Main Image */}
               <div className="mb-3">
                 {mainImg ? (
@@ -587,7 +587,7 @@ export default function ProductPage({ id, initialProduct }) {
             </div>
 
             {/* RIGHT — Info */}
-            <div className="w-full lg:w-[60%] flex flex-col min-w-0">
+            <div className="w-full lg:w-[55%] flex flex-col min-w-0">
               <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4 relative">
                 <div className="inline-block bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full font-['Syne',sans-serif] tracking-wide uppercase w-fit">
                   Digital Product
