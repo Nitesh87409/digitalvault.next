@@ -523,7 +523,7 @@ export default function HomePage() {
               { val: '100%', label: 'Money Back' },
             ].map(s => (
               <div key={s.label} style={{ textAlign: 'center' }}>
-                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne, sans-serif' }}>{s.val}</div>
+                <div style={{ fontSize: '2rem', fontWeight: 700, color: '#f5c842' }}>{s.val}</div>
                 <div style={{ fontSize: '0.875rem', color: '#6b7280', marginTop: '4px' }}>{s.label}</div>
               </div>
             ))}
@@ -635,7 +635,7 @@ export default function HomePage() {
         <div className="mx-auto max-w-[1152px]">
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '32px', marginBottom: '40px' }}>
             <div>
-              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', fontFamily: 'Syne,sans-serif', marginBottom: '12px' }}>{settings.app_name}</div>
+              <div style={{ fontSize: '1.5rem', fontWeight: 700, color: '#f5c842', marginBottom: '12px' }}>{settings.app_name}</div>
               <p className="text-sm text-[var(--muted-2)]">Premium digital products for modern entrepreneurs {settings.app_alt_name ? `at ${settings.app_alt_name.split(',')[0].trim()}` : `at ${settings.app_name}`}.</p>
             </div>
             <div>

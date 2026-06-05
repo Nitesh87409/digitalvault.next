@@ -46,6 +46,8 @@ export default function ProductPage({ id, initialProduct }) {
   const [cartCount, setCartCount] = useState(0);
   const [showVideoPreview, setShowVideoPreview] = useState(false);
   const [youtubeEmbedHostIndex, setYoutubeEmbedHostIndex] = useState(0);
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [timeLeft, setTimeLeft] = useState(600);
   
   // Reviews state
   const [reviews, setReviews] = useState([]);
@@ -68,6 +70,54 @@ export default function ProductPage({ id, initialProduct }) {
   useEffect(() => {
     setYoutubeEmbedHostIndex(0);
   }, [youtubeVideoId]);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsZoomed(false);
+      }
+    };
+    if (isZoomed) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isZoomed]);
+
+  useEffect(() => {
+    const storageKey = `dv_timer_${id}`;
+    let expiry = localStorage.getItem(storageKey);
+    let now = Date.now();
+    let expiryTime;
+
+    if (!expiry) {
+      expiryTime = now + 10 * 60 * 1000;
+      localStorage.setItem(storageKey, expiryTime.toString());
+    } else {
+      expiryTime = parseInt(expiry, 10);
+      if (isNaN(expiryTime) || expiryTime <= now) {
+        expiryTime = now + 10 * 60 * 1000;
+        localStorage.setItem(storageKey, expiryTime.toString());
+      }
+    }
+
+    const computeTimeLeft = () => {
+      const remaining = Math.max(0, Math.floor((expiryTime - Date.now()) / 1000));
+      setTimeLeft(remaining);
+      if (remaining <= 0) {
+        const newExpiry = Date.now() + 10 * 60 * 1000;
+        localStorage.setItem(storageKey, newExpiry.toString());
+      }
+    };
+
+    computeTimeLeft();
+    const interval = setInterval(computeTimeLeft, 1000);
+    return () => clearInterval(interval);
+  }, [id]);
+
+  const minutes = Math.floor(timeLeft / 60);
+  const seconds = timeLeft % 60;
 
   function copyLink() {
     if (typeof window === 'undefined') return;
@@ -401,7 +451,7 @@ export default function ProductPage({ id, initialProduct }) {
 
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
           {/* LEFT — Images Skeleton */}
-          <div className="w-full lg:w-1/2 min-w-0">
+          <div className="w-full max-w-[80%] mx-auto lg:max-w-none lg:w-[40%] min-w-0">
             <div className="mb-4 aspect-square w-full rounded-2xl skeleton-shimmer" />
             <div className="flex gap-3">
               {[1, 2, 3].map(i => (
@@ -411,7 +461,7 @@ export default function ProductPage({ id, initialProduct }) {
           </div>
 
           {/* RIGHT — Info Skeleton */}
-          <div className="w-full lg:w-1/2 flex flex-col min-w-0 space-y-5">
+          <div className="w-full lg:w-[60%] flex flex-col min-w-0 space-y-5">
             <div className="w-24 h-5 rounded-full skeleton-shimmer" />
             <div className="w-3/4 h-10 rounded-xl skeleton-shimmer" />
             <div className="w-1/2 h-5 rounded skeleton-shimmer" />
@@ -458,6 +508,23 @@ export default function ProductPage({ id, initialProduct }) {
         <div className="h-[52px] md:h-[62px]" />
 
         <div className="mx-auto max-w-[1152px] px-4 pt-3 pb-6 md:px-6 md:pt-4 md:pb-10">
+          {/* Fake Countdown Urgency Timer Banner */}
+          <div className="mb-4 sm:mb-5 flex items-center justify-between gap-3 px-4 py-2.5 rounded-xl border border-[#f5c842]/20 bg-gradient-to-r from-[#f5c842]/10 to-[#e0a800]/5 backdrop-blur-md shadow-md animate-[pulse_3s_ease-in-out_infinite]">
+            <div className="flex items-center gap-2 text-xs sm:text-sm text-white font-medium">
+              <span className="text-base sm:text-lg">⏳</span>
+              <span>
+                Flash Sale: Special discount ends in{' '}
+                <span className="font-mono font-bold text-[#f5c842] bg-black/30 px-2 py-0.5 rounded border border-[#f5c842]/10 ml-1">
+                  {minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
+                </span>
+              </span>
+            </div>
+            {discount > 0 && (
+              <span className="text-[10px] sm:text-xs font-bold text-[#10b981] bg-[#10b981]/10 px-2 py-0.5 rounded-full shrink-0">
+                {discount}% OFF
+              </span>
+            )}
+          </div>
           {/* Breadcrumb */}
           <div className="mb-3 md:mb-5 flex flex-wrap items-center gap-1.5 text-xs sm:text-sm text-[var(--muted-2)] leading-relaxed">
             <Link href="/" className="theme-link no-underline">Home</Link>
@@ -469,16 +536,16 @@ export default function ProductPage({ id, initialProduct }) {
 
           <div className="flex flex-col lg:flex-row gap-8 lg:gap-16">
             {/* LEFT — Images */}
-            <div className="w-full lg:w-1/2 min-w-0">
+            <div className="w-full max-w-[80%] mx-auto lg:max-w-none lg:w-[40%] min-w-0">
               {/* Main Image */}
               <div className="mb-3">
                 {mainImg ? (
-                  <div className="relative">
+                  <div className="relative cursor-zoom-in" onClick={() => setIsZoomed(true)}>
                     <Image src={optimizeCloudinary(mainImg, 800)} alt={product.name} width={800} height={800} priority className="w-full aspect-square object-cover rounded-2xl border border-[#f5c842]/15" sizes="(max-width: 1024px) 100vw, 50vw" />
                     {youtubeVideoUrl && (
                       <button
                         type="button"
-                        onClick={() => setShowVideoPreview(true)}
+                        onClick={(e) => { e.stopPropagation(); setShowVideoPreview(true); }}
                         className="absolute bottom-2 right-2 inline-flex items-center gap-1.5 rounded-full border border-[#f5c842]/40 bg-black/65 px-2.5 py-1.5 text-[10px] font-bold text-white backdrop-blur-md shadow-[0_0_0_0_rgba(245,200,66,0.42)] transition-transform hover:scale-[1.02] hover:bg-black/75 hover:shadow-[0_0_22px_rgba(245,200,66,0.55)] animate-[pulse_2.4s_ease-in-out_infinite] sm:bottom-3 sm:right-3 sm:px-3 sm:text-[11px]"
                       >
                         <span className="flex h-5 w-5 items-center justify-center rounded-full bg-[#f5c842] text-[10px] text-[#0a0a0f]">▶</span>
@@ -520,7 +587,7 @@ export default function ProductPage({ id, initialProduct }) {
             </div>
 
             {/* RIGHT — Info */}
-            <div className="w-full lg:w-1/2 flex flex-col min-w-0">
+            <div className="w-full lg:w-[60%] flex flex-col min-w-0">
               <div className="flex items-center justify-between gap-4 mb-3 sm:mb-4 relative">
                 <div className="inline-block bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] text-[10px] sm:text-xs font-bold px-3 py-1 rounded-full font-['Syne',sans-serif] tracking-wide uppercase w-fit">
                   Digital Product
@@ -581,7 +648,7 @@ export default function ProductPage({ id, initialProduct }) {
 
               {/* Price */}
               <div className="flex flex-row flex-wrap items-center gap-3 sm:gap-4 mb-2">
-                <span className="text-3xl sm:text-4xl lg:text-[2.5rem] font-bold text-[#f5c842] font-['Syne',sans-serif]">₹{sale.toLocaleString()}</span>
+                <span className="text-3xl sm:text-4xl lg:text-[2.5rem] font-bold text-[#f5c842]">₹{sale.toLocaleString()}</span>
                 {orig > 0 && <span className="text-lg text-[var(--muted-2)] line-through sm:text-xl">₹{orig.toLocaleString()}</span>}
                 {discount > 0 && <span className="text-xs sm:text-sm font-bold text-[#10b981] bg-[#10b981]/10 px-2 sm:px-3 py-1 rounded-lg shrink-0">{discount}% OFF</span>}
               </div>
@@ -644,7 +711,7 @@ export default function ProductPage({ id, initialProduct }) {
                       disabled={checkoutLoading}
                       className="flex-1 py-3 sm:py-4 rounded-xl text-sm sm:text-base font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.02] enabled:hover:brightness-110 enabled:hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:opacity-75 disabled:cursor-not-allowed select-none cursor-pointer"
                     >
-                      {checkoutLoading ? '⏳ Opening Payment...' : '⚡ Buy Now'}
+                      {checkoutLoading ? '⏳ Opening Payment...' : `⚡ Buy Now - ₹${sale.toLocaleString()}`}
                     </button>
                   </>
                 )}
@@ -826,6 +893,31 @@ export default function ProductPage({ id, initialProduct }) {
         </div>
       )}
 
+      {isZoomed && mainImg && (
+        <div 
+          className="fixed inset-0 z-[1000] flex items-center justify-center bg-black/90 p-4 backdrop-blur-md transition-all duration-300"
+          onClick={() => setIsZoomed(false)}
+        >
+          <div 
+            className="relative max-w-4xl max-h-[90vh] w-full h-full flex items-center justify-center"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              onClick={() => setIsZoomed(false)}
+              className="absolute top-4 right-4 z-[1010] flex h-10 w-10 items-center justify-center rounded-full bg-black/50 text-white border border-white/20 transition-all hover:bg-black/80 hover:scale-105 cursor-pointer text-xl"
+              aria-label="Close zoom"
+            >
+              ✕
+            </button>
+            <img 
+              src={optimizeCloudinary(mainImg, 1600)} 
+              alt={product?.name || 'Zoomed Image'} 
+              className="max-w-full max-h-[90vh] object-contain rounded-xl select-none shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
+
       {showVideoPreview && youtubeVideoUrl && (
         <div
           className="fixed inset-0 z-[200] flex items-center justify-center bg-black/75 px-4 py-6 backdrop-blur-sm"
@@ -920,7 +1012,7 @@ export default function ProductPage({ id, initialProduct }) {
                   disabled={checkoutLoading}
                   className="flex-1 py-2.5 rounded-xl text-sm font-bold font-['Syne',sans-serif] bg-gradient-to-br from-[#f5c842] to-[#e0a800] text-[#0a0a0f] transform transition-all duration-100 ease-out enabled:hover:scale-[1.02] enabled:hover:brightness-110 enabled:hover:shadow-[0_0_25px_rgba(245,200,66,0.35)] enabled:active:scale-[0.96] enabled:active:brightness-95 disabled:opacity-75 disabled:cursor-not-allowed select-none cursor-pointer"
                 >
-                  {checkoutLoading ? '⏳ Opening Payment...' : '⚡ Buy Now'}
+                  {checkoutLoading ? '⏳ Opening Payment...' : `⚡ Buy Now - ₹${sale.toLocaleString()}`}
                 </button>
               </>
             )}

@@ -214,12 +214,12 @@ export default async function BlogDetailsPage({ params }) {
             className="prose prose-invert max-w-none text-gray-300 leading-relaxed font-sans text-sm sm:text-base space-y-6"
             style={{
               "--tw-prose-headings": "var(--heading)",
-              "& h2": { fontFamily: "Syne, sans-serif", fontWeight: 700, color: "white", marginTop: "2rem", marginBottom: "1rem" }
+              "& h2": { fontFamily: "var(--font-dm-sans), sans-serif", fontWeight: 700, color: "white", marginTop: "2rem", marginBottom: "1rem" }
             }}
           >
             {/* Custom styling inject for HTML blocks */}
             <style>{`
-              .blog-rich-content h2, .blog-rich-content h3 { font-family: 'Syne', sans-serif; font-weight: 700; color: white; margin-top: 2rem; margin-bottom: 1rem; }
+              .blog-rich-content h2, .blog-rich-content h3 { font-family: var(--font-dm-sans), sans-serif; font-weight: 700; color: white; margin-top: 2rem; margin-bottom: 1rem; }
               .blog-rich-content h2 { font-size: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.06); padding-bottom: 0.5rem; }
               .blog-rich-content h3 { font-size: 1.25rem; }
               .blog-rich-content p { margin-bottom: 1.5rem; line-height: 1.75; }

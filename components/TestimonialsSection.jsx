@@ -15,7 +15,7 @@ export default function TestimonialsSection({ homepageReviews }) {
               </div>
               <p className="mb-5 text-sm text-[var(--text)]">{t.review}</p>
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.color, color: t.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem', fontFamily: 'Syne,sans-serif' }}>{t.initials}</div>
+                <div style={{ width: '40px', height: '40px', borderRadius: '50%', background: t.color, color: t.textColor, display: 'flex', alignItems: 'center', justifyContent: 'center', fontWeight: 700, fontSize: '0.875rem' }}>{t.initials}</div>
                 <div>
                   <div className="text-sm font-semibold text-[var(--heading)]">{t.name}</div>
                   <div className="text-xs text-[var(--muted)]">{t.role}</div>

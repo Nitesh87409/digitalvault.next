@@ -1,5 +1,5 @@
 import './globals.css';
-import { Syne, DM_Sans } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 import dynamic from 'next/dynamic';
 import Script from 'next/script';
 
@@ -12,7 +12,7 @@ import MicrosoftClarity from '@/components/MicrosoftClarity';
 import SessionSync from '@/components/SessionSync';
 
 
-const syne = Syne({
+const syne = DM_Sans({
   subsets: ['latin'],
   weight: ['400', '700'],
   variable: '--font-syne',
