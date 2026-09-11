@@ -12,7 +12,20 @@ export async function PUT(request, { params }) {
     const resolvedParams = await params;
     const { id } = resolvedParams;
     const body = await request.json();
-    const { appName, slug, contactEmail, privacyPolicy, termsConditions } = body;
+    const {
+      appName,
+      slug,
+      contactEmail,
+      privacyPolicy,
+      termsConditions,
+      playStoreUrl,
+      appIcon,
+      shortDescription,
+      screenshots,
+      rating,
+      installs,
+      developerName,
+    } = body;
 
     const trimmedAppName = typeof appName === 'string' ? appName.trim() : '';
     let trimmedSlug = typeof slug === 'string' ? slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : '';
@@ -34,6 +47,13 @@ export async function PUT(request, { params }) {
         contactEmail: typeof contactEmail === 'string' ? contactEmail.trim() : '',
         privacyPolicy: typeof privacyPolicy === 'string' ? privacyPolicy : '',
         termsConditions: typeof termsConditions === 'string' ? termsConditions : '',
+        playStoreUrl: typeof playStoreUrl === 'string' ? playStoreUrl.trim() : '',
+        appIcon: typeof appIcon === 'string' ? appIcon.trim() : '',
+        shortDescription: typeof shortDescription === 'string' ? shortDescription.trim() : '',
+        screenshots: Array.isArray(screenshots) ? screenshots.filter(s => typeof s === 'string' && s.trim()) : [],
+        rating: typeof rating === 'string' ? rating.trim() : '',
+        installs: typeof installs === 'string' ? installs.trim() : '',
+        developerName: typeof developerName === 'string' ? developerName.trim() : '',
       },
       { new: true }
     );
