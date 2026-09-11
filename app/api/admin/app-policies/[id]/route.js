@@ -28,35 +28,39 @@ export async function PUT(request, { params }) {
       landingPageContent,
     } = body;
 
-    const trimmedAppName = typeof appName === 'string' ? appName.trim() : '';
-    let trimmedSlug = typeof slug === 'string' ? slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : '';
+    const updateData = {};
 
-    if (!trimmedAppName || !trimmedSlug) {
-      return NextResponse.json({ flag: false, message: 'App Name and Slug are required' }, { status: 400 });
+    if (body.appName !== undefined) {
+      const trimmedAppName = typeof appName === 'string' ? appName.trim() : '';
+      if (!trimmedAppName) return NextResponse.json({ flag: false, message: 'App Name is required' }, { status: 400 });
+      updateData.appName = trimmedAppName;
     }
 
-    const slugExists = await AppPolicy.findOne({ slug: trimmedSlug, _id: { $ne: id } });
-    if (slugExists) {
-      return NextResponse.json({ flag: false, message: 'Slug already exists. Please choose another.' }, { status: 400 });
+    if (body.slug !== undefined) {
+      let trimmedSlug = typeof slug === 'string' ? slug.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)+/g, '') : '';
+      if (!trimmedSlug) return NextResponse.json({ flag: false, message: 'Slug is required' }, { status: 400 });
+      const slugExists = await AppPolicy.findOne({ slug: trimmedSlug, _id: { $ne: id } });
+      if (slugExists) {
+        return NextResponse.json({ flag: false, message: 'Slug already exists. Please choose another.' }, { status: 400 });
+      }
+      updateData.slug = trimmedSlug;
     }
+
+    if (body.contactEmail !== undefined) updateData.contactEmail = typeof contactEmail === 'string' ? contactEmail.trim() : '';
+    if (body.privacyPolicy !== undefined) updateData.privacyPolicy = typeof privacyPolicy === 'string' ? privacyPolicy : '';
+    if (body.termsConditions !== undefined) updateData.termsConditions = typeof termsConditions === 'string' ? termsConditions : '';
+    if (body.playStoreUrl !== undefined) updateData.playStoreUrl = typeof playStoreUrl === 'string' ? playStoreUrl.trim() : '';
+    if (body.appIcon !== undefined) updateData.appIcon = typeof appIcon === 'string' ? appIcon.trim() : '';
+    if (body.shortDescription !== undefined) updateData.shortDescription = typeof shortDescription === 'string' ? shortDescription.trim() : '';
+    if (body.screenshots !== undefined) updateData.screenshots = Array.isArray(screenshots) ? screenshots.filter(s => typeof s === 'string' && s.trim()) : [];
+    if (body.rating !== undefined) updateData.rating = typeof rating === 'string' ? rating.trim() : '';
+    if (body.installs !== undefined) updateData.installs = typeof installs === 'string' ? installs.trim() : '';
+    if (body.developerName !== undefined) updateData.developerName = typeof developerName === 'string' ? developerName.trim() : '';
+    if (body.landingPageContent !== undefined) updateData.landingPageContent = typeof landingPageContent === 'string' ? landingPageContent : '';
 
     const appPolicy = await AppPolicy.findByIdAndUpdate(
       id,
-      {
-        appName: trimmedAppName,
-        slug: trimmedSlug,
-        contactEmail: typeof contactEmail === 'string' ? contactEmail.trim() : '',
-        privacyPolicy: typeof privacyPolicy === 'string' ? privacyPolicy : '',
-        termsConditions: typeof termsConditions === 'string' ? termsConditions : '',
-        playStoreUrl: typeof playStoreUrl === 'string' ? playStoreUrl.trim() : '',
-        appIcon: typeof appIcon === 'string' ? appIcon.trim() : '',
-        shortDescription: typeof shortDescription === 'string' ? shortDescription.trim() : '',
-        screenshots: Array.isArray(screenshots) ? screenshots.filter(s => typeof s === 'string' && s.trim()) : [],
-        rating: typeof rating === 'string' ? rating.trim() : '',
-        installs: typeof installs === 'string' ? installs.trim() : '',
-        developerName: typeof developerName === 'string' ? developerName.trim() : '',
-        landingPageContent: typeof landingPageContent === 'string' ? landingPageContent : '',
-      },
+      { $set: updateData },
       { new: true }
     );
 
