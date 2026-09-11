@@ -2,6 +2,48 @@ import { NextResponse } from 'next/server';
 import connectDB from '@/lib/mongodb';
 import AppPolicy from '@/models/AppPolicy';
 import { verifyAdmin } from '@/lib/auth';
+import cloudinary from '@/lib/cloudinary';
+
+// Extract public ID from Cloudinary URL
+function getCloudinaryPublicId(url) {
+  if (!url || typeof url !== 'string' || !url.includes('res.cloudinary.com')) return null;
+  try {
+    const uploadIdx = url.indexOf('/upload/');
+    if (uploadIdx === -1) return null;
+    let path = url.substring(uploadIdx + 8); // skip '/upload/'
+    
+    // Strip version segment if exists (e.g. 'v12345678/')
+    const firstSlash = path.indexOf('/');
+    if (firstSlash !== -1) {
+      const firstSegment = path.substring(0, firstSlash);
+      if (/^v\d+$/.test(firstSegment)) {
+        path = path.substring(firstSlash + 1);
+      }
+    }
+    
+    // Strip file extension
+    const lastDot = path.lastIndexOf('.');
+    if (lastDot !== -1) {
+      path = path.substring(0, lastDot);
+    }
+    return path;
+  } catch (e) {
+    return null;
+  }
+}
+
+// Delete media asset from Cloudinary
+async function deleteFromCloudinary(url) {
+  const publicId = getCloudinaryPublicId(url);
+  if (!publicId) return false;
+  try {
+    const res = await cloudinary.uploader.destroy(publicId);
+    return res.result === 'ok';
+  } catch (e) {
+    console.error('Failed to delete from Cloudinary:', e);
+    return false;
+  }
+}
 
 export async function PUT(request, { params }) {
   try {
@@ -58,6 +100,24 @@ export async function PUT(request, { params }) {
     if (body.developerName !== undefined) updateData.developerName = typeof developerName === 'string' ? developerName.trim() : '';
     if (body.landingPageContent !== undefined) updateData.landingPageContent = typeof landingPageContent === 'string' ? landingPageContent : '';
 
+    // If updating screenshots or icon, clean up any removed Cloudinary images to save space
+    if (body.screenshots !== undefined || body.appIcon !== undefined) {
+      const existingDoc = await AppPolicy.findById(id).select('appIcon screenshots').lean();
+      if (existingDoc) {
+        if (body.appIcon !== undefined && existingDoc.appIcon && existingDoc.appIcon !== updateData.appIcon) {
+          await deleteFromCloudinary(existingDoc.appIcon);
+        }
+        if (body.screenshots !== undefined && Array.isArray(existingDoc.screenshots)) {
+          const newScreenshotsSet = new Set(updateData.screenshots || []);
+          for (const oldShot of existingDoc.screenshots) {
+            if (!newScreenshotsSet.has(oldShot)) {
+              await deleteFromCloudinary(oldShot);
+            }
+          }
+        }
+      }
+    }
+
     const appPolicy = await AppPolicy.findByIdAndUpdate(
       id,
       { $set: updateData },
@@ -84,12 +144,26 @@ export async function DELETE(request, { params }) {
     const resolvedParams = await params;
     const { id } = resolvedParams;
 
-    const deletedPolicy = await AppPolicy.findByIdAndDelete(id);
-    if (!deletedPolicy) {
+    const existingPolicy = await AppPolicy.findById(id);
+    if (!existingPolicy) {
       return NextResponse.json({ flag: false, message: 'App Policy not found' }, { status: 404 });
     }
 
-    return NextResponse.json({ flag: true, message: 'App Policy deleted successfully' });
+    // Clean up all Cloudinary assets (appIcon & screenshots) to save storage space
+    const imagesToDelete = [];
+    if (existingPolicy.appIcon) imagesToDelete.push(existingPolicy.appIcon);
+    if (Array.isArray(existingPolicy.screenshots)) {
+      imagesToDelete.push(...existingPolicy.screenshots);
+    }
+
+    for (const imgUrl of imagesToDelete) {
+      await deleteFromCloudinary(imgUrl);
+    }
+
+    // Delete record from MongoDB
+    await AppPolicy.findByIdAndDelete(id);
+
+    return NextResponse.json({ flag: true, message: 'App Policy and all associated storage assets deleted successfully' });
   } catch (error) {
     console.error('[Admin AppPolicies DELETE] error:', error);
     return NextResponse.json({ flag: false, message: 'Server error' }, { status: 500 });
