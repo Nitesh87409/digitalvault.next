@@ -351,6 +351,12 @@ export default function AppPoliciesAdminPage() {
   const [playStoreInput, setPlayStoreInput] = useState('');
   const [scraping, setScraping] = useState(false);
   const [newScreenshotUrl, setNewScreenshotUrl] = useState('');
+
+  // Image Uploading States & Refs
+  const [uploadingIcon, setUploadingIcon] = useState(false);
+  const [uploadingScreenshots, setUploadingScreenshots] = useState(false);
+  const iconInputRef = useRef(null);
+  const screenshotsInputRef = useRef(null);
   
   // Real-Time SEO Auditor State
   const [focusKeyword, setFocusKeyword] = useState('');
@@ -408,6 +414,61 @@ export default function AppPoliciesAdminPage() {
       setBlogContentHtml(ref.current?.innerHTML || '');
     }
   };
+
+  // --- Device Image Upload Handlers ---
+  async function handleIconUpload(e) {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploadingIcon(true);
+    try {
+      const fd = new FormData();
+      fd.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: fd });
+      const data = await res.json();
+      if (data.flag && data.url) {
+        setLandingForm(prev => ({ ...prev, appIcon: data.url }));
+        setMessage({ type: 'success', text: '✅ Icon uploaded successfully!' });
+      } else {
+        setMessage({ type: 'error', text: data.message || 'Failed to upload icon' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Upload error' });
+    }
+    setUploadingIcon(false);
+    if (iconInputRef.current) iconInputRef.current.value = '';
+  }
+
+  async function handleScreenshotsUpload(e) {
+    const files = Array.from(e.target.files || []);
+    if (files.length === 0) return;
+    setUploadingScreenshots(true);
+    setMessage({ type: '', text: '' });
+    try {
+      const uploadedUrls = [];
+      for (const file of files) {
+        const fd = new FormData();
+        fd.append('file', file);
+        const res = await fetch('/api/upload', { method: 'POST', body: fd });
+        const data = await res.json();
+        if (data.flag && data.url) {
+          uploadedUrls.push(data.url);
+        }
+      }
+      if (uploadedUrls.length > 0) {
+        setLandingForm(prev => ({
+          ...prev,
+          screenshots: [...prev.screenshots, ...uploadedUrls]
+        }));
+        setMessage({ type: 'success', text: `✅ ${uploadedUrls.length} screenshot(s) uploaded successfully!` });
+      } else {
+        setMessage({ type: 'error', text: 'Failed to upload screenshots' });
+      }
+    } catch (err) {
+      setMessage({ type: 'error', text: 'Error uploading screenshots' });
+    }
+    setUploadingScreenshots(false);
+    if (screenshotsInputRef.current) screenshotsInputRef.current.value = '';
+  }
 
   // --- Open Modal 1: Policy Modal ---
   function openAddPolicyModal() {
@@ -879,7 +940,7 @@ export default function AppPoliciesAdminPage() {
                 <h2 className="text-xl font-bold text-white flex items-center gap-2">
                   <span>⚡</span> Setup Landing Page & SEO App Guide
                 </h2>
-                <p className="text-xs text-gray-400 mt-1">Connect Play Store metadata and use Live SEO Auditor to rank your app in Google search.</p>
+                <p className="text-xs text-gray-400 mt-1">Connect Play Store metadata, upload screenshots, and use Live SEO Auditor to rank in Google.</p>
               </div>
               <button onClick={() => setShowLandingModal(false)} className="text-gray-400 hover:text-white text-xl">✕</button>
             </div>
@@ -962,7 +1023,7 @@ export default function AppPoliciesAdminPage() {
                 </div>
               </div>
 
-              {/* Play Store Link & Icon */}
+              {/* Play Store Link & Icon with Direct Upload */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                 <div>
                   <label className="block text-sm font-medium text-gray-400 mb-2">Google Play Store Download URL</label>
@@ -975,18 +1036,35 @@ export default function AppPoliciesAdminPage() {
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-400 mb-2">App Icon URL</label>
-                  <div className="flex gap-3 items-center">
-                    {landingForm.appIcon && (
-                      <img src={landingForm.appIcon} alt="Preview" className="w-11 h-11 rounded-xl object-cover border border-white/10" />
+                  <label className="block text-sm font-medium text-gray-400 mb-2">App Icon</label>
+                  <div className="flex gap-2 items-center">
+                    {landingForm.appIcon ? (
+                      <img src={landingForm.appIcon} alt="Preview" className="w-11 h-11 rounded-xl object-cover border border-white/10 shrink-0" />
+                    ) : (
+                      <div className="w-11 h-11 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-sm shrink-0">📱</div>
                     )}
                     <input 
                       type="url" 
                       value={landingForm.appIcon}
                       onChange={(e) => setLandingForm({ ...landingForm, appIcon: e.target.value })}
-                      className="flex-1 bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-[#f5c842]" 
-                      placeholder="https://.../icon.png"
+                      className="flex-1 bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-3 text-white text-sm focus:outline-none focus:border-[#f5c842]" 
+                      placeholder="Paste icon URL or upload →"
                     />
+                    <input
+                      type="file"
+                      ref={iconInputRef}
+                      onChange={handleIconUpload}
+                      accept="image/*"
+                      className="hidden"
+                    />
+                    <button
+                      type="button"
+                      disabled={uploadingIcon}
+                      onClick={() => iconInputRef.current?.click()}
+                      className="px-4 py-3 bg-white/10 hover:bg-white/20 text-white rounded-xl text-xs font-semibold whitespace-nowrap transition-colors"
+                    >
+                      {uploadingIcon ? 'Uploading...' : '📁 Upload'}
+                    </button>
                   </div>
                 </div>
               </div>
@@ -1037,17 +1115,21 @@ export default function AppPoliciesAdminPage() {
                 </div>
               </div>
 
-              {/* Screenshots Gallery Preview */}
+              {/* Screenshots Gallery with Direct Device Upload */}
               <div className="mb-8">
-                <label className="block text-sm font-medium text-gray-400 mb-2">
-                  Screenshots Gallery ({landingForm.screenshots.length})
-                </label>
-                <div className="flex gap-2 mb-3">
+                <div className="flex justify-between items-center mb-2">
+                  <label className="block text-sm font-medium text-gray-400">
+                    Screenshots Gallery ({landingForm.screenshots.length})
+                  </label>
+                  <span className="text-xs text-gray-500">Paste URL or upload directly from device</span>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-2 mb-3">
                   <input 
                     type="url"
                     value={newScreenshotUrl}
                     onChange={(e) => setNewScreenshotUrl(e.target.value)}
-                    placeholder="Paste image link to manually add screenshot"
+                    placeholder="Paste image link to add manual screenshot"
                     className="flex-1 bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-[#f5c842]"
                   />
                   <button 
@@ -1058,11 +1140,30 @@ export default function AppPoliciesAdminPage() {
                         setNewScreenshotUrl('');
                       }
                     }}
-                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm"
+                    className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white rounded-xl text-sm whitespace-nowrap"
                   >
-                    + Add
+                    + Add URL
+                  </button>
+
+                  {/* Direct file upload from computer/mobile */}
+                  <input
+                    type="file"
+                    multiple
+                    ref={screenshotsInputRef}
+                    onChange={handleScreenshotsUpload}
+                    accept="image/*"
+                    className="hidden"
+                  />
+                  <button 
+                    type="button" 
+                    disabled={uploadingScreenshots}
+                    onClick={() => screenshotsInputRef.current?.click()}
+                    className="px-5 py-2.5 bg-[#f5c842]/10 hover:bg-[#f5c842]/20 text-[#f5c842] border border-[#f5c842]/20 rounded-xl text-sm font-semibold flex items-center justify-center gap-1.5 whitespace-nowrap transition-colors"
+                  >
+                    {uploadingScreenshots ? 'Uploading...' : '📁 Upload from Device'}
                   </button>
                 </div>
+
                 {landingForm.screenshots.length > 0 && (
                   <div className="flex gap-3 overflow-x-auto p-2 bg-[#0a0a0f] rounded-xl border border-white/10">
                     {landingForm.screenshots.map((shot, idx) => (
@@ -1071,7 +1172,7 @@ export default function AppPoliciesAdminPage() {
                         <button 
                           type="button" 
                           onClick={() => setLandingForm(prev => ({ ...prev, screenshots: prev.screenshots.filter((_, i) => i !== idx) }))}
-                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md"
+                          className="absolute -top-2 -right-2 w-6 h-6 bg-red-500 text-white rounded-full flex items-center justify-center text-xs shadow-md opacity-90 group-hover:opacity-100 transition-opacity"
                         >
                           ✕
                         </button>
