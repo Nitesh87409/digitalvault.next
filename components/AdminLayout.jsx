@@ -106,7 +106,8 @@ export default function AdminLayout({ children }) {
       group: 'LEGAL',
       items: [
         { href: '/admin/terms-privacy', id: 'terms-privacy', icon: '📜', label: 'Terms & Privacy' },
-        { href: '/admin/refund-policy', id: 'refund-policy', icon: '💸', label: 'Refund Policy' }
+        { href: '/admin/refund-policy', id: 'refund-policy', icon: '💸', label: 'Refund Policy' },
+        { href: '/admin/app-policies', id: 'app-policies', icon: '📱', label: 'App Policies' }
       ]
     },
     {
