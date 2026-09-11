@@ -100,9 +100,9 @@ export async function PUT(request, { params }) {
     if (body.developerName !== undefined) updateData.developerName = typeof developerName === 'string' ? developerName.trim() : '';
     if (body.landingPageContent !== undefined) updateData.landingPageContent = typeof landingPageContent === 'string' ? landingPageContent : '';
 
-    // If updating screenshots or icon, clean up any removed Cloudinary images to save space
-    if (body.screenshots !== undefined || body.appIcon !== undefined) {
-      const existingDoc = await AppPolicy.findById(id).select('appIcon screenshots').lean();
+    // If updating screenshots, icon, or SEO content, clean up any removed Cloudinary images to save space
+    if (body.screenshots !== undefined || body.appIcon !== undefined || body.landingPageContent !== undefined) {
+      const existingDoc = await AppPolicy.findById(id).select('appIcon screenshots landingPageContent').lean();
       if (existingDoc) {
         if (body.appIcon !== undefined && existingDoc.appIcon && existingDoc.appIcon !== updateData.appIcon) {
           await deleteFromCloudinary(existingDoc.appIcon);
@@ -112,6 +112,15 @@ export async function PUT(request, { params }) {
           for (const oldShot of existingDoc.screenshots) {
             if (!newScreenshotsSet.has(oldShot)) {
               await deleteFromCloudinary(oldShot);
+            }
+          }
+        }
+        if (body.landingPageContent !== undefined && existingDoc.landingPageContent) {
+          const oldMatches = existingDoc.landingPageContent.match(/https:\/\/res\.cloudinary\.com\/[^\s"'>)]+/g) || [];
+          const newMatches = new Set((body.landingPageContent || '').match(/https:\/\/res\.cloudinary\.com\/[^\s"'>)]+/g) || []);
+          for (const oldImg of oldMatches) {
+            if (!newMatches.has(oldImg)) {
+              await deleteFromCloudinary(oldImg);
             }
           }
         }
@@ -149,14 +158,24 @@ export async function DELETE(request, { params }) {
       return NextResponse.json({ flag: false, message: 'App Policy not found' }, { status: 404 });
     }
 
-    // Clean up all Cloudinary assets (appIcon & screenshots) to save storage space
+    // Clean up all Cloudinary assets (appIcon, screenshots, and SEO blog embedded images) to save storage space
     const imagesToDelete = [];
     if (existingPolicy.appIcon) imagesToDelete.push(existingPolicy.appIcon);
     if (Array.isArray(existingPolicy.screenshots)) {
       imagesToDelete.push(...existingPolicy.screenshots);
     }
 
-    for (const imgUrl of imagesToDelete) {
+    // Also scan landingPageContent (SEO Blog/Guide), privacyPolicy, and termsConditions for any embedded Cloudinary images
+    const textToScan = `${existingPolicy.landingPageContent || ''} ${existingPolicy.privacyPolicy || ''} ${existingPolicy.termsConditions || ''}`;
+    const cloudinaryRegex = /https:\/\/res\.cloudinary\.com\/[^\s"'>)]+/g;
+    const matches = textToScan.match(cloudinaryRegex);
+    if (matches && matches.length > 0) {
+      imagesToDelete.push(...matches);
+    }
+
+    // Remove duplicates
+    const uniqueImages = Array.from(new Set(imagesToDelete));
+    for (const imgUrl of uniqueImages) {
       await deleteFromCloudinary(imgUrl);
     }
 
