@@ -175,6 +175,25 @@ export default async function AppLandingPage({ params }) {
           </div>
         )}
 
+        {/* SEO Blog & Detailed Guide Section */}
+        {appData.landingPageContent && (
+          <article className="mt-16 pt-12 border-t border-white/5">
+            <div className="bg-[#111116] rounded-3xl p-6 sm:p-10 border border-white/5">
+              <div className="flex items-center gap-2 text-xs font-semibold text-[#f5c842] uppercase tracking-wider mb-4">
+                <span>📖</span> App Guide & Overview
+              </div>
+              <div 
+                className="prose prose-invert max-w-none text-gray-300 leading-relaxed 
+                  prose-headings:text-white 
+                  prose-h2:text-2xl prose-h2:font-bold prose-h2:mt-8 prose-h2:mb-4 
+                  prose-h3:text-xl prose-h3:font-semibold prose-h3:mt-6 prose-h3:mb-3 
+                  prose-p:my-4 prose-ul:my-4 prose-li:my-1 text-sm sm:text-base"
+                dangerouslySetInnerHTML={{ __html: appData.landingPageContent }}
+              />
+            </div>
+          </article>
+        )}
+
         {/* About App / Safety Section */}
         <div className="mt-16 bg-[#111116] rounded-2xl p-6 sm:p-8 border border-white/5">
           <h2 className="text-lg font-bold text-white mb-3">About {appData.appName}</h2>

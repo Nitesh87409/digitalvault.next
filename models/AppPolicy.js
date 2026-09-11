@@ -13,6 +13,7 @@ const AppPolicySchema = new mongoose.Schema({
   rating: { type: String, default: '', trim: true },
   installs: { type: String, default: '', trim: true },
   developerName: { type: String, default: '', trim: true },
+  landingPageContent: { type: String, default: '' },
 }, { timestamps: true });
 
 if (process.env.NODE_ENV === 'development') {

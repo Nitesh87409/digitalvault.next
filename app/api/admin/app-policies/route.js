@@ -37,6 +37,7 @@ export async function POST(request) {
       rating,
       installs,
       developerName,
+      landingPageContent,
     } = body;
 
     const trimmedAppName = typeof appName === 'string' ? appName.trim() : '';
@@ -64,6 +65,7 @@ export async function POST(request) {
       rating: typeof rating === 'string' ? rating.trim() : '',
       installs: typeof installs === 'string' ? installs.trim() : '',
       developerName: typeof developerName === 'string' ? developerName.trim() : '',
+      landingPageContent: typeof landingPageContent === 'string' ? landingPageContent : '',
     });
 
     return NextResponse.json({ flag: true, message: 'App Policy created successfully', appPolicy });

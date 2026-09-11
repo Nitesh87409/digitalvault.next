@@ -25,6 +25,7 @@ export async function PUT(request, { params }) {
       rating,
       installs,
       developerName,
+      landingPageContent,
     } = body;
 
     const trimmedAppName = typeof appName === 'string' ? appName.trim() : '';
@@ -54,6 +55,7 @@ export async function PUT(request, { params }) {
         rating: typeof rating === 'string' ? rating.trim() : '',
         installs: typeof installs === 'string' ? installs.trim() : '',
         developerName: typeof developerName === 'string' ? developerName.trim() : '',
+        landingPageContent: typeof landingPageContent === 'string' ? landingPageContent : '',
       },
       { new: true }
     );
