@@ -9,7 +9,8 @@ export async function PUT(request, { params }) {
     if (!admin) return NextResponse.json({ flag: false, message: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
     const body = await request.json();
     const { appName, slug, contactEmail, privacyPolicy, termsConditions } = body;
 
@@ -54,7 +55,8 @@ export async function DELETE(request, { params }) {
     if (!admin) return NextResponse.json({ flag: false, message: 'Unauthorized' }, { status: 401 });
 
     await connectDB();
-    const { id } = params;
+    const resolvedParams = await params;
+    const { id } = resolvedParams;
 
     const deletedPolicy = await AppPolicy.findByIdAndDelete(id);
     if (!deletedPolicy) {

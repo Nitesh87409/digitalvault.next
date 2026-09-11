@@ -5,7 +5,8 @@ import Link from 'next/link';
 
 // Helper to sanitize HTML if needed, though we assume admin input is safe
 export async function generateMetadata({ params }) {
-  const { slug, type } = params;
+  const resolvedParams = await params;
+  const { slug, type } = resolvedParams;
   if (!['privacy', 'terms'].includes(type)) return { title: 'Not Found' };
 
   await connectDB();
@@ -21,7 +22,8 @@ export async function generateMetadata({ params }) {
 }
 
 export default async function AppLegalPage({ params }) {
-  const { slug, type } = params;
+  const resolvedParams = await params;
+  const { slug, type } = resolvedParams;
   
   if (!['privacy', 'terms'].includes(type)) {
     notFound();
