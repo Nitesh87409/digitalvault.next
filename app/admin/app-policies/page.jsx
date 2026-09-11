@@ -1,6 +1,323 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 
+// Live SEO Auditor core calculation helper for App Blog & Landing Page
+function analyzeAppSeo(title = '', excerpt = '', content = '', focusKeyword = '') {
+  const titleClean = title ? title.trim() : '';
+  const excerptClean = excerpt ? excerpt.trim() : '';
+  const contentClean = content ? content.trim() : '';
+  const keywordClean = focusKeyword ? focusKeyword.trim().toLowerCase() : '';
+
+  const checks = [];
+  let points = 0;
+
+  const getWordCount = (htmlText) => {
+    const text = htmlText.replace(/<[^>]*>/g, ' ');
+    const words = text.trim().split(/\s+/).filter(w => w.length > 0);
+    return words.length;
+  };
+
+  const wordsCount = getWordCount(contentClean);
+
+  // 1. App Title Check (Weight: 15)
+  const titleLength = titleClean.length;
+  if (titleLength === 0) {
+    checks.push({
+      id: 'title_length',
+      type: 'error',
+      message: 'Article Title is missing',
+      points: 0,
+      maxPoints: 15,
+      detail: 'Add a descriptive title to start live SEO auditing.'
+    });
+  } else if (titleLength < 20) {
+    checks.push({
+      id: 'title_length',
+      type: 'warning',
+      message: `Title is short (${titleLength} chars)`,
+      points: 8,
+      maxPoints: 15,
+      detail: 'Aim for 20-60 characters for best Google Play & Google search click-through rate.'
+    });
+    points += 8;
+  } else if (titleLength > 65) {
+    checks.push({
+      id: 'title_length',
+      type: 'warning',
+      message: `Title is too long (${titleLength} chars)`,
+      points: 10,
+      maxPoints: 15,
+      detail: 'Keep it below 60 characters so it fits on Google search result cards without truncation.'
+    });
+    points += 10;
+  } else {
+    checks.push({
+      id: 'title_length',
+      type: 'success',
+      message: `Title length is perfect (${titleLength} chars)`,
+      points: 15,
+      maxPoints: 15,
+      detail: 'Great title length! Optimized for Google Search snippet display.'
+    });
+    points += 15;
+  }
+
+  // 2. Short Description / Meta Summary Check (Weight: 15)
+  const excerptLength = excerptClean.length;
+  if (excerptLength === 0) {
+    checks.push({
+      id: 'excerpt_length',
+      type: 'error',
+      message: 'Excerpt / Summary is missing',
+      points: 0,
+      maxPoints: 15,
+      detail: 'The excerpt serves as your meta description on search result snippets.'
+    });
+  } else if (excerptLength < 50) {
+    checks.push({
+      id: 'excerpt_length',
+      type: 'warning',
+      message: `Summary is brief (${excerptLength} chars)`,
+      points: 8,
+      maxPoints: 15,
+      detail: 'Write 50-160 characters to summarize your app features and hook search readers.'
+    });
+    points += 8;
+  } else if (excerptLength > 165) {
+    checks.push({
+      id: 'excerpt_length',
+      type: 'warning',
+      message: `Summary is too long (${excerptLength} chars)`,
+      points: 10,
+      maxPoints: 15,
+      detail: 'Keep it under 160 characters so Google does not cut it off in search snippets.'
+    });
+    points += 10;
+  } else {
+    checks.push({
+      id: 'excerpt_length',
+      type: 'success',
+      message: `Summary length is perfect (${excerptLength} chars)`,
+      points: 15,
+      maxPoints: 15,
+      detail: 'Fits beautifully into the meta-description preview snippet on Google search!'
+    });
+    points += 15;
+  }
+
+  // 3. Word Count Check (Weight: 25)
+  if (wordsCount === 0) {
+    checks.push({
+      id: 'word_count',
+      type: 'error',
+      message: 'Article content body is empty',
+      points: 0,
+      maxPoints: 25,
+      detail: 'Write rich paragraphs. Detailed content performs significantly better in indexing.'
+    });
+  } else if (wordsCount < 200) {
+    checks.push({
+      id: 'word_count',
+      type: 'warning',
+      message: `Content has only ${wordsCount} words`,
+      points: 10,
+      maxPoints: 25,
+      detail: 'Google flags pages with under 200 words as thin content. Aim to add more guide details.'
+    });
+    points += 10;
+  } else if (wordsCount < 500) {
+    checks.push({
+      id: 'word_count',
+      type: 'success',
+      message: `Good content depth (${wordsCount} words)`,
+      points: 20,
+      maxPoints: 25,
+      detail: 'Awesome depth! Over 200 words is crawlable, but 500+ words yields maximum authority.'
+    });
+    points += 20;
+  } else {
+    checks.push({
+      id: 'word_count',
+      type: 'success',
+      message: `Excellent content depth (${wordsCount} words)`,
+      points: 25,
+      maxPoints: 25,
+      detail: 'Highly detailed context! Search engine indexing spiders favor deep, authoritative resources.'
+    });
+    points += 25;
+  }
+
+  // 4. H1 Heading Restriction Check (Weight: 15)
+  const h1Matches = (contentClean.match(/<h1[^>]*>([\s\S]*?)<\/h1>/gi) || []).length;
+  if (h1Matches > 0) {
+    checks.push({
+      id: 'h1_count',
+      type: 'error',
+      message: `Found ${h1Matches} <h1> tag(s) in content body`,
+      points: 0,
+      maxPoints: 15,
+      detail: 'Critical penalty! The page template already renders the title inside <h1>. Change these to <h2>.'
+    });
+  } else {
+    checks.push({
+      id: 'h1_count',
+      type: 'success',
+      message: 'No <h1> tags in body content',
+      points: 15,
+      maxPoints: 15,
+      detail: 'Perfect. Your article complies with the single H1-per-page hierarchy standard.'
+    });
+    points += 15;
+  }
+
+  // 5. Subheadings (H2 / H3) (Weight: 15)
+  const h2Matches = (contentClean.match(/<h2[^>]*>([\s\S]*?)<\/h2>/gi) || []).length;
+  const h3Matches = (contentClean.match(/<h3[^>]*>([\s\S]*?)<\/h3>/gi) || []).length;
+  const totalSubheadings = h2Matches + h3Matches;
+
+  if (totalSubheadings === 0) {
+    checks.push({
+      id: 'subheading_count',
+      type: 'error',
+      message: 'No subheadings (<h2> or <h3>) found',
+      points: 0,
+      maxPoints: 15,
+      detail: 'Break up your text! Add at least 2 subheadings (e.g. <h2>Features</h2>) to improve scanning.'
+    });
+  } else if (totalSubheadings === 1) {
+    checks.push({
+      id: 'subheading_count',
+      type: 'warning',
+      message: 'Only 1 subheading (<h2> or <h3>) found',
+      points: 8,
+      maxPoints: 15,
+      detail: 'Structure your topics deeper. Add at least one more subheading to segment paragraphs logically.'
+    });
+    points += 8;
+  } else {
+    checks.push({
+      id: 'subheading_count',
+      type: 'success',
+      message: `Structured with ${totalSubheadings} subheadings (H2: ${h2Matches}, H3: ${h3Matches})`,
+      points: 15,
+      maxPoints: 15,
+      detail: 'Outstanding subheading structure! Perfect for human navigation and Google outline indexing.'
+    });
+    points += 15;
+  }
+
+  // 6. Hyperlinks (Weight: 10)
+  const linkMatches = (contentClean.match(/<a\s+[^>]*href=["']([^"']+)["'][^>]*>([\s\S]*?)<\/a>/gi) || []).length;
+  if (linkMatches === 0) {
+    checks.push({
+      id: 'link_count',
+      type: 'error',
+      message: 'No hyperlinks found in content',
+      points: 0,
+      maxPoints: 10,
+      detail: 'Add a hyperlink (e.g. to related features or downloads) to direct traffic and boost authority.'
+    });
+  } else {
+    checks.push({
+      id: 'link_count',
+      type: 'success',
+      message: `Found ${linkMatches} hyperlink(s) in content`,
+      points: 10,
+      maxPoints: 10,
+      detail: 'Awesome. Inbound/Outbound links spread link equity and guide customer conversion.'
+    });
+    points += 10;
+  }
+
+  // 7. Bold / Strong formatting (Weight: 5)
+  const boldMatches = (contentClean.match(/<(strong|b)[^>]*>([\s\S]*?)<\/\1>/gi) || []).length;
+  if (boldMatches === 0) {
+    checks.push({
+      id: 'bold_emphasis',
+      type: 'warning',
+      message: 'No bold elements used',
+      points: 0,
+      maxPoints: 5,
+      detail: 'Use <strong> or <b> tags at least once to emphasize critical terms for indexing spiders.'
+    });
+  } else {
+    checks.push({
+      id: 'bold_emphasis',
+      type: 'success',
+      message: `Used bold formatting ${boldMatches} times`,
+      points: 5,
+      maxPoints: 5,
+      detail: 'Great job! Highlighting important ideas assists fast customer scanning.'
+    });
+    points += 5;
+  }
+
+  // Keyword Checks
+  const keywordChecks = [];
+  if (keywordClean) {
+    const inTitle = titleClean.toLowerCase().includes(keywordClean);
+    keywordChecks.push({
+      id: 'kw_title',
+      success: inTitle,
+      message: inTitle ? 'Keyword present in App Title' : 'Keyword not found in App Title',
+      detail: 'Placing your targeted keyword in the title is the absolute strongest ranking factor.'
+    });
+
+    const inExcerpt = excerptClean.toLowerCase().includes(keywordClean);
+    keywordChecks.push({
+      id: 'kw_excerpt',
+      success: inExcerpt,
+      message: inExcerpt ? 'Keyword present in Short Description' : 'Keyword not found in Short Description',
+      detail: 'Including keyword matches in summary improves click-through snippet rates on Google.'
+    });
+
+    const safeRegexStr = keywordClean.replace(/[-\/\\^$*+?.()|[\]{}]/g, '\\$&');
+    const bodyMatches = (contentClean.toLowerCase().match(new RegExp(safeRegexStr, 'g')) || []).length;
+    keywordChecks.push({
+      id: 'kw_body',
+      success: bodyMatches > 0,
+      message: bodyMatches > 0 ? `Keyword in body content: YES (${bodyMatches} times)` : 'Keyword not found in body content',
+      detail: 'Integrate the focus keyword naturally inside your guide paragraphs.'
+    });
+
+    if (bodyMatches > 0 && wordsCount > 0) {
+      const density = ((bodyMatches / wordsCount) * 100).toFixed(2);
+      const densityNum = parseFloat(density);
+      if (densityNum >= 0.5 && densityNum <= 2.5) {
+        keywordChecks.push({
+          id: 'kw_density',
+          success: true,
+          message: `Keyword density is ideal (${density}%)`,
+          detail: '0.5% - 2.5% keyword density signals relevance without search engine keyword-stuffing penalties.'
+        });
+      } else if (densityNum < 0.5) {
+        keywordChecks.push({
+          id: 'kw_density',
+          success: false,
+          message: `Keyword density is low (${density}%)`,
+          detail: 'Consider mentioning your focus keyword a few more times in relevant paragraphs.'
+        });
+      } else {
+        keywordChecks.push({
+          id: 'kw_density',
+          success: false,
+          message: `Keyword density is high (${density}%)`,
+          detail: 'Over 2.5% density risks spam penalties. Replace redundant occurrences with synonyms.'
+        });
+      }
+    }
+  }
+
+  const score = Math.min(100, Math.max(0, points));
+
+  return {
+    score,
+    checks,
+    keywordChecks,
+    wordsCount,
+  };
+}
+
 export default function AppPoliciesAdminPage() {
   const [policies, setPolicies] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -34,6 +351,10 @@ export default function AppPoliciesAdminPage() {
   const [playStoreInput, setPlayStoreInput] = useState('');
   const [scraping, setScraping] = useState(false);
   const [newScreenshotUrl, setNewScreenshotUrl] = useState('');
+  
+  // Real-Time SEO Auditor State
+  const [focusKeyword, setFocusKeyword] = useState('');
+  const [blogContentHtml, setBlogContentHtml] = useState('');
   const landingBlogRef = useRef(null);
 
   const [saving, setSaving] = useState(false);
@@ -57,6 +378,14 @@ export default function AppPoliciesAdminPage() {
     setLoading(false);
   }
 
+  // Compute live SEO Analysis
+  const seoAnalysis = analyzeAppSeo(
+    landingForm.appName,
+    landingForm.shortDescription,
+    blogContentHtml,
+    focusKeyword
+  );
+
   // --- Helpers for Rich Text Editors ---
   const loadPolicyEditors = (privacy, terms) => {
     setTimeout(() => {
@@ -66,6 +395,7 @@ export default function AppPoliciesAdminPage() {
   };
 
   const loadLandingBlogEditor = (content) => {
+    setBlogContentHtml(content || '');
     setTimeout(() => {
       if (landingBlogRef.current) landingBlogRef.current.innerHTML = content || '';
     }, 50);
@@ -74,6 +404,9 @@ export default function AppPoliciesAdminPage() {
   const fmtDoc = (ref, cmd, val = null) => {
     ref.current?.focus();
     document.execCommand(cmd, false, val);
+    if (ref === landingBlogRef) {
+      setBlogContentHtml(ref.current?.innerHTML || '');
+    }
   };
 
   // --- Open Modal 1: Policy Modal ---
@@ -99,6 +432,7 @@ export default function AppPoliciesAdminPage() {
 
   // --- Open Modal 2: Landing Page & SEO Blog Modal ---
   function openLandingModal(preSelectedPolicy = null) {
+    setFocusKeyword('');
     if (preSelectedPolicy) {
       setSelectedAppId(preSelectedPolicy._id);
       populateLandingForm(preSelectedPolicy);
@@ -292,17 +626,17 @@ export default function AppPoliciesAdminPage() {
   }
 
   const Toolbar = ({ onFmt }) => (
-    <div className="flex flex-wrap gap-2 p-2 bg-[#1a1a24] border-b border-[#2a2a36]">
-      <button type="button" onClick={() => onFmt('bold')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold">B</button>
-      <button type="button" onClick={() => onFmt('italic')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] italic">I</button>
-      <button type="button" onClick={() => onFmt('underline')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] underline">U</button>
+    <div className="flex flex-wrap gap-2 p-2 bg-[#1a1a24] border-b border-white/10">
+      <button type="button" onClick={() => onFmt('bold')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold text-xs">B</button>
+      <button type="button" onClick={() => onFmt('italic')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] italic text-xs">I</button>
+      <button type="button" onClick={() => onFmt('underline')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] underline text-xs">U</button>
       <div className="w-px h-6 bg-[#3a3a46] mx-1"></div>
-      <button type="button" onClick={() => onFmt('formatBlock', 'H2')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold">H2</button>
-      <button type="button" onClick={() => onFmt('formatBlock', 'H3')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold">H3</button>
-      <button type="button" onClick={() => onFmt('formatBlock', 'P')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46]">P</button>
+      <button type="button" onClick={() => onFmt('formatBlock', 'H2')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold text-xs">H2</button>
+      <button type="button" onClick={() => onFmt('formatBlock', 'H3')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] font-bold text-xs">H3</button>
+      <button type="button" onClick={() => onFmt('formatBlock', 'P')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] text-xs">P</button>
       <div className="w-px h-6 bg-[#3a3a46] mx-1"></div>
-      <button type="button" onClick={() => onFmt('insertUnorderedList')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46]">• List</button>
-      <button type="button" onClick={() => onFmt('insertOrderedList')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46]">1. List</button>
+      <button type="button" onClick={() => onFmt('insertUnorderedList')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] text-xs">• List</button>
+      <button type="button" onClick={() => onFmt('insertOrderedList')} className="px-3 py-1 rounded bg-[#2a2a36] text-white hover:bg-[#3a3a46] text-xs">1. List</button>
     </div>
   );
 
@@ -535,15 +869,17 @@ export default function AppPoliciesAdminPage() {
       )}
 
       {/* ========================================================= */}
-      {/* MODAL 2: SETUP LANDING PAGE & SEO BLOG (Post-Launch)     */}
+      {/* MODAL 2: SETUP LANDING PAGE & LIVE SEO BLOG AUDITOR       */}
       {/* ========================================================= */}
       {showLandingModal && (
-        <div className="fixed inset-0 bg-black/80 z-50 flex justify-center items-start overflow-y-auto p-4 custom-scrollbar">
-          <div className="bg-[#111116] rounded-2xl w-full max-w-4xl my-8 border border-white/10 shadow-2xl">
+        <div className="fixed inset-0 bg-black/85 z-50 flex justify-center items-start overflow-y-auto p-4 custom-scrollbar">
+          <div className="bg-[#111116] rounded-2xl w-full max-w-6xl my-6 border border-white/10 shadow-2xl">
             <div className="p-6 border-b border-white/10 flex justify-between items-center sticky top-0 bg-[#111116] z-10 rounded-t-2xl">
               <div>
-                <h2 className="text-xl font-bold text-white">⚡ Setup Landing Page & SEO App Guide</h2>
-                <p className="text-xs text-gray-400 mt-1">Connect Play Store metadata and write an SEO blog for Google search ranking.</p>
+                <h2 className="text-xl font-bold text-white flex items-center gap-2">
+                  <span>⚡</span> Setup Landing Page & SEO App Guide
+                </h2>
+                <p className="text-xs text-gray-400 mt-1">Connect Play Store metadata and use Live SEO Auditor to rank your app in Google search.</p>
               </div>
               <button onClick={() => setShowLandingModal(false)} className="text-gray-400 hover:text-white text-xl">✕</button>
             </div>
@@ -657,7 +993,7 @@ export default function AppPoliciesAdminPage() {
 
               {/* Tagline / Short Description */}
               <div className="mb-6">
-                <label className="block text-sm font-medium text-gray-400 mb-2">Short Description / Tagline</label>
+                <label className="block text-sm font-medium text-gray-400 mb-2">Short Description / Tagline (Serves as Meta Description)</label>
                 <textarea 
                   rows="2"
                   value={landingForm.shortDescription}
@@ -745,30 +1081,199 @@ export default function AppPoliciesAdminPage() {
                 )}
               </div>
 
-              {/* SEO Blog & In-Depth Guide Section */}
-              <div className="mb-8 p-5 bg-[#1a1a24] rounded-2xl border border-white/10">
-                <div className="flex justify-between items-center mb-3">
-                  <div>
-                    <label className="block text-sm font-bold text-[#f5c842] font-syne">
-                      📝 SEO App Blog & Detailed Guide (For Google Search Ranking)
-                    </label>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      Write an in-depth article, FAQs, and features breakdown. Google will index this text to rank your page for app searches!
+              {/* ===================================================== */}
+              {/* LIVE SEO AUDITOR + APP BLOG EDITOR 2-COLUMN SECTION   */}
+              {/* ===================================================== */}
+              <div className="mb-8 p-5 sm:p-6 bg-[#1a1a24] rounded-2xl border border-white/10">
+                <div className="border-b border-white/10 pb-4 mb-6">
+                  <h3 className="text-base font-bold text-[#f5c842] font-syne flex items-center gap-2">
+                    <span>⚡</span> Live SEO Auditor & App Guide Editor
+                  </h3>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Write in-depth tutorials, feature breakdowns, and FAQs. The Live SEO Auditor tracks your keyword ranking potential in real-time!
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                  
+                  {/* Left Column: Rich Text Blog / Guide Editor (7 Cols) */}
+                  <div className="lg:col-span-7 flex flex-col gap-3">
+                    <div className="flex justify-between items-center text-xs text-gray-400">
+                      <span className="font-semibold text-white">App Article & Content Body</span>
+                      <span>Word Count: <strong className="text-[#f5c842] font-mono">{seoAnalysis.wordsCount}</strong> words</span>
+                    </div>
+
+                    <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0a0a0f]">
+                      <Toolbar onFmt={(cmd, val) => fmtDoc(landingBlogRef, cmd, val)} />
+                      <div 
+                        ref={landingBlogRef}
+                        onInput={(e) => setBlogContentHtml(e.currentTarget.innerHTML)}
+                        onKeyUp={(e) => setBlogContentHtml(e.currentTarget.innerHTML)}
+                        className="w-full min-h-[380px] p-4 text-white focus:outline-none prose prose-invert max-w-none text-sm"
+                        contentEditable
+                        suppressContentEditableWarning
+                      />
+                    </div>
+                    <p className="text-[11px] text-gray-500">
+                      Renders directly on <strong>/apps/{landingForm.slug || '[slug]'}</strong> under the screenshot gallery.
                     </p>
                   </div>
+
+                  {/* Right Column: Live SEO Auditor Widget (5 Cols) */}
+                  <div className="lg:col-span-5 bg-[#0e0e18] border border-white/10 rounded-2xl p-4 flex flex-col gap-4 sticky top-4">
+                    
+                    <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                      <span className="font-syne text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                        ⚡ Live SEO Auditor
+                      </span>
+                      <span className="text-[10px] text-gray-500 font-mono">Live Sync</span>
+                    </div>
+
+                    {/* Radial Score Gauge */}
+                    <div className="flex flex-col items-center justify-center bg-white/[0.02] border border-white/5 rounded-2xl p-4 relative overflow-hidden">
+                      <div className={`absolute -top-10 -right-10 w-24 h-24 rounded-full blur-[35px] opacity-20 transition-all duration-500 ${
+                        seoAnalysis.score >= 80 ? 'bg-emerald-500' : seoAnalysis.score >= 50 ? 'bg-amber-500' : 'bg-red-500'
+                      }`} />
+
+                      <div className="relative w-20 h-20 flex items-center justify-center">
+                        <svg className="w-full h-full transform -rotate-90">
+                          <circle
+                            cx="40"
+                            cy="40"
+                            r="32"
+                            className="stroke-white/10"
+                            strokeWidth="5"
+                            fill="transparent"
+                          />
+                          <circle
+                            cx="40"
+                            cy="40"
+                            r="32"
+                            className={`transition-all duration-500 ease-out ${
+                              seoAnalysis.score >= 80 ? 'stroke-emerald-500' : seoAnalysis.score >= 50 ? 'stroke-amber-500' : 'stroke-red-500'
+                            }`}
+                            strokeWidth="5"
+                            fill="transparent"
+                            strokeDasharray={2 * Math.PI * 32}
+                            strokeDashoffset={2 * Math.PI * 32 - (seoAnalysis.score / 100) * (2 * Math.PI * 32)}
+                            strokeLinecap="round"
+                          />
+                        </svg>
+                        <div className="absolute flex flex-col items-center justify-center">
+                          <span className="text-xl font-bold font-syne text-white">{seoAnalysis.score}%</span>
+                          <span className="text-[8px] text-gray-500 font-semibold uppercase tracking-wider">SEO Score</span>
+                        </div>
+                      </div>
+
+                      {/* Status Badge */}
+                      <div className={`mt-2.5 px-3 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider border ${
+                        seoAnalysis.score >= 80 ? 'bg-emerald-500/10 text-emerald-400 border-emerald-500/20' : 
+                        seoAnalysis.score >= 50 ? 'bg-amber-500/10 text-amber-400 border-amber-500/20' : 
+                        'bg-red-500/10 text-red-400 border-red-500/20'
+                      }`}>
+                        {seoAnalysis.score >= 80 ? 'Excellent 🟢' : seoAnalysis.score >= 50 ? 'Needs Tweaks 🟡' : 'Critical 🔴'}
+                      </div>
+                    </div>
+
+                    {/* Target Focus Keyword */}
+                    <div className="flex flex-col gap-1">
+                      <div className="flex justify-between items-center">
+                        <label className="text-[10px] font-bold text-[#f5c842] uppercase tracking-wider">Target Focus Keyword</label>
+                        {focusKeyword && (
+                          <button 
+                            type="button"
+                            onClick={() => setFocusKeyword('')}
+                            className="text-[9px] text-gray-500 hover:text-white"
+                          >
+                            Clear
+                          </button>
+                        )}
+                      </div>
+                      <input
+                        type="text"
+                        value={focusKeyword}
+                        onChange={e => setFocusKeyword(e.target.value)}
+                        placeholder="e.g. 4K Video Player"
+                        className="bg-[#0a0a0f] border border-white/10 text-white outline-none px-3 py-2 rounded-xl text-xs focus:border-[#f5c842]"
+                      />
+                      <p className="text-[9px] text-gray-500">
+                        Input the targeted search term to evaluate keyword placement.
+                      </p>
+                    </div>
+
+                    {/* Keyword Analytics Panel */}
+                    {focusKeyword && (
+                      <div className="border border-white/5 bg-white/[0.01] rounded-xl p-3 flex flex-col gap-1.5">
+                        <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-wider flex items-center gap-1">
+                          🎯 Keyword Placement
+                        </h4>
+                        <div className="flex flex-col gap-1.5">
+                          {seoAnalysis.keywordChecks.map((kwCheck, idx) => (
+                            <div key={idx} className="flex gap-2 items-start text-[10px] leading-tight">
+                              <span className="shrink-0 text-xs">{kwCheck.success ? '✅' : '❌'}</span>
+                              <div>
+                                <span className={`font-semibold ${kwCheck.success ? 'text-gray-300' : 'text-gray-500'}`}>
+                                  {kwCheck.message}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {/* SEO Recommendations Checklist */}
+                    <div className="flex flex-col gap-2 max-h-[300px] overflow-y-auto custom-scrollbar pr-1">
+                      <h4 className="text-[9px] font-bold text-gray-400 uppercase tracking-wider">
+                        📋 SEO Checklist
+                      </h4>
+                      <div className="flex flex-col gap-1.5">
+                        {[...seoAnalysis.checks]
+                          .sort((a, b) => {
+                            const severity = { error: 0, warning: 1, success: 2 };
+                            return severity[a.type] - severity[b.type];
+                          })
+                          .map(check => {
+                            let statusIcon = '✅';
+                            let borderTheme = 'border-emerald-500/10';
+                            let textTheme = 'text-gray-400 font-medium';
+                            if (check.type === 'error') {
+                              statusIcon = '❌';
+                              borderTheme = 'border-red-500/20 bg-red-500/5';
+                              textTheme = 'text-white font-semibold';
+                            } else if (check.type === 'warning') {
+                              statusIcon = '⚠️';
+                              borderTheme = 'border-amber-500/20 bg-amber-500/5';
+                              textTheme = 'text-gray-200 font-medium';
+                            }
+                            
+                            return (
+                              <div 
+                                key={check.id} 
+                                className={`flex gap-2 items-start border p-2 rounded-xl text-[11px] ${borderTheme}`}
+                              >
+                                <span className="select-none shrink-0 mt-0.5">{statusIcon}</span>
+                                <div className="flex flex-col gap-0.5 w-full">
+                                  <div className="flex justify-between items-start gap-1 w-full">
+                                    <span className={`leading-snug ${textTheme}`}>
+                                      {check.message}
+                                    </span>
+                                    <span className="text-[9px] text-gray-500 font-mono shrink-0">
+                                      +{check.points}/{check.maxPoints}
+                                    </span>
+                                  </div>
+                                  <span className="text-[9px] text-gray-500 leading-tight">
+                                    {check.detail}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                      </div>
+                    </div>
+
+                  </div>
                 </div>
-                <div className="border border-white/10 rounded-xl overflow-hidden bg-[#0a0a0f]">
-                  <Toolbar onFmt={(cmd, val) => fmtDoc(landingBlogRef, cmd, val)} />
-                  <div 
-                    ref={landingBlogRef}
-                    className="w-full min-h-[300px] p-4 text-white focus:outline-none prose prose-invert max-w-none"
-                    contentEditable
-                    suppressContentEditableWarning
-                  />
-                </div>
-                <p className="text-xs text-gray-500 mt-2">
-                  Shown automatically on <strong>/apps/{landingForm.slug || '[slug]'}</strong> under the screenshots section.
-                </p>
               </div>
 
               {/* Action Buttons */}
