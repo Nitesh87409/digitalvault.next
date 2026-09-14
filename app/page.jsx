@@ -323,10 +323,14 @@ export default function HomePage() {
                     {/* Limited Time Badge Skeleton */}
                     <div className="w-16 sm:w-28 h-3.5 sm:h-6 rounded-full bg-white/5 border border-white/5 skeleton-shimmer" />
                     
-                    {/* Title & Description Skeleton */}
+                    {/* Title & Description Skeleton with Semantic H1 for SEO */}
                     <div className="space-y-1.5 sm:space-y-2">
-                      <div className="w-3/4 h-3.5 sm:h-9 md:h-12 skeleton-bar skeleton-shimmer" />
-                      <div className="w-5/6 h-2.5 sm:h-4 md:h-5 skeleton-bar skeleton-shimmer mt-1.5 sm:mt-2" />
+                      <h1 className="font-syne text-[11px] min-[360px]:text-[12px] min-[400px]:text-[14px] sm:text-2xl md:text-4xl lg:text-5xl font-extrabold tracking-tight text-[var(--heading)] leading-tight">
+                        {settings.bundle_title || 'Complete Bundle'}
+                      </h1>
+                      <p className="mt-1 sm:mt-2 md:mt-3 text-[8px] min-[360px]:text-[9px] min-[400px]:text-[10px] sm:text-sm md:text-lg text-[var(--muted)] leading-relaxed max-w-xl">
+                        {settings.bundle_description || 'All products + future updates included'}
+                      </p>
                     </div>
 
                     {/* Features Skeleton */}
