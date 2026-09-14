@@ -539,7 +539,11 @@ export default function HomePage() {
       <section id="products" className="bg-[var(--bg)] px-6 py-20 transition-colors duration-300">
         <div className="mx-auto max-w-[1152px]">
           <div className="mb-14 text-center">
-            <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">What You'll Get</h2>
+            {settings.bundle_enabled ? (
+              <h2 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">What You'll Get</h2>
+            ) : (
+              <h1 className="mb-4 font-syne text-4xl font-bold text-[var(--heading)]">DownloadKart – Premium Digital Products</h1>
+            )}
             <p className="text-lg text-[var(--muted)]">Premium digital products crafted for modern entrepreneurs</p>
           </div>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
